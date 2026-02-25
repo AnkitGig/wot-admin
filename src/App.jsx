@@ -17,6 +17,8 @@ import UserList from './pages/UserList'
 import AddLesson from './pages/AddLesson'
 import AddQuiz from './pages/AddQuiz'
 import AddUser from './pages/AddUser'
+import Glossaries from './pages/Glossaries'
+import AddGlossary from './pages/AddGlossary'
 
 export default function App() {
   return (
@@ -40,6 +42,8 @@ export default function App() {
         <Route path="/add-lesson" element={<ProtectedRoute><AddLesson /></ProtectedRoute>} />
         <Route path="/add-quiz" element={<ProtectedRoute><AddQuiz /></ProtectedRoute>} />
         <Route path="/add-user" element={<ProtectedRoute><AddUser /></ProtectedRoute>} />
+        <Route path="/glossaries" element={<ProtectedRoute><Glossaries /></ProtectedRoute>} />
+        <Route path="/add-glossary" element={<ProtectedRoute><AddGlossary /></ProtectedRoute>} />
       </Routes>
     </AuthProvider>
   )

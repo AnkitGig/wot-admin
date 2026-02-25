@@ -79,6 +79,13 @@ export default function Sidebar() {
             </li>
 
             <li>
+              <Link to="/glossaries" className={isActive("/glossaries")}>
+                <i className="fas fa-book-open me-2"></i>
+                <span>Glossaries</span>
+              </Link>
+            </li>
+
+            <li>
               <Link to="/notifications" className={isActive("/notifications")}>
                 <i className="fas fa-bell me-2"></i>
                 <span>Notifications</span>
