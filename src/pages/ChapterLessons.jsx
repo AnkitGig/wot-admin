@@ -244,11 +244,11 @@ export default function ChapterLessons() {
                               </td>
                               <td>
                                 <button 
-                                  className="btn btn-sm btn-outline-info"
+                                  className="btn btn-sm btn-outline-primary"
                                   onClick={() => navigate(`/lesson/${lesson.id}/content`)}
                                   title="View Content"
                                 >
-                                  <i className="fas fa-eye me-1"></i>View
+                                  <i className="fas fa-eye"></i>
                                 </button>
                               </td>
                               <td>

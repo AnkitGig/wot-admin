@@ -220,11 +220,11 @@ export default function Courses() {
                               <td>{course.duration_in_minutes} min</td>
                               <td>
                                 <button 
-                                  className="btn btn-sm btn-link text-primary p-0"
+                                  className="btn btn-sm btn-outline-primary"
                                   onClick={() => navigate(`/course/${course.id}/categories`)}
-                                  style={{ textDecoration: 'none', cursor: 'pointer' }}
+                                  title="View Categories"
                                 >
-                                  <span className="badge bg-info">{course.category_count || 0}</span>
+                                  <i className="fas fa-eye"></i>
                                 </button>
                               </td>
                               <td>{course.enrolled_count || 0}</td>

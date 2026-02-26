@@ -194,12 +194,11 @@ export default function Chapters() {
                               </td>
                               <td>
                                 <button 
-                                  className="btn btn-sm btn-link text-primary p-0"
+                                  className="btn btn-sm btn-outline-primary"
                                   onClick={() => navigate(`/course/${courseId}/category/${categoryId}/chapter/${chapter.id}/lessons`)}
-                                  style={{ textDecoration: 'none', cursor: 'pointer' }}
                                   title="View Lessons"
                                 >
-                                  <span className="badge bg-primary">{chapter.lesson_count || 0}</span>
+                                  <i className="fas fa-eye"></i>
                                 </button>
                               </td>
                               <td>
