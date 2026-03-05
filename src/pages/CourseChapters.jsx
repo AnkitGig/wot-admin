@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { getCourseChapters } from '../api/courses';
+import { getCourseChapters, deleteCourseChapter } from '../api/courses';
 import { useAuth } from '../context/AuthContext';
 import GlobalLoader from '../components/GlobalLoader';
 import Header from '../components/Header';
@@ -45,6 +45,42 @@ export default function CourseChapters() {
 
   const handleEditChapter = (chapterId) => {
     navigate(`/courses/admin/course/${courseId}/chapter/${chapterId}/edit`);
+  };
+
+  const handleDeleteChapter = (chapterId, chapterTitle) => {
+    Swal.fire({
+      title: 'Delete Chapter',
+      text: `Are you sure you want to delete "${chapterTitle}"? This action cannot be undone.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it',
+      cancelButtonText: 'Cancel',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const deleteResult = await deleteCourseChapter(chapterId, token);
+
+        if (deleteResult.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Deleted',
+            text: deleteResult.message || 'Chapter deleted successfully',
+            timer: 1500,
+            timerProgressBar: true,
+            showConfirmButton: false,
+          }).then(() => {
+            fetchCourseChapters();
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Failed to Delete',
+            text: deleteResult.message || 'An error occurred while deleting the chapter',
+          });
+        }
+      }
+    });
   };
 
   // Map status to badge color
@@ -179,6 +215,7 @@ export default function CourseChapters() {
                                         </button>
                                         <button 
                                           className="btn btn-sm btn-outline-danger"
+                                          onClick={() => handleDeleteChapter(chapter.id, chapter.title)}
                                           title="Delete Chapter"
                                         >
                                           <i className="fas fa-trash"></i>

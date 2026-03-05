@@ -582,3 +582,41 @@ export const updateCourseChapter = async (chapterId, chapterData, token) => {
     };
   }
 };
+
+// Delete chapter
+export const deleteCourseChapter = async (chapterId, token) => {
+  try {
+    console.log('[v0] Deleting chapter:', chapterId);
+    const url = `${API_BASE_URL}/courses/admin/chapter/${chapterId}`;
+    
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'accept': 'application/json',
+      },
+    });
+
+    const data = await response.json();
+    console.log('[v0] Delete chapter response:', data);
+
+    if (data.status === 1) {
+      return {
+        success: true,
+        data: data.data,
+        message: data.message,
+      };
+    } else {
+      return {
+        success: false,
+        message: data.message || 'Failed to delete chapter',
+      };
+    }
+  } catch (error) {
+    console.error('Delete Course Chapter API Error:', error);
+    return {
+      success: false,
+      message: error.message || 'An error occurred while deleting chapter',
+    };
+  }
+};
