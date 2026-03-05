@@ -620,3 +620,211 @@ export const deleteCourseChapter = async (chapterId, token) => {
     };
   }
 };
+
+// Get all admin categories
+export const getAllAdminCategories = async (token) => {
+  try {
+    const url = `${API_BASE_URL}/courses/admin/categories`;
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'accept': 'application/json',
+      },
+    });
+
+    const data = await response.json();
+
+    if (data.status === 1) {
+      return {
+        success: true,
+        data: data.data || [],
+        message: data.message,
+      };
+    } else {
+      return {
+        success: false,
+        message: data.message || 'Failed to fetch categories',
+      };
+    }
+  } catch (error) {
+    console.error('Get All Admin Categories API Error:', error);
+    return {
+      success: false,
+      message: error.message || 'An error occurred while fetching categories',
+    };
+  }
+};
+
+// Create admin category
+export const createAdminCategory = async (categoryData, token) => {
+  try {
+    const url = `${API_BASE_URL}/courses/admin/category`;
+    
+    const formData = new FormData();
+    formData.append('name', categoryData.name);
+    if (categoryData.description) {
+      formData.append('description', categoryData.description);
+    }
+    if (categoryData.order_number !== null && categoryData.order_number !== undefined) {
+      formData.append('order_number', categoryData.order_number);
+    }
+    formData.append('is_active', categoryData.is_active !== false);
+    if (categoryData.icon instanceof File) {
+      formData.append('icon', categoryData.icon);
+    }
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'accept': 'application/json',
+      },
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    if (data.status === 1) {
+      return {
+        success: true,
+        data: data.data,
+        message: data.message,
+      };
+    } else {
+      return {
+        success: false,
+        message: data.message || 'Failed to create category',
+      };
+    }
+  } catch (error) {
+    console.error('Create Admin Category API Error:', error);
+    return {
+      success: false,
+      message: error.message || 'An error occurred while creating category',
+    };
+  }
+};
+
+// Get admin category by ID
+export const getAdminCategoryById = async (categoryId, token) => {
+  try {
+    const url = `${API_BASE_URL}/courses/admin/category/${categoryId}`;
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'accept': 'application/json',
+      },
+    });
+
+    const data = await response.json();
+
+    if (data.status === 1) {
+      return {
+        success: true,
+        data: data.data,
+        message: data.message,
+      };
+    } else {
+      return {
+        success: false,
+        message: data.message || 'Failed to fetch category',
+      };
+    }
+  } catch (error) {
+    console.error('Get Admin Category API Error:', error);
+    return {
+      success: false,
+      message: error.message || 'An error occurred while fetching category',
+    };
+  }
+};
+
+// Update admin category
+export const updateAdminCategory = async (categoryId, categoryData, token) => {
+  try {
+    const url = `${API_BASE_URL}/courses/admin/category/${categoryId}`;
+    
+    const formData = new FormData();
+    formData.append('name', categoryData.name);
+    if (categoryData.description !== undefined) {
+      formData.append('description', categoryData.description);
+    }
+    if (categoryData.order_number !== null && categoryData.order_number !== undefined) {
+      formData.append('order_number', categoryData.order_number);
+    }
+    formData.append('is_active', categoryData.is_active !== false);
+    if (categoryData.icon instanceof File) {
+      formData.append('icon', categoryData.icon);
+    }
+
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'accept': 'application/json',
+      },
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    if (data.status === 1) {
+      return {
+        success: true,
+        data: data.data,
+        message: data.message,
+      };
+    } else {
+      return {
+        success: false,
+        message: data.message || 'Failed to update category',
+      };
+    }
+  } catch (error) {
+    console.error('Update Admin Category API Error:', error);
+    return {
+      success: false,
+      message: error.message || 'An error occurred while updating category',
+    };
+  }
+};
+
+// Delete admin category
+export const deleteAdminCategory = async (categoryId, token) => {
+  try {
+    const url = `${API_BASE_URL}/courses/admin/category/${categoryId}`;
+    
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'accept': 'application/json',
+      },
+    });
+
+    const data = await response.json();
+
+    if (data.status === 1) {
+      return {
+        success: true,
+        data: data.data,
+        message: data.message,
+      };
+    } else {
+      return {
+        success: false,
+        message: data.message || 'Failed to delete category',
+      };
+    }
+  } catch (error) {
+    console.error('Delete Admin Category API Error:', error);
+    return {
+      success: false,
+      message: error.message || 'An error occurred while deleting category',
+    };
+  }
+};

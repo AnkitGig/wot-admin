@@ -65,6 +65,13 @@ export default function Sidebar() {
             </li>
 
             <li>
+              <Link to="/admin-categories" className={isActive("/admin-categories")}>
+                <i className="fas fa-tags me-2"></i>
+                <span>Categories</span>
+              </Link>
+            </li>
+
+            <li>
               <Link to="/quizes" className={isActive("/quizes")}>
                 <i className="fas fa-file-alt me-2"></i>
                 <span>Quizzes</span>

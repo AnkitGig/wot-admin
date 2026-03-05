@@ -28,6 +28,9 @@ import Glossaries from './pages/Glossaries'
 import AddGlossary from './pages/AddGlossary'
 import EditLessonAdmin from './pages/EditLessonAdmin'
 import AddLessonToChapter from './pages/AddLessonToChapter'
+import AdminCategories from './pages/AdminCategories'
+import AddAdminCategory from './pages/AddAdminCategory'
+import EditAdminCategory from './pages/EditAdminCategory'
 
 export default function App() {
   return (
@@ -69,6 +72,9 @@ export default function App() {
         <Route path="/add-glossary" element={<ProtectedRoute><AddGlossary /></ProtectedRoute>} />
         <Route path="/courses/admin/lesson/:lessonId" element={<ProtectedRoute><EditLessonAdmin /></ProtectedRoute>} />
         <Route path="/courses/admin/chapter/:chapterId/lesson" element={<ProtectedRoute><AddLessonToChapter /></ProtectedRoute>} />
+        <Route path="/admin-categories" element={<ProtectedRoute><AdminCategories /></ProtectedRoute>} />
+        <Route path="/add-admin-category" element={<ProtectedRoute><AddAdminCategory /></ProtectedRoute>} />
+        <Route path="/edit-admin-category/:categoryId" element={<ProtectedRoute><EditAdminCategory /></ProtectedRoute>} />
       </Routes>
     </AuthProvider>
   )
