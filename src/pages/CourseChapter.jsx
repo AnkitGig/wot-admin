@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { createCourseChapter } from '../api/courses';
+import { createCourseChapter, getCategoriesByCourse, getAllAdminCategories } from '../api/courses';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
@@ -14,6 +14,8 @@ export default function CourseChapter() {
   const { token } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showDurationPicker, setShowDurationPicker] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [formData, setFormData] = useState({
     title: '',
     category: '',
@@ -22,6 +24,28 @@ export default function CourseChapter() {
     duration: '',
     is_locked: false,
   });
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    setCategoriesLoading(true);
+    // Try to get all admin categories first, then filter by course if needed
+    const allCategoriesResult = await getAllAdminCategories(token);
+    if (allCategoriesResult.success) {
+      setCategories(allCategoriesResult.data || []);
+    } else {
+      // Fallback to course-specific categories
+      const courseCategoriesResult = await getCategoriesByCourse(courseId, token);
+      if (courseCategoriesResult.success) {
+        setCategories(courseCategoriesResult.data || []);
+      } else {
+        console.error('Failed to fetch categories:', courseCategoriesResult.message);
+      }
+    }
+    setCategoriesLoading(false);
+  };
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -129,15 +153,27 @@ export default function CourseChapter() {
 
                     <div className="col-md-6">
                       <label className="form-label">Category <span className="text-danger">*</span></label>
-                      <input
-                        type="text"
-                        className="form-control"
+                      <select
+                        className="form-select"
                         name="category"
                         value={formData.category}
                         onChange={handleInputChange}
-                        placeholder="Enter chapter category"
                         required
-                      />
+                        disabled={categoriesLoading}
+                      >
+                        <option value="">Select a category</option>
+                        {categories.map((category) => (
+                          <option key={category.id} value={category.name}>
+                            {category.name}
+                          </option>
+                        ))}
+                      </select>
+                      {categoriesLoading && (
+                        <small className="text-muted">Loading categories...</small>
+                      )}
+                      {!categoriesLoading && categories.length === 0 && (
+                        <small className="text-warning">No categories available. Please create categories first.</small>
+                      )}
                     </div>
 
                     <div className="col-md-12">
