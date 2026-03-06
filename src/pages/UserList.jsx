@@ -207,7 +207,7 @@ const getStatusBadge = (isActive, userId) => {
                           <th>Coins</th>
                           <th>Status</th>
                           <th>Last Login Reward</th>
-                          <th>Action</th>
+                          {/* <th>Action</th> */}
                         </tr>
                       </thead>
                       <tbody>
@@ -265,14 +265,14 @@ const getStatusBadge = (isActive, userId) => {
                               </td>
                               <td>{getStatusBadge(user.is_active, user.user_id)}</td>
                               <td>{formatDate(user.last_login_reward)}</td>
-                              <td>
+                              {/* <td>
                                 <button className="btn btn-sm btn-outline-primary me-1" title="Edit">
                                   <i className="bi bi-pencil"></i>
                                 </button>
                                 <button className="btn btn-sm btn-outline-danger" title="Delete">
                                   <i className="bi bi-trash"></i>
                                 </button>
-                              </td>
+                              </td> */}
                             </tr>
                           ))
                         )}
