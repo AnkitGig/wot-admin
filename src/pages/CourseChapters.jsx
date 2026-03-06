@@ -22,7 +22,7 @@ export default function CourseChapters() {
   const fetchCourseChapters = async () => {
     setIsLoading(true);
     const result = await getCourseChapters(courseId, token);
-    
+
     if (result.success) {
       setCourseData(result.data);
     } else {
@@ -105,7 +105,7 @@ export default function CourseChapters() {
               <div className="list-btn">
                 <ul className="filter-list">
                   <li>
-                    <button 
+                    <button
                       className="btn btn-outline-secondary"
                       onClick={() => navigate('/courses')}
                     >
@@ -113,7 +113,7 @@ export default function CourseChapters() {
                     </button>
                   </li>
                   <li>
-                    <button 
+                    <button
                       className="btn btn-primary"
                       onClick={handleCreateChapter}
                     >
@@ -124,7 +124,7 @@ export default function CourseChapters() {
               </div>
             </div>
           </div>
-          
+
           <div className="row">
             <div className="col-sm-12">
               <div className="card">
@@ -134,7 +134,7 @@ export default function CourseChapters() {
                   ) : !courseData || courseData.categories.length === 0 ? (
                     <div className="text-center py-5">
                       <p className="text-muted">No chapters found</p>
-                      <button 
+                      <button
                         className="btn btn-primary"
                         onClick={handleCreateChapter}
                       >
@@ -152,7 +152,7 @@ export default function CourseChapters() {
                               {category.chapters.length} chapters
                             </span>
                           </h6>
-                          
+
                           {category.chapters.length === 0 ? (
                             <div className="text-center py-3 bg-light rounded mb-3">
                               <p className="text-muted mb-0">No chapters in this category</p>
@@ -187,9 +187,13 @@ export default function CourseChapters() {
                                     </td>
                                     <td>{chapter.duration}</td>
                                     <td>
-                                      <span className="badge bg-primary">
-                                        {chapter.lesson_count || 0} lessons
-                                      </span>
+                                      <button
+                                        className="btn btn-sm btn-outline-primary"
+                                        onClick={() => handleViewLessons(chapter.id)}
+                                        title="View Lesson"
+                                      >
+                                        View
+                                      </button>
                                     </td>
                                     <td>
                                       <span className={`badge ${getLockedBadge(chapter.is_locked)}`}>
@@ -199,21 +203,14 @@ export default function CourseChapters() {
                                     <td>{chapter.order_number}</td>
                                     <td>
                                       <div className="d-flex gap-2">
-                                        <button 
-                                          className="btn btn-sm btn-outline-primary"
-                                          onClick={() => handleViewLessons(chapter.id)}
-                                          title="View Lessons"
-                                        >
-                                          <i className="fas fa-book"></i>
-                                        </button>
-                                        <button 
+                                        <button
                                           className="btn btn-sm btn-outline-warning"
                                           onClick={() => handleEditChapter(chapter.id)}
                                           title="Edit Chapter"
                                         >
                                           <i className="fas fa-edit"></i>
                                         </button>
-                                        <button 
+                                        <button
                                           className="btn btn-sm btn-outline-danger"
                                           onClick={() => handleDeleteChapter(chapter.id, chapter.title)}
                                           title="Delete Chapter"
