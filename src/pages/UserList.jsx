@@ -4,8 +4,9 @@ import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
 import GlobalLoader from '../components/GlobalLoader';
-import { getUsers } from '../api/users';
+import { getUsers, updateUserStatus } from '../api/users';
 import { useAuth } from '../context/AuthContext';
+import Swal from 'sweetalert2';
 
 export default function UserList() {
   const { token } = useAuth();
@@ -88,13 +89,70 @@ export default function UserList() {
     });
   };
 
-  const getStatusBadge = (isActive) => {
-    if (isActive) {
-      return <span className="badge bg-success">Active</span>;
-    } else {
-      return <span className="badge bg-danger">Inactive</span>;
+  const handleStatusToggle = async (userId, currentStatus) => {
+  const newStatus = !currentStatus;
+  const confirmText = newStatus ? 'Are you sure you want to activate this user?' : 'Are you sure you want to deactivate this user?';
+  
+  const result = await Swal.fire({
+    title: 'Confirm Status Change',
+    text: confirmText,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, change it!'
+  });
+
+  if (result.isConfirmed) {
+    try {
+      const updateResult = await updateUserStatus(token, userId, newStatus);
+      
+      if (updateResult.success) {
+        // Update the user in the local state
+        setUsers(prevUsers => 
+          prevUsers.map(user => 
+            user.user_id === userId 
+              ? { ...user, is_active: newStatus }
+              : user
+          )
+        );
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Status Updated',
+          text: `User ${newStatus ? 'activated' : 'deactivated'} successfully`,
+          timer: 1500,
+          showConfirmButton: false
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Update Failed',
+          text: updateResult.error || 'Failed to update user status'
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while updating user status'
+      });
     }
-  };
+  }
+};
+
+const getStatusBadge = (isActive, userId) => {
+  return (
+    <button
+      className={`badge ${isActive ? 'bg-success' : 'bg-danger'} border-0`}
+      style={{ cursor: 'pointer' }}
+      onClick={() => handleStatusToggle(userId, isActive)}
+      title={`Click to ${isActive ? 'deactivate' : 'activate'} user`}
+    >
+      {isActive ? 'Active' : 'Inactive'}
+    </button>
+  );
+};
 
   return (
     <div className="main-wrapper">
@@ -205,17 +263,11 @@ export default function UserList() {
                                   {user.coins}
                                 </span>
                               </td>
-                              <td>{getStatusBadge(user.is_active)}</td>
+                              <td>{getStatusBadge(user.is_active, user.user_id)}</td>
                               <td>{formatDate(user.last_login_reward)}</td>
                               <td>
                                 <button className="btn btn-sm btn-outline-primary me-1" title="Edit">
                                   <i className="bi bi-pencil"></i>
-                                </button>
-                                <button 
-                                  className="btn btn-sm btn-outline-warning me-1" 
-                                  title={user.is_active ? 'Deactivate' : 'Activate'}
-                                >
-                                  <i className={`bi ${user.is_active ? 'bi-pause-circle' : 'bi-play-circle'}`}></i>
                                 </button>
                                 <button className="btn btn-sm btn-outline-danger" title="Delete">
                                   <i className="bi bi-trash"></i>
