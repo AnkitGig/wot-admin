@@ -4,7 +4,7 @@ import Swal from 'sweetalert2';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
-import { getAllQuizzes, generateQuiz } from '../api/quizzes';
+import { getAllQuizzes, generateQuiz, updateQuiz } from '../api/quizzes';
 
 export default function EditQuiz() {
   const navigate = useNavigate();
@@ -152,10 +152,9 @@ export default function EditQuiz() {
     try {
       const quizPayload = {
         ...formData,
-        pdf_id: 'existing', // We'll keep the existing PDF
       };
 
-      const result = await generateQuiz(quizPayload);
+      const result = await updateQuiz(quizId, quizPayload);
 
       if (result.success) {
         Swal.fire({
