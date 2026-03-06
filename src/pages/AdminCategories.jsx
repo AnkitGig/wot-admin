@@ -95,9 +95,6 @@ export default function AdminCategories() {
                   </li>
                   <li>
                     <div className="dropdown dropdown-action" data-bs-placement="bottom" data-bs-original-title="Download">
-                      <a href="#" className="btn btn-primary" data-bs-toggle="dropdown" aria-expanded="false">
-                        <span><i className="fe fe-download me-2"></i></span>Export
-                      </a>
                       <div className="dropdown-menu dropdown-menu-end">
                         <ul className="d-block">
                           <li>

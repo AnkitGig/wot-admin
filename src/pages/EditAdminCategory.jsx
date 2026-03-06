@@ -198,7 +198,7 @@ export default function EditAdminCategory() {
                         </div>
                       </div>
                       
-                      <div className="col-12">
+                      {/* <div className="col-12">
                         <div className="form-group">
                           <label htmlFor="description" className="form-label">
                             Description
@@ -267,7 +267,7 @@ export default function EditAdminCategory() {
                             </div>
                           )}
                         </div>
-                      </div>
+                      </div> */}
                       
                       <div className="col-12">
                         <div className="form-group">

@@ -139,7 +139,7 @@ export default function AddAdminCategory() {
                         </div>
                       </div>
                       
-                      <div className="col-12">
+                      {/* <div className="col-12">
                         <div className="form-group">
                           <label htmlFor="description" className="form-label">
                             Description
@@ -155,9 +155,9 @@ export default function AddAdminCategory() {
                             disabled={isLoading}
                           />
                         </div>
-                      </div>
+                      </div> */}
                       
-                      <div className="col-md-6">
+                      {/* <div className="col-md-6">
                         <div className="form-group">
                           <label htmlFor="order_number" className="form-label">
                             Order Number
@@ -177,9 +177,9 @@ export default function AddAdminCategory() {
                             Lower numbers appear first
                           </small>
                         </div>
-                      </div>
+                      </div> */}
                       
-                      <div className="col-md-6">
+                      {/* <div className="col-md-6">
                         <div className="form-group">
                           <label htmlFor="icon" className="form-label">
                             Category Icon
@@ -197,7 +197,7 @@ export default function AddAdminCategory() {
                             Upload an icon for the category (optional)
                           </small>
                         </div>
-                      </div>
+                      </div> */}
                       
                       <div className="col-12">
                         <div className="form-group">
