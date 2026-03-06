@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
@@ -9,6 +9,7 @@ import QuestionsModal from '../components/QuestionsModal';
 import { getAllQuizzes, deleteQuiz } from '../api/quizzes';
 
 export default function Quizes() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('all');
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -63,6 +64,10 @@ export default function Quizes() {
   const handleCloseModal = () => {
     setShowQuestionsModal(false);
     setSelectedQuiz(null);
+  };
+
+  const handleEditQuiz = (quizId) => {
+    navigate(`/quiz/${quizId}/edit`);
   };
 
   const handleDeleteQuiz = async (quizId, quizTitle) => {
@@ -442,6 +447,7 @@ export default function Quizes() {
                                   <button 
                                     className="btn btn-sm btn-outline-warning"
                                     title="Edit Quiz"
+                                    onClick={() => handleEditQuiz(quiz.quiz_id)}
                                   >
                                     <i className="fas fa-edit"></i>
                                   </button>
