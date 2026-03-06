@@ -1,15 +1,100 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
+import GlobalLoader from '../components/GlobalLoader';
+import { getUsers } from '../api/users';
+import { useAuth } from '../context/AuthContext';
 
 export default function UserList() {
-  useEffect(() => {
-    if (window.DataTable) {
-      new window.DataTable('#example', {});
+  const { token } = useAuth();
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalUsers: 0,
+    hasNext: false,
+    hasPrevious: false,
+  });
+
+  const fetchUsers = async (page = 1) => {
+    if (!token) {
+      setError('Authentication token not found');
+      setLoading(false);
+      return;
     }
-  }, []);
+
+    setLoading(true);
+    try {
+      const result = await getUsers(token, page, 10, 'id', 'desc');
+      
+      if (result.success) {
+        setUsers(result.data.users);
+        setPagination({
+          currentPage: result.data.current_page,
+          totalPages: result.data.total_pages,
+          totalUsers: result.data.total_users,
+          hasNext: result.data.has_next,
+          hasPrevious: result.data.has_previous,
+        });
+        setError(null);
+      } else {
+        setError(result.message);
+        setUsers([]);
+      }
+    } catch (err) {
+      setError('Failed to fetch users');
+      setUsers([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, [token]);
+
+  useEffect(() => {
+    if (window.DataTable && users.length > 0) {
+      // Destroy existing DataTable if it exists
+      if ($.fn.DataTable.isDataTable('#example')) {
+        $('#example').DataTable().destroy();
+      }
+      // Initialize new DataTable
+      setTimeout(() => {
+        window.DataTable('#example', {
+          pageLength: 10,
+          ordering: true,
+          searching: true,
+        });
+      }, 100);
+    }
+  }, [users]);
+
+  const handlePageChange = (page) => {
+    fetchUsers(page);
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      day: '2-digit', 
+      month: 'short', 
+      year: 'numeric' 
+    });
+  };
+
+  const getStatusBadge = (isActive) => {
+    if (isActive) {
+      return <span className="badge bg-success">Active</span>;
+    } else {
+      return <span className="badge bg-danger">Inactive</span>;
+    }
+  };
 
   return (
     <div className="main-wrapper">
@@ -60,69 +145,85 @@ export default function UserList() {
                         <tr>
                           <th>Name</th>
                           <th>Email</th>
-                          <th>Role</th>
+                          <th>Phone</th>
+                          <th>Coins</th>
                           <th>Status</th>
-                          <th>Joined</th>
+                          <th>Last Login Reward</th>
                           <th>Action</th>
                         </tr>
                       </thead>
                       <tbody>
-                        <tr>
-                          <td>Amit Sharma</td>
-                          <td>amit@gmail.com</td>
-                          <td><span className="badge bg-primary">Learner</span></td>
-                          <td><span className="badge bg-success">Active</span></td>
-                          <td>01 Feb 2026</td>
-                          <td>
-                            <button className="btn btn-sm btn-outline-primary"><i className="bi bi-pencil"></i></button>
-                            <button className="btn btn-sm btn-outline-danger"><i className="bi bi-trash"></i></button>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>Rahul Verma</td>
-                          <td>rahul@trade.com</td>
-                          <td><span className="badge bg-info">Instructor</span></td>
-                          <td><span className="badge bg-success">Active</span></td>
-                          <td>29 Jan 2026</td>
-                          <td>
-                            <button className="btn btn-sm btn-outline-primary"><i className="bi bi-pencil"></i></button>
-                            <button className="btn btn-sm btn-outline-danger"><i className="bi bi-trash"></i></button>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>Sarah Lee</td>
-                          <td>sarah@mail.com</td>
-                          <td><span className="badge bg-primary">Learner</span></td>
-                          <td><span className="badge bg-warning">Pending</span></td>
-                          <td>28 Jan 2026</td>
-                          <td>
-                            <button className="btn btn-sm btn-outline-primary"><i className="bi bi-pencil"></i></button>
-                            <button className="btn btn-sm btn-outline-danger"><i className="bi bi-trash"></i></button>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>Admin</td>
-                          <td>admin@platform.com</td>
-                          <td><span className="badge bg-dark">Admin</span></td>
-                          <td><span className="badge bg-success">Active</span></td>
-                          <td>15 Jan 2026</td>
-                          <td>
-                            <button className="btn btn-sm btn-outline-secondary" disabled>
-                              <i className="bi bi-shield-lock"></i>
-                            </button>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>John Carter</td>
-                          <td>john@crypto.com</td>
-                          <td><span className="badge bg-info">Instructor</span></td>
-                          <td><span className="badge bg-danger">Blocked</span></td>
-                          <td>12 Jan 2026</td>
-                          <td>
-                            <button className="btn btn-sm btn-outline-primary"><i className="bi bi-pencil"></i></button>
-                            <button className="btn btn-sm btn-outline-danger"><i className="bi bi-trash"></i></button>
-                          </td>
-                        </tr>
+                        {loading ? (
+                          <tr>
+                            <td colSpan="7" className="text-center py-4">
+                              <div className="d-flex justify-content-center align-items-center flex-column">
+                                <GlobalLoader visible={true} size="medium" />
+                                <p className="mt-2 text-muted">Loading users...</p>
+                              </div>
+                            </td>
+                          </tr>
+                        ) : error ? (
+                          <tr>
+                            <td colSpan="7" className="text-center text-danger">
+                              {error}
+                            </td>
+                          </tr>
+                        ) : users.length === 0 ? (
+                          <tr>
+                            <td colSpan="7" className="text-center">
+                              No users found
+                            </td>
+                          </tr>
+                        ) : (
+                          users.map((user) => (
+                            <tr key={user.user_id}>
+                              <td>
+                                <div className="d-flex align-items-center">
+                                  {user.profile_image ? (
+                                    <img 
+                                      src={user.profile_image} 
+                                      alt={user.name} 
+                                      className="rounded-circle me-2" 
+                                      width="32" 
+                                      height="32"
+                                      style={{ objectFit: 'cover' }}
+                                    />
+                                  ) : (
+                                    <div className="rounded-circle bg-secondary me-2 d-flex align-items-center justify-content-center" 
+                                         style={{ width: '32px', height: '32px', fontSize: '14px', color: 'white' }}>
+                                      {user.name.charAt(0).toUpperCase()}
+                                    </div>
+                                  )}
+                                  {user.name}
+                                </div>
+                              </td>
+                              <td>{user.email}</td>
+                              <td>{user.country_code} {user.phone_number}</td>
+                              <td>
+                                <span className="badge bg-info">
+                                  <i className="fas fa-coins me-1"></i>
+                                  {user.coins}
+                                </span>
+                              </td>
+                              <td>{getStatusBadge(user.is_active)}</td>
+                              <td>{formatDate(user.last_login_reward)}</td>
+                              <td>
+                                <button className="btn btn-sm btn-outline-primary me-1" title="Edit">
+                                  <i className="bi bi-pencil"></i>
+                                </button>
+                                <button 
+                                  className="btn btn-sm btn-outline-warning me-1" 
+                                  title={user.is_active ? 'Deactivate' : 'Activate'}
+                                >
+                                  <i className={`bi ${user.is_active ? 'bi-pause-circle' : 'bi-play-circle'}`}></i>
+                                </button>
+                                <button className="btn btn-sm btn-outline-danger" title="Delete">
+                                  <i className="bi bi-trash"></i>
+                                </button>
+                              </td>
+                            </tr>
+                          ))
+                        )}
                       </tbody>
                     </table>
                   </div>
@@ -130,6 +231,38 @@ export default function UserList() {
               </div>
             </div>
           </div>
+          
+          {/* Pagination */}
+          {!loading && !error && pagination.totalPages > 1 && (
+            <div className="row">
+              <div className="col-sm-12">
+                <div className="d-flex justify-content-between align-items-center">
+                  <div>
+                    Showing {((pagination.currentPage - 1) * 10) + 1} to {Math.min(pagination.currentPage * 10, pagination.totalUsers)} of {pagination.totalUsers} users
+                  </div>
+                  <div className="pagination">
+                    <button 
+                      className="btn btn-outline-primary btn-sm me-2" 
+                      onClick={() => handlePageChange(pagination.currentPage - 1)}
+                      disabled={!pagination.hasPrevious}
+                    >
+                      <i className="bi bi-chevron-left"></i> Previous
+                    </button>
+                    <span className="mx-2">
+                      Page {pagination.currentPage} of {pagination.totalPages}
+                    </span>
+                    <button 
+                      className="btn btn-outline-primary btn-sm" 
+                      onClick={() => handlePageChange(pagination.currentPage + 1)}
+                      disabled={!pagination.hasNext}
+                    >
+                      Next <i className="bi bi-chevron-right"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
       <Footer />
