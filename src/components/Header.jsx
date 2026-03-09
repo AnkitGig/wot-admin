@@ -71,7 +71,7 @@ export default function Header() {
       </div>
 
       {/* ===== SEARCH ===== */}
-      <div className="top-nav-search d-none d-md-block">
+      {/* <div className="top-nav-search d-none d-md-block">
         <form onSubmit={(e) => e.preventDefault()}>
           <input
             type="text"
@@ -79,7 +79,7 @@ export default function Header() {
             placeholder="Search dashboard"
           />
         </form>
-      </div>
+      </div> */}
 
       {/* ===== RIGHT SECTION ===== */}
       <ul className="nav user-menu align-items-center">

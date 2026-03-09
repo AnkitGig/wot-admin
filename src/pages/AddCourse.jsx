@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
+import DurationPicker from '../components/DurationPicker';
 
 export default function AddCourse() {
   const navigate = useNavigate();
@@ -32,6 +33,7 @@ export default function AddCourse() {
   const [imagePreview, setImagePreview] = useState(null);
   const [thumbnailPreview, setThumbnailPreview] = useState(null);
   const [videoPreview, setVideoPreview] = useState(null);
+  const [showDurationPicker, setShowDurationPicker] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value, type } = e.target;
@@ -94,6 +96,18 @@ export default function AddCourse() {
     }
   };
 
+  const handleDurationChange = (durationText) => {
+    setFormData(prev => ({
+      ...prev,
+      duration_in_minutes: durationText,
+    }));
+  };
+
+  const formatDurationDisplay = (duration) => {
+    if (!duration) return 'Click to select duration';
+    return duration;
+  };
+
   const handleCancel = () => {
     navigate('/courses');
   };
@@ -142,7 +156,7 @@ export default function AddCourse() {
       Swal.fire({
         icon: 'warning',
         title: 'Validation Error',
-        text: 'Please enter course duration in minutes',
+        text: 'Please select course duration',
       });
       return;
     }
@@ -258,16 +272,27 @@ export default function AddCourse() {
                     </div>
 
                     <div className="col-md-4">
-                      <label className="form-label">Duration (minutes) <span className="text-danger">*</span></label>
-                      <input
-                        type="number"
-                        className="form-control"
-                        placeholder="e.g., 300"
-                        name="duration_in_minutes"
-                        value={formData.duration_in_minutes}
-                        onChange={handleInputChange}
-                        required
-                      />
+                      <label className="form-label">Duration <span className="text-danger">*</span></label>
+                      <div className="input-group">
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="duration_in_minutes"
+                          value={formatDurationDisplay(formData.duration_in_minutes)}
+                          onChange={handleInputChange}
+                          placeholder="Click to select duration"
+                          readOnly
+                          style={{ cursor: 'pointer' }}
+                          onClick={() => setShowDurationPicker(true)}
+                        />
+                        <button 
+                          className="btn btn-outline-secondary" 
+                          type="button"
+                          onClick={() => setShowDurationPicker(true)}
+                        >
+                          <i className="fa fa-clock"></i>
+                        </button>
+                      </div>
                     </div>
 
                     <div className="col-md-4">
@@ -344,7 +369,7 @@ export default function AddCourse() {
                         value={formData.price}
                         onChange={handleInputChange}
                         min="0"
-                        step="0.01"
+                        step="1"
                       />
                     </div>
 
@@ -466,6 +491,14 @@ export default function AddCourse() {
         </div>
       </div>
       <Footer />
+      
+      {showDurationPicker && (
+        <DurationPicker
+          value={formData.duration_in_minutes}
+          onChange={handleDurationChange}
+          onClose={() => setShowDurationPicker(false)}
+        />
+      )}
     </div>
   );
 }
