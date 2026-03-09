@@ -6,7 +6,8 @@ import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
 import GlobalLoader from '../components/GlobalLoader';
 import QuestionsModal from '../components/QuestionsModal';
-import { getAllQuizzes, deleteQuiz } from '../api/quizzes';
+import QuizStatsModal from '../components/QuizStatsModal';
+import { getAllQuizzes, deleteQuiz, getQuizStats } from '../api/quizzes';
 
 export default function Quizes() {
   const navigate = useNavigate();
@@ -15,7 +16,9 @@ export default function Quizes() {
   const [isLoading, setIsLoading] = useState(true);
   const [allQuizzes, setAllQuizzes] = useState([]);
   const [showQuestionsModal, setShowQuestionsModal] = useState(false);
+  const [showStatsModal, setShowStatsModal] = useState(false);
   const [selectedQuiz, setSelectedQuiz] = useState(null);
+  const [selectedQuizId, setSelectedQuizId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalQuizzes, setTotalQuizzes] = useState(0);
@@ -66,20 +69,31 @@ export default function Quizes() {
     setSelectedQuiz(null);
   };
 
+  const handleCloseStatsModal = () => {
+    setShowStatsModal(false);
+    setSelectedQuizId(null);
+  };
+
   const handleQuestionsUpdated = (updatedQuestions) => {
     if (selectedQuiz) {
       const updatedQuiz = { ...selectedQuiz, questions: updatedQuestions };
       setSelectedQuiz(updatedQuiz);
-      
+
       // Update the quiz in the allQuizzes array
-      setAllQuizzes(prevQuizzes => 
-        prevQuizzes.map(quiz => 
-          quiz.quiz_id === selectedQuiz.quiz_id 
+      setAllQuizzes(prevQuizzes =>
+        prevQuizzes.map(quiz =>
+          quiz.quiz_id === selectedQuiz.quiz_id
             ? { ...quiz, questions: updatedQuestions }
             : quiz
         )
       );
     }
+  };
+
+  const handleViewStats = (quizId) => {
+    console.log('[v0] Viewing statistics for quiz:', quizId);
+    setSelectedQuizId(quizId);
+    setShowStatsModal(true);
   };
 
   const handleEditQuiz = (quizId) => {
@@ -137,8 +151,8 @@ export default function Quizes() {
   ];
 
   // Filter quizzes based on active tab
-  const filteredQuizzes = activeTab === 'all' 
-    ? allQuizzes 
+  const filteredQuizzes = activeTab === 'all'
+    ? allQuizzes
     : allQuizzes.filter(q => q.status.toLowerCase() === activeTab.toLowerCase());
 
   const getStatusBadgeColor = (status) => {
@@ -206,13 +220,13 @@ export default function Quizes() {
               <div className="card border-0 shadow-soft">
                 <div className="card-body p-0">
                   <div style={{ position: 'relative', overflow: 'hidden', borderRadius: '8px' }}>
-                    <div style={{ 
+                    <div style={{
                       display: 'flex',
                       transition: 'transform 0.5s ease-in-out',
                       transform: `translateX(-${currentSlide * 100}%)`
                     }}>
                       {featuredQuizzes.map((quiz, index) => (
-                        <div 
+                        <div
                           key={index}
                           style={{
                             minWidth: '100%',
@@ -257,7 +271,7 @@ export default function Quizes() {
                       ))}
                     </div>
                     {/* Carousel Controls */}
-                    <button 
+                    <button
                       onClick={prevSlide}
                       style={{
                         position: 'absolute',
@@ -276,7 +290,7 @@ export default function Quizes() {
                     >
                       ‹
                     </button>
-                    <button 
+                    <button
                       onClick={nextSlide}
                       style={{
                         position: 'absolute',
@@ -333,7 +347,7 @@ export default function Quizes() {
                 <div className="card-body">
                   <ul className="nav nav-tabs nav-fill" role="tablist">
                     <li className="nav-item" role="presentation">
-                      <button 
+                      <button
                         className={`nav-link ${activeTab === 'all' ? 'active' : ''}`}
                         onClick={() => setActiveTab('all')}
                         type="button"
@@ -342,7 +356,7 @@ export default function Quizes() {
                       </button>
                     </li>
                     <li className="nav-item" role="presentation">
-                      <button 
+                      <button
                         className={`nav-link ${activeTab === 'active' ? 'active' : ''}`}
                         onClick={() => setActiveTab('active')}
                         type="button"
@@ -351,7 +365,7 @@ export default function Quizes() {
                       </button>
                     </li>
                     <li className="nav-item" role="presentation">
-                      <button 
+                      <button
                         className={`nav-link ${activeTab === 'ended' ? 'active' : ''}`}
                         onClick={() => setActiveTab('ended')}
                         type="button"
@@ -360,7 +374,7 @@ export default function Quizes() {
                       </button>
                     </li>
                     <li className="nav-item" role="presentation">
-                      <button 
+                      <button
                         className={`nav-link ${activeTab === 'draft' ? 'active' : ''}`}
                         onClick={() => setActiveTab('draft')}
                         type="button"
@@ -405,8 +419,8 @@ export default function Quizes() {
                               <td>
                                 <div className="d-flex align-items-center">
                                   {quiz.image_path && (
-                                    <img 
-                                      src={quiz.image_path} 
+                                    <img
+                                      src={quiz.image_path}
                                       alt={quiz.title}
                                       style={{
                                         width: '40px',
@@ -444,8 +458,14 @@ export default function Quizes() {
                                   <strong>{quiz.entry_fee} <small>Coins</small></strong>
                                 )}
                               </td>
-                              <td>{quiz.play_count || 0}</td>
-                              <td>{quiz.prize_pool} Coins</td>
+                              <td>   <button
+                                className="btn btn-sm btn-outline-info"
+                                onClick={() => handleViewStats(quiz.quiz_id)}
+                                title="View Statistics"
+                              >
+                                View
+                              </button></td>
+                              <td>{quiz.prize_pool} Coins </td>
                               <td>
                                 <span className={`badge ${getStatusBadgeColor(quiz.status)}`}>
                                   {quiz.status}
@@ -453,21 +473,21 @@ export default function Quizes() {
                               </td>
                               <td>
                                 <div className="d-flex gap-2">
-                                  <button 
+                                  <button
                                     className="btn btn-sm btn-outline-primary"
                                     onClick={() => handleViewQuestions(quiz)}
                                     title="View Questions"
                                   >
                                     <i className="fas fa-list"></i>
                                   </button>
-                                  <button 
+                                  <button
                                     className="btn btn-sm btn-outline-warning"
                                     title="Edit Quiz"
                                     onClick={() => handleEditQuiz(quiz.quiz_id)}
                                   >
                                     <i className="fas fa-edit"></i>
                                   </button>
-                                  <button 
+                                  <button
                                     className="btn btn-sm btn-outline-danger"
                                     title="Delete Quiz"
                                     onClick={() => handleDeleteQuiz(quiz.quiz_id, quiz.title)}
@@ -625,12 +645,18 @@ export default function Quizes() {
       </div>
       <Footer />
 
-      <QuestionsModal 
+      <QuestionsModal
         show={showQuestionsModal}
         quizData={selectedQuiz}
         onClose={handleCloseModal}
         isLoading={false}
         onQuestionsUpdated={handleQuestionsUpdated}
+      />
+
+      <QuizStatsModal
+        show={showStatsModal}
+        quizId={selectedQuizId}
+        onClose={handleCloseStatsModal}
       />
     </div>
   );

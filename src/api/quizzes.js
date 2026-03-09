@@ -228,3 +228,27 @@ export const deleteQuiz = async (quizId) => {
     return { success: false, error: error.message };
   }
 };
+
+export const getQuizStats = async (quizId) => {
+  try {
+    console.log('[v0] Fetching quiz statistics for:', quizId);
+
+    const response = await fetch(`${API_BASE_URL}/admin/quiz-stats/${quizId}`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error('[v0] Failed to fetch quiz statistics:', data);
+      return { success: false, error: data.detail || 'Failed to fetch quiz statistics', status: response.status };
+    }
+
+    console.log('[v0] Quiz statistics fetched successfully:', quizId);
+    return { success: true, data, status: response.status };
+  } catch (error) {
+    console.error('[v0] Error fetching quiz statistics:', error);
+    return { success: false, error: error.message };
+  }
+};
