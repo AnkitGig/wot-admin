@@ -7,6 +7,7 @@ import GlobalLoader from '../components/GlobalLoader';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
+import DurationPicker from '../components/DurationPicker';
 
 export default function EditCourse() {
   const navigate = useNavigate();
@@ -35,6 +36,7 @@ export default function EditCourse() {
   const [imagePreview, setImagePreview] = useState(null);
   const [thumbnailPreview, setThumbnailPreview] = useState(null);
   const [videoPreview, setVideoPreview] = useState(null);
+  const [showDurationPicker, setShowDurationPicker] = useState(false);
 
   useEffect(() => {
     fetchCourseData();
@@ -137,6 +139,18 @@ export default function EditCourse() {
       
       setVideoPreview(file.name);
     }
+  };
+
+  const handleDurationChange = (durationText) => {
+    setFormData(prev => ({
+      ...prev,
+      duration_in_minutes: durationText,
+    }));
+  };
+
+  const formatDurationDisplay = (duration) => {
+    if (!duration) return 'Click to select duration';
+    return duration;
   };
 
   const handleCancel = () => {
@@ -302,16 +316,27 @@ export default function EditCourse() {
                     </div>
 
                     <div className="col-md-4">
-                      <label className="form-label">Duration (minutes) <span className="text-danger">*</span></label>
-                      <input
-                        type="number"
-                        className="form-control"
-                        placeholder="e.g., 300"
-                        name="duration_in_minutes"
-                        value={formData.duration_in_minutes}
-                        onChange={handleInputChange}
-                        required
-                      />
+                      <label className="form-label">Duration <span className="text-danger">*</span></label>
+                      <div className="input-group">
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="duration_in_minutes"
+                          value={formatDurationDisplay(formData.duration_in_minutes)}
+                          onChange={handleInputChange}
+                          placeholder="Click to select duration"
+                          readOnly
+                          style={{ cursor: 'pointer' }}
+                          onClick={() => setShowDurationPicker(true)}
+                        />
+                        <button 
+                          className="btn btn-outline-secondary" 
+                          type="button"
+                          onClick={() => setShowDurationPicker(true)}
+                        >
+                          <i className="fa fa-clock"></i>
+                        </button>
+                      </div>
                     </div>
 
                     <div className="col-md-4">
@@ -508,6 +533,14 @@ export default function EditCourse() {
         </div>
       </div>
       <Footer />
+      
+      {showDurationPicker && (
+        <DurationPicker
+          value={formData.duration_in_minutes}
+          onChange={handleDurationChange}
+          onClose={() => setShowDurationPicker(false)}
+        />
+      )}
     </div>
   );
 }

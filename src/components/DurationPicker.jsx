@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import './DurationPicker.css';
 
 const DurationPicker = ({ value, onChange, onClose }) => {
   const parseDuration = (duration) => {

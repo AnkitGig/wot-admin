@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
+import DurationPicker from '../components/DurationPicker';
 
 export default function AddLesson() {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ export default function AddLesson() {
   const { token } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [thumbnailPreview, setThumbnailPreview] = useState(null);
+  const [showDurationPicker, setShowDurationPicker] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -62,6 +64,18 @@ export default function AddLesson() {
         media: file,
       }));
     }
+  };
+
+  const handleDurationChange = (durationText) => {
+    setFormData(prev => ({
+      ...prev,
+      duration: durationText,
+    }));
+  };
+
+  const formatDurationDisplay = (duration) => {
+    if (!duration) return 'Click to select duration';
+    return duration;
   };
 
   const handleCancel = () => {
@@ -234,14 +248,26 @@ export default function AddLesson() {
 
                     <div className="col-md-6">
                       <label className="form-label">Duration</label>
-                      <input 
-                        type="text" 
-                        className="form-control" 
-                        placeholder="e.g., 2 hours"
-                        name="duration"
-                        value={formData.duration}
-                        onChange={handleInputChange}
-                      />
+                      <div className="input-group">
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="duration"
+                          value={formatDurationDisplay(formData.duration)}
+                          onChange={handleInputChange}
+                          placeholder="Click to select duration"
+                          readOnly
+                          style={{ cursor: 'pointer' }}
+                          onClick={() => setShowDurationPicker(true)}
+                        />
+                        <button 
+                          className="btn btn-outline-secondary" 
+                          type="button"
+                          onClick={() => setShowDurationPicker(true)}
+                        >
+                          <i className="fa fa-clock"></i>
+                        </button>
+                      </div>
                     </div>
 
                     {formData.content_type === 'text' && (
@@ -437,6 +463,14 @@ export default function AddLesson() {
         </div>
       </div>
       <Footer />
+      
+      {showDurationPicker && (
+        <DurationPicker
+          value={formData.duration}
+          onChange={handleDurationChange}
+          onClose={() => setShowDurationPicker(false)}
+        />
+      )}
     </div>
   );
 }
