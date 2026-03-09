@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
-import { editQuizQuestions, testEditQuizQuestions } from '../api/quizzes';
+import { editQuizQuestions } from '../api/quizzes';
 
 export default function QuestionsModal({ show, quizData, onClose, isLoading, onQuestionsUpdated }) {
   const [currentPage, setCurrentPage] = useState(1);
@@ -132,40 +132,7 @@ export default function QuestionsModal({ show, quizData, onClose, isLoading, onQ
     setIsSaving(false);
   };
 
-  const handleTestPayload = async () => {
-    if (!quizData?.quiz_id) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Quiz ID is missing',
-      });
-      return;
-    }
-
-    setIsSaving(true);
-    
-    const result = await testEditQuizQuestions(quizData.quiz_id);
-    
-    if (result.success) {
-      await Swal.fire({
-        icon: 'success',
-        title: 'Test Successful',
-        text: 'Test payload sent successfully',
-        timer: 2000,
-        timerProgressBar: true,
-        showConfirmButton: false,
-      });
-    } else {
-      Swal.fire({
-        icon: 'error',
-        title: 'Test Failed',
-        text: result.error || 'Failed to send test payload',
-      });
-    }
-    
-    setIsSaving(false);
-  };
-
+  
 
 
   return (
