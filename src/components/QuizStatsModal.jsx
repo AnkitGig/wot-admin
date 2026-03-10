@@ -175,6 +175,7 @@ export default function QuizStatsModal({ show, quizId, onClose }) {
                               <th>Rank</th>
                               <th>Player</th>
                               <th>Total Attempts</th>
+                              <th>Time Taken</th>
                               <th>Best Score</th>
                               <th>Best Accuracy</th>
                               <th>Coins Spent</th>
@@ -220,6 +221,7 @@ export default function QuizStatsModal({ show, quizId, onClose }) {
                                   </div>
                                 </td>
                                 <td>{player.total_attempts}</td>
+                                <td>{player.time_taken_formatted}</td>
                                 <td>{player.best_score}</td>
                                 <td>{player.best_accuracy}</td>
                                 <td>{player.coins_spent}</td>
