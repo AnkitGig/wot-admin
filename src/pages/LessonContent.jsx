@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { useAuth } from '../context/AuthContext';
-import { getLessonContent, createLessonContent } from '../api/lessons';
+import { getLessonContent, createLessonContent, getLessonAdmin } from '../api/lessons';
 import GlobalLoader from '../components/GlobalLoader';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
@@ -12,6 +12,7 @@ export default function LessonContent() {
   const { lessonId } = useParams();
   const { token } = useAuth();
   const navigate = useNavigate();
+  const [lesson, setLesson] = useState(null);
   const [content, setContent] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showContentModal, setShowContentModal] = useState(false);
@@ -36,13 +37,14 @@ export default function LessonContent() {
 
   const fetchContent = async () => {
     setIsLoading(true);
-    console.log('[v0] Fetching content for lessonId:', lessonId);
-    const result = await getLessonContent(lessonId, token);
+    console.log('[v0] Fetching lesson details for lessonId:', lessonId);
+    const result = await getLessonAdmin(lessonId, token);
     
     console.log('[v0] API Response:', result);
     if (result.success) {
-      console.log('[v0] Content loaded:', result.data);
-      setContent(result.data);
+      console.log('[v0] Lesson loaded:', result.data);
+      setLesson(result.data);
+      setContent(result.data.content);
     } else {
       Swal.fire({
         icon: 'error',
@@ -201,7 +203,7 @@ export default function LessonContent() {
           <div className="page-header">
             <div className="content-page-header">
               <div>
-                <h5>{content?.title || 'Lesson Content'}</h5>
+                <h5>{lesson?.title || content?.title || 'Lesson Content'}</h5>
               </div>
               <div className="list-btn">
                 <ul className="filter-list">
@@ -246,7 +248,7 @@ export default function LessonContent() {
 
           {isLoading ? (
             <GlobalLoader visible={true} size="medium" />
-          ) : content ? (
+          ) : lesson ? (
             <div className="row">
               <div className="col-lg-8">
                 <div className="card border-0 shadow-soft">
@@ -261,6 +263,63 @@ export default function LessonContent() {
               <div className="col-lg-4">
                 <div className="card border-0 shadow-soft">
                   <div className="card-body">
+                    <h6 className="fw-bold mb-3">Lesson Details</h6>
+                    
+                    {lesson.description && (
+                      <div className="mb-3">
+                        <label className="text-muted small">Description</label>
+                        <p className="mb-0 small">{lesson.description}</p>
+                      </div>
+                    )}
+
+                    {lesson.duration && (
+                      <div className="mb-3">
+                        <label className="text-muted small">Lesson Duration</label>
+                        <p className="mb-0 fw-bold">{lesson.duration}</p>
+                      </div>
+                    )}
+
+                    {lesson.xp_points && (
+                      <div className="mb-3">
+                        <label className="text-muted small">XP Points</label>
+                        <p className="mb-0 fw-bold">{lesson.xp_points}</p>
+                      </div>
+                    )}
+
+                    {lesson.reward_points && (
+                      <div className="mb-3">
+                        <label className="text-muted small">Reward Points</label>
+                        <p className="mb-0 fw-bold">{lesson.reward_points}</p>
+                      </div>
+                    )}
+
+                    <div className="mb-3">
+                      <label className="text-muted small">Preview Available</label>
+                      <p className="mb-0">
+                        <span className={`badge ${lesson.is_preview ? 'bg-success' : 'bg-secondary'}`}>
+                          {lesson.is_preview ? 'Yes' : 'No'}
+                        </span>
+                      </p>
+                    </div>
+
+                    <div className="mb-3">
+                      <label className="text-muted small">Locked Status</label>
+                      <p className="mb-0">
+                        <span className={`badge ${lesson.is_locked ? 'bg-warning' : 'bg-success'}`}>
+                          {lesson.is_locked ? 'Locked' : 'Unlocked'}
+                        </span>
+                      </p>
+                    </div>
+
+                    {lesson.order_number && (
+                      <div className="mb-3">
+                        <label className="text-muted small">Order</label>
+                        <p className="mb-0 fw-bold">#{lesson.order_number}</p>
+                      </div>
+                    )}
+
+                    <hr className="my-3" />
+                    
                     <h6 className="fw-bold mb-3">Content Details</h6>
                     
                     <div className="mb-3">

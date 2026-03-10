@@ -3,6 +3,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { useAuth } from '../context/AuthContext';
 import { getCourseById, getLessonsByChapter, deleteLesson } from '../api/courses';
+import { getLessonAdmin } from '../api/lessons';
 import GlobalLoader from '../components/GlobalLoader';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
@@ -17,6 +18,9 @@ export default function ChapterLessons() {
   const [course, setCourse] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [showContentModal, setShowContentModal] = useState(false);
+  const [selectedLesson, setSelectedLesson] = useState(null);
+  const [contentLoading, setContentLoading] = useState(false);
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -153,6 +157,93 @@ export default function ChapterLessons() {
     });
   };
 
+  const handleViewContent = async (lesson) => {
+    setSelectedLesson(lesson);
+    setShowContentModal(true);
+    setContentLoading(true);
+    
+    try {
+      const result = await getLessonAdmin(lesson.id, token);
+      if (result.success) {
+        setSelectedLesson(result.data);
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: result.message || 'Failed to load lesson content',
+        });
+        setShowContentModal(false);
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while loading lesson content',
+      });
+      setShowContentModal(false);
+    } finally {
+      setContentLoading(false);
+    }
+  };
+
+  const renderContentPreview = (content) => {
+    if (!content) return <p className="text-muted">No content available</p>;
+
+    switch (content.content_type?.toLowerCase()) {
+      case 'video':
+        return content.video_url ? (
+          <div className="ratio ratio-16x9">
+            <video controls className="w-100">
+              <source src={content.video_url} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+        ) : <p className="text-muted">No video available</p>;
+
+      case 'audio':
+        return content.video_url ? (
+          <div className="mb-3">
+            <audio controls className="w-100">
+              <source src={content.video_url} type="audio/mpeg" />
+              Your browser does not support the audio element.
+            </audio>
+          </div>
+        ) : <p className="text-muted">No audio available</p>;
+
+      case 'text':
+        return content.text_content ? (
+          <div className="card-text text-dark" style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word', maxHeight: '200px', overflowY: 'auto' }}>
+            {content.text_content}
+          </div>
+        ) : <p className="text-muted">No text content available</p>;
+
+      case 'pdf':
+      case 'doc':
+        return content.file_url ? (
+          <div className="d-flex align-items-center gap-3">
+            <i className={`fas ${content.content_type?.toLowerCase() === 'pdf' ? 'fa-file-pdf' : 'fa-file-word'} fa-2x text-danger`}></i>
+            <div>
+              <p className="mb-2">
+                <strong>{content.title}</strong>
+              </p>
+              {content.file_size && <p className="text-muted mb-2 small">Size: {content.file_size}</p>}
+              <a 
+                href={content.file_url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="btn btn-sm btn-primary"
+              >
+                <i className="fas fa-download me-2"></i>Download
+              </a>
+            </div>
+          </div>
+        ) : <p className="text-muted">No file available</p>;
+
+      default:
+        return <p className="text-muted">Content preview not available</p>;
+    }
+  };
+
   return (
     <div className="main-wrapper">
       <Header />
@@ -268,7 +359,7 @@ export default function ChapterLessons() {
                               <td>
                                 <button
                                   className="btn btn-sm btn-outline-primary"
-                                  onClick={() => navigate(`/lesson/${lesson.id}/content`)}
+                                  onClick={() => handleViewContent(lesson)}
                                   title="View Content"
                                 >
                                   View
@@ -360,6 +451,167 @@ export default function ChapterLessons() {
         </div>
       </div>
       <Footer />
+
+      {/* Content View Modal */}
+      {showContentModal && selectedLesson && (
+        <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-xl">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">{selectedLesson.title}</h5>
+                <button 
+                  type="button" 
+                  className="btn-close" 
+                  onClick={() => {
+                    setShowContentModal(false);
+                    setSelectedLesson(null);
+                  }}
+                ></button>
+              </div>
+              <div className="modal-body">
+                {contentLoading ? (
+                  <div className="text-center py-5">
+                    <GlobalLoader visible={true} size="medium" />
+                  </div>
+                ) : (
+                  <div className="row">
+                    <div className="col-lg-8">
+                      <div className="card border-0 shadow-sm">
+                        <div className="card-body">
+                          <h6 className="fw-bold mb-3">Content Preview</h6>
+                          {renderContentPreview(selectedLesson.content)}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col-lg-4">
+                      <div className="card border-0 shadow-sm">
+                        <div className="card-body">
+                          <h6 className="fw-bold mb-3">Lesson Details</h6>
+                          
+                          {selectedLesson.description && (
+                            <div className="mb-3">
+                              <label className="text-muted small">Description</label>
+                              <p className="mb-0 small">{selectedLesson.description}</p>
+                            </div>
+                          )}
+
+                          {selectedLesson.duration && (
+                            <div className="mb-3">
+                              <label className="text-muted small">Duration</label>
+                              <p className="mb-0 fw-bold">{selectedLesson.duration}</p>
+                            </div>
+                          )}
+
+                          {selectedLesson.xp_points && (
+                            <div className="mb-3">
+                              <label className="text-muted small">XP Points</label>
+                              <p className="mb-0 fw-bold">{selectedLesson.xp_points}</p>
+                            </div>
+                          )}
+
+                          {selectedLesson.reward_points && (
+                            <div className="mb-3">
+                              <label className="text-muted small">Reward Points</label>
+                              <p className="mb-0 fw-bold">{selectedLesson.reward_points}</p>
+                            </div>
+                          )}
+
+                          <div className="mb-3">
+                            <label className="text-muted small">Preview Available</label>
+                            <p className="mb-0">
+                              <span className={`badge ${selectedLesson.is_preview ? 'bg-success' : 'bg-secondary'}`}>
+                                {selectedLesson.is_preview ? 'Yes' : 'No'}
+                              </span>
+                            </p>
+                          </div>
+
+                          <div className="mb-3">
+                            <label className="text-muted small">Locked Status</label>
+                            <p className="mb-0">
+                              <span className={`badge ${selectedLesson.is_locked ? 'bg-warning' : 'bg-success'}`}>
+                                {selectedLesson.is_locked ? 'Locked' : 'Unlocked'}
+                              </span>
+                            </p>
+                          </div>
+
+                          {selectedLesson.order_number && (
+                            <div className="mb-3">
+                              <label className="text-muted small">Order</label>
+                              <p className="mb-0 fw-bold">#{selectedLesson.order_number}</p>
+                            </div>
+                          )}
+
+                          {selectedLesson.content && (
+                            <>
+                              <hr className="my-3" />
+                              <h6 className="fw-bold mb-3">Content Details</h6>
+                              
+                              <div className="mb-3">
+                                <label className="text-muted small">Content Type</label>
+                                <p className="mb-0">
+                                  <span className={`badge ${getContentTypeBadge(selectedLesson.content.content_type)}`}>
+                                    {selectedLesson.content.content_type?.toUpperCase()}
+                                  </span>
+                                </p>
+                              </div>
+
+                              {selectedLesson.content.duration && (
+                                <div className="mb-3">
+                                  <label className="text-muted small">Content Duration</label>
+                                  <p className="mb-0 fw-bold">{selectedLesson.content.duration}</p>
+                                </div>
+                              )}
+
+                              {selectedLesson.content.file_size && (
+                                <div className="mb-3">
+                                  <label className="text-muted small">File Size</label>
+                                  <p className="mb-0 fw-bold">{selectedLesson.content.file_size}</p>
+                                </div>
+                              )}
+
+                              <div className="mb-3">
+                                <label className="text-muted small">Downloadable</label>
+                                <p className="mb-0">
+                                  <span className={`badge ${selectedLesson.content.is_downloadable ? 'bg-success' : 'bg-secondary'}`}>
+                                    {selectedLesson.content.is_downloadable ? 'Yes' : 'No'}
+                                  </span>
+                                </p>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="modal-footer">
+                <button 
+                  type="button" 
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    setShowContentModal(false);
+                    setSelectedLesson(null);
+                  }}
+                >
+                  Close
+                </button>
+                <button 
+                  type="button" 
+                  className="btn btn-primary"
+                  onClick={() => {
+                    navigate(`/lesson/${selectedLesson.id}/content`);
+                    setShowContentModal(false);
+                    setSelectedLesson(null);
+                  }}
+                >
+                  <i className="fas fa-external-link-alt me-2"></i>Open Full Page
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
