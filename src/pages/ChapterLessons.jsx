@@ -238,7 +238,7 @@ export default function ChapterLessons() {
                             <th>Type</th>
                             <th>Duration</th>
                             <th>Status</th>
-                            <th>Is Downloadable</th>
+                            <th>Downloadable</th>
                             <th>Created Date</th>
                             <th>Content</th>
                             <th>Action</th>
@@ -264,7 +264,7 @@ export default function ChapterLessons() {
                               <td>{lesson.duration}</td>
                               <td>
                                 <span className={`badge ${getStatusBadge(lesson.status)}`}>
-                                  {lesson.status}
+                                  {lesson.status ? new Date(lesson.status).toLocaleDateString() : '-'}
                                 </span>
                               </td>
                               <td>
@@ -278,6 +278,11 @@ export default function ChapterLessons() {
                                 >
                                   <i className="fas fa-eye"></i>
                                 </button>
+                              </td>
+                               <td>
+                                <span className={`badge ${getStatusBadge(lesson.status)}`}>
+                                  {lesson.contentType ? new Date(lesson.contentType).toLocaleDateString() : '-'}
+                                </span>
                               </td>
                               <td>
                                 <div className="d-flex gap-2">
