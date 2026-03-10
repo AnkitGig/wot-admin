@@ -285,8 +285,8 @@ export default function AddCourse() {
                           style={{ cursor: 'pointer' }}
                           onClick={() => setShowDurationPicker(true)}
                         />
-                        <button 
-                          className="btn btn-outline-secondary" 
+                        <button
+                          className="btn btn-outline-secondary"
                           type="button"
                           onClick={() => setShowDurationPicker(true)}
                         >
@@ -362,14 +362,17 @@ export default function AddCourse() {
                     <div className="col-md-6">
                       <label className="form-label">Price</label>
                       <input
-                        type="number"
+                        type="text"
                         className="form-control"
                         placeholder="0"
                         name="price"
                         value={formData.price}
-                        onChange={handleInputChange}
-                        min="0"
-                        step="1"
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (/^\d*$/.test(value)) {
+                            handleInputChange(e);
+                          }
+                        }}
                       />
                     </div>
 
@@ -491,7 +494,7 @@ export default function AddCourse() {
         </div>
       </div>
       <Footer />
-      
+
       {showDurationPicker && (
         <DurationPicker
           value={formData.duration_in_minutes}

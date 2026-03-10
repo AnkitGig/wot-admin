@@ -83,12 +83,12 @@ export default function EditCourse() {
   const handleInputChange = (e) => {
     const { name, value, type } = e.target;
     let finalValue = value;
-    
+
     // Handle boolean fields from select dropdowns
     if (['is_free', 'is_featured', 'certificate_available'].includes(name)) {
       finalValue = value === 'true' || value === true;
     }
-    
+
     setFormData(prev => ({
       ...prev,
       [name]: finalValue,
@@ -119,7 +119,7 @@ export default function EditCourse() {
         ...prev,
         thumbnail: file,
       }));
-      
+
       // Create preview
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -136,7 +136,7 @@ export default function EditCourse() {
         ...prev,
         intro_video: file,
       }));
-      
+
       setVideoPreview(file.name);
     }
   };
@@ -290,9 +290,9 @@ export default function EditCourse() {
 
                     <div className="col-md-4">
                       <label className="form-label">Slug <span className="text-danger">*</span></label>
-                      <input 
-                        type="text" 
-                        className="form-control" 
+                      <input
+                        type="text"
+                        className="form-control"
                         placeholder="course-slug"
                         name="slug"
                         value={formData.slug}
@@ -329,8 +329,8 @@ export default function EditCourse() {
                           style={{ cursor: 'pointer' }}
                           onClick={() => setShowDurationPicker(true)}
                         />
-                        <button 
-                          className="btn btn-outline-secondary" 
+                        <button
+                          className="btn btn-outline-secondary"
                           type="button"
                           onClick={() => setShowDurationPicker(true)}
                         >
@@ -341,9 +341,9 @@ export default function EditCourse() {
 
                     <div className="col-md-4">
                       <label className="form-label">Language <span className="text-danger">*</span></label>
-                      <input 
-                        type="text" 
-                        className="form-control" 
+                      <input
+                        type="text"
+                        className="form-control"
                         placeholder="e.g., English"
                         name="language"
                         value={formData.language}
@@ -380,9 +380,9 @@ export default function EditCourse() {
 
                     <div className="col-md-12">
                       <label className="form-label">Short Description</label>
-                      <textarea 
-                        className="form-control" 
-                        rows="2" 
+                      <textarea
+                        className="form-control"
+                        rows="2"
                         placeholder="Enter short course description"
                         name="short_description"
                         value={formData.short_description}
@@ -405,21 +405,24 @@ export default function EditCourse() {
 
                     <div className="col-md-6">
                       <label className="form-label">Price</label>
-                      <input 
-                        type="number" 
+                      <input
+                        type="text"
                         className="form-control"
                         placeholder="0"
                         name="price"
                         value={formData.price}
-                        onChange={handleInputChange}
-                        min="0"
-                        step="0.01"
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (/^\d*$/.test(value)) {
+                            handleInputChange(e);
+                          }
+                        }}
                       />
                     </div>
 
                     <div className="col-md-6">
                       <label className="form-label">Is Free?</label>
-                      <select 
+                      <select
                         className="form-control"
                         name="is_free"
                         value={formData.is_free}
@@ -432,7 +435,7 @@ export default function EditCourse() {
 
                     <div className="col-md-6">
                       <label className="form-label">Featured</label>
-                      <select 
+                      <select
                         className="form-control"
                         name="is_featured"
                         value={formData.is_featured}
@@ -445,7 +448,7 @@ export default function EditCourse() {
 
                     <div className="col-md-6">
                       <label className="form-label">Certificate Available</label>
-                      <select 
+                      <select
                         className="form-control"
                         name="certificate_available"
                         value={formData.certificate_available}
@@ -533,7 +536,7 @@ export default function EditCourse() {
         </div>
       </div>
       <Footer />
-      
+
       {showDurationPicker && (
         <DurationPicker
           value={formData.duration_in_minutes}
