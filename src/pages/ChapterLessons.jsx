@@ -28,13 +28,13 @@ export default function ChapterLessons() {
   const fetchData = async () => {
     setIsLoading(true);
     console.log('[v0] Fetching data for chapter:', chapterId);
-    
+
     // Fetch course details
     const courseResult = await getCourseById(courseId, token);
     if (courseResult.success) {
       setCourse(courseResult.data);
     }
-    
+
     // Fetch lessons from API
     const lessonsResult = await getLessonsByChapter(chapterId, token);
     if (lessonsResult.success) {
@@ -51,7 +51,7 @@ export default function ChapterLessons() {
         text: lessonsResult.message || 'Failed to load lessons',
       });
     }
-    
+
     setIsLoading(false);
   };
 
@@ -125,14 +125,14 @@ export default function ChapterLessons() {
       if (result.isConfirmed) {
         try {
           const deleteResult = await deleteLesson(lessonId, token);
-          
+
           if (deleteResult.success) {
             Swal.fire({
               icon: 'success',
               title: 'Deleted!',
               text: 'Lesson has been deleted successfully.',
             });
-            
+
             // Refresh the lessons list
             fetchData();
           } else {
@@ -170,10 +170,10 @@ export default function ChapterLessons() {
               <div className="list-btn">
                 <ul className="filter-list">
                   <li>
-                    <button 
+                    <button
                       className="btn btn-primary"
                       onClick={() => {
-                        const addLessonUrl = categoryId 
+                        const addLessonUrl = categoryId
                           ? `/course/${courseId}/category/${categoryId}/chapter/${chapterId}/add-lesson`
                           : `/course/${courseId}/chapter/${chapterId}/add-lesson`;
                         navigate(addLessonUrl);
@@ -183,10 +183,10 @@ export default function ChapterLessons() {
                     </button>
                   </li>
                   <li>
-                    <button 
+                    <button
                       className="btn btn-outline-secondary"
                       onClick={() => {
-                        const chaptersUrl = categoryId 
+                        const chaptersUrl = categoryId
                           ? `/course/${courseId}/category/${categoryId}/chapters`
                           : `/course/${courseId}/chapters`;
                         navigate(chaptersUrl);
@@ -217,7 +217,7 @@ export default function ChapterLessons() {
               </div>
             </div>
           </div>
-          
+
           <div className="row">
             <div className="col-sm-12">
               <div className="card">
@@ -235,12 +235,12 @@ export default function ChapterLessons() {
                           <tr>
                             <th>Lesson Title</th>
                             <th>Order</th>
-                            <th>Type</th>
                             <th>Duration</th>
                             <th>Status</th>
                             <th>Downloadable</th>
-                            <th>Created Date</th>
                             <th>Content</th>
+                            <th>Created Date</th>
+                            <th>Content Type</th>
                             <th>Action</th>
                           </tr>
                         </thead>
@@ -255,12 +255,7 @@ export default function ChapterLessons() {
                               <td>
                                 <span className="badge bg-secondary">{lesson.order_number}</span>
                               </td>
-                              <td>
-                                <span className={`badge ${getContentTypeBadge(lesson.content_type)}`}>
-                                  <i className={`${getContentTypeIcon(lesson.content_type)} me-1`}></i>
-                                  {lesson.content_type}
-                                </span>
-                              </td>
+
                               <td>{lesson.duration}</td>
                               <td>
                                 <span className={`badge ${getStatusBadge(lesson.status)}`}>
@@ -268,28 +263,34 @@ export default function ChapterLessons() {
                                 </span>
                               </td>
                               <td>
-                                {lesson.created_at ? new Date(lesson.created_at).toLocaleDateString() : '-'}
+                                {lesson.content.is_downloadable ? 'Yes' : 'No'}
                               </td>
                               <td>
-                                <button 
+                                <button
                                   className="btn btn-sm btn-outline-primary"
                                   onClick={() => navigate(`/lesson/${lesson.id}/content`)}
                                   title="View Content"
                                 >
-                                  <i className="fas fa-eye"></i>
+                                  View
+                                  {/* <i className="fas fa-eye"></i> */}
                                 </button>
                               </td>
-                               <td>
+                              <td>
                                 <span className={`badge ${getStatusBadge(lesson.status)}`}>
-                                  {lesson.contentType ? new Date(lesson.contentType).toLocaleDateString() : '-'}
+                                  {lesson.creat_at ? new Date(lesson.creat_at).toLocaleDateString() : '-'}
+                                </span>
+                              </td>
+                              <td>
+                                <span className={`badge ${getStatusBadge(lesson.status)}`}>
+                                  {lesson.content.content_type ? lesson.content.content_type : '-'}
                                 </span>
                               </td>
                               <td>
                                 <div className="d-flex gap-2">
-                                  <button 
+                                  <button
                                     className="btn btn-sm btn-outline-warning"
                                     onClick={() => {
-                                      const editUrl = categoryId 
+                                      const editUrl = categoryId
                                         ? `/course/${courseId}/category/${categoryId}/chapter/${chapterId}/lesson/${lesson.id}/edit`
                                         : `/course/${courseId}/chapter/${chapterId}/lesson/${lesson.id}/edit`;
                                       navigate(editUrl);
@@ -298,7 +299,7 @@ export default function ChapterLessons() {
                                   >
                                     <i className="fas fa-edit"></i>
                                   </button>
-                                  <button 
+                                  <button
                                     className="btn btn-sm btn-outline-danger"
                                     onClick={() => handleDeleteLesson(lesson.id, lesson.title)}
                                     title="Delete Lesson"
@@ -331,10 +332,10 @@ export default function ChapterLessons() {
                               <i className="fa fa-chevron-left"></i> Previous
                             </button>
                           </li>
-                          
+
                           {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
                             <li key={pageNum} className={`page-item ${currentPage === pageNum ? 'active' : ''}`}>
-                              <button 
+                              <button
                                 className="page-link"
                                 onClick={() => handlePageClick(pageNum)}
                               >
@@ -342,7 +343,7 @@ export default function ChapterLessons() {
                               </button>
                             </li>
                           ))}
-                          
+
                           <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
                             <button className="page-link" onClick={handleNextPage}>
                               Next <i className="fa fa-chevron-right"></i>
