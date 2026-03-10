@@ -154,6 +154,9 @@ export default function Courses() {
                     </div>
                   </li>
                   <li>
+                    <Link className="btn btn-primary" to="/admin-categories"><i className="fa fa-plus-circle me-2"></i>Add Category</Link>
+                  </li>
+                   <li>
                     <Link className="btn btn-primary" to="/add-course"><i className="fa fa-plus-circle me-2"></i>Add Course</Link>
                   </li>
                 </ul>
