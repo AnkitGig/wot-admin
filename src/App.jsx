@@ -32,6 +32,12 @@ import AddLessonToChapter from './pages/AddLessonToChapter'
 import AdminCategories from './pages/AdminCategories'
 import AddAdminCategory from './pages/AddAdminCategory'
 import EditAdminCategory from './pages/EditAdminCategory'
+import Coupons from './pages/Coupons'
+import AddCoupon from './pages/AddCoupon'
+import EditCoupon from './pages/EditCoupon'
+import CouponCategories from './pages/CouponCategories'
+import AddCouponCategory from './pages/AddCouponCategory'
+import EditCouponCategory from './pages/EditCouponCategory'
 
 export default function App() {
   return (
@@ -77,6 +83,12 @@ export default function App() {
         <Route path="/admin-categories" element={<ProtectedRoute><AdminCategories /></ProtectedRoute>} />
         <Route path="/add-admin-category" element={<ProtectedRoute><AddAdminCategory /></ProtectedRoute>} />
         <Route path="/edit-admin-category/:categoryId" element={<ProtectedRoute><EditAdminCategory /></ProtectedRoute>} />
+        <Route path="/coupons" element={<ProtectedRoute><Coupons /></ProtectedRoute>} />
+        <Route path="/add-coupon" element={<ProtectedRoute><AddCoupon /></ProtectedRoute>} />
+        <Route path="/edit-coupon/:couponId" element={<ProtectedRoute><EditCoupon /></ProtectedRoute>} />
+        <Route path="/coupon-categories" element={<ProtectedRoute><CouponCategories /></ProtectedRoute>} />
+        <Route path="/add-coupon-category" element={<ProtectedRoute><AddCouponCategory /></ProtectedRoute>} />
+        <Route path="/edit-coupon-category/:categoryId" element={<ProtectedRoute><EditCouponCategory /></ProtectedRoute>} />
       </Routes>
     </AuthProvider>
   )

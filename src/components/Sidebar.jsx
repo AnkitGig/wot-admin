@@ -85,6 +85,20 @@ export default function Sidebar() {
               </Link>
             </li>
 
+            <li>
+              <Link to="/coupons" className={isActive("/coupons")}>
+                <i className="fas fa-ticket-alt me-2"></i>
+                <span>Coupons</span>
+              </Link>
+            </li>
+
+            {/* <li>
+              <Link to="/coupon-categories" className={isActive("/coupon-categories")}>
+                <i className="fas fa-layer-group me-2"></i>
+                <span>Coupon Categories</span>
+              </Link>
+            </li> */}
+
             <li className="border-top mt-3 pt-3">
               <button 
                 onClick={handleLogout}
