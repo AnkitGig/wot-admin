@@ -219,7 +219,7 @@ export const updateCoupon = async (token, couponId, couponData) => {
     });
 
     const response = await fetch(`https://api.wayoftrading.com/aitredding/coupon/admin/edit/${couponId}`, {
-      method: 'POST',
+      method: 'PATCH',
       headers: {
         'accept': 'application/json',
         'Authorization': `Bearer ${token}`,
