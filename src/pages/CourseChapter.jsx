@@ -225,7 +225,7 @@ export default function CourseChapter() {
                       </div>
                     </div>
 
-                    <div className="col-md-6">
+                    {/* <div className="col-md-6">
                       <label className="form-label">Is Locked</label>
                       <select
                         className="form-control"
@@ -236,7 +236,7 @@ export default function CourseChapter() {
                         <option value={false}>No</option>
                         <option value={true}>Yes</option>
                       </select>
-                    </div>
+                    </div> */}
 
                     <div className="col-md-6">
                     </div>
