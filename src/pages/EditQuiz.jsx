@@ -5,6 +5,7 @@ import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
 import { getAllQuizzes, generateQuiz, updateQuiz } from '../api/quizzes';
+import { getAllCoupons } from '../api/coupons';
 
 export default function EditQuiz() {
   const navigate = useNavigate();
@@ -12,6 +13,8 @@ export default function EditQuiz() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
+  const [coupons, setCoupons] = useState([]);
+  const [selectedCoupon, setSelectedCoupon] = useState('');
 
   const [formData, setFormData] = useState({
     title: '',
@@ -31,21 +34,23 @@ export default function EditQuiz() {
     is_sponsored: false,
     featured_order: 0,
     image: null,
+    coupon_id: '',
   });
 
   useEffect(() => {
     fetchQuizDetails();
+    fetchCoupons();
   }, [quizId]);
 
   const fetchQuizDetails = async () => {
     setIsLoading(true);
-    
+
     // Fetch all quizzes and find the specific one
     const result = await getAllQuizzes(1, 100); // Get more items to find the quiz
-    
+
     if (result.success && result.data?.quizzes) {
       const quiz = result.data.quizzes.find(q => q.quiz_id === quizId);
-      
+
       if (quiz) {
         setFormData({
           title: quiz.title || '',
@@ -65,6 +70,7 @@ export default function EditQuiz() {
           is_sponsored: quiz.is_sponsored || false,
           featured_order: quiz.featured_order || 0,
           image: null, // We'll handle image updates separately
+          coupon_id: quiz.coupon_id || '',
         });
 
         // Set image preview if image exists
@@ -89,8 +95,25 @@ export default function EditQuiz() {
         navigate('/quizes');
       });
     }
-    
+
     setIsLoading(false);
+  };
+
+  const fetchCoupons = async () => {
+    try {
+      const result = await getAllCoupons();
+
+
+      if (result.success && result.data) {
+        // Check if coupons are directly in data or nested
+        const couponsData = result.data.coupons || result.data || [];
+        setCoupons(couponsData);
+      } else {
+        setCoupons([]); // Set empty array on failure
+      }
+    } catch (error) {
+      setCoupons([]); // Set empty array on error
+    }
   };
 
   const handleImageChange = (e) => {
@@ -277,7 +300,7 @@ export default function EditQuiz() {
 
                     <div className="col-md-6">
                       <label className="form-label">End Date & Time</label>
-                        <input
+                      <input
                         type="datetime-local"
                         className="form-control"
                         name="end_datetime"
@@ -310,6 +333,31 @@ export default function EditQuiz() {
                         onChange={handleFormChange}
                         min="1"
                       />
+                    </div>
+
+                    <div className="col-md-6">
+                      <label className="form-label">Coupon</label>
+                      <select
+                        className="form-select"
+                        name="coupon_id"
+                        value={formData.coupon_id}
+                        onChange={handleFormChange}
+                      >
+                        <option value="">No Coupon</option>
+                        {coupons && coupons.length > 0 ? (
+                          coupons.map(coupon => (
+                            <option key={coupon.coupon_id || coupon.id} value={coupon.coupon_id || coupon.id}>
+                              {coupon.code} - {coupon.discount_type === 'PERCENTAGE' ? `${coupon.discount_value}%` : `${coupon.discount_value} coins`}
+                              {coupon.is_active ? '' : ' (Inactive)'}
+                            </option>
+                          ))
+                        ) : (
+                          <option value="" disabled>No coupons available</option>
+                        )}
+                      </select>
+                      {coupons.length === 0 && (
+                        <small className="text-muted">No coupons available. Create coupons first.</small>
+                      )}
                     </div>
 
                     <div className="col-md-6">

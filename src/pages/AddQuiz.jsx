@@ -6,15 +6,19 @@ import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
 import GlobalLoader from '../components/GlobalLoader';
 import { uploadPdf, generateQuiz } from '../api/quizzes';
+import { getAllCoupons } from '../api/coupons';
+import { useAuth } from '../context/AuthContext';
 
 export default function AddQuiz() {
   const navigate = useNavigate();
+  const { token } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [step, setStep] = useState(1);
   const [pdfId, setPdfId] = useState('');
   const [pdfFileName, setPdfFileName] = useState('');
   const [imagePreview, setImagePreview] = useState(null);
+  const [coupons, setCoupons] = useState([]);
 
   // Step 1: PDF Upload
   const [pdfFile, setPdfFile] = useState(null);
@@ -37,6 +41,7 @@ export default function AddQuiz() {
     is_featured: false,
     is_sponsored: false,
     featured_order: 0,
+    top10_coupon_id: '',
     image: null,
   });
 
@@ -243,8 +248,22 @@ export default function AddQuiz() {
       setIsPageLoading(false);
     }, 500);
 
+    // Fetch coupons
+    fetchCoupons();
+
     return () => clearTimeout(timer);
   }, []);
+
+  const fetchCoupons = async () => {
+    try {
+      const response = await getAllCoupons(token);
+      if (response.success) {
+        setCoupons(response.data.coupons || []);
+      }
+    } catch (error) {
+      console.error('Error fetching coupons:', error);
+    }
+  };
 
   if (isPageLoading) {
     return (
@@ -463,6 +482,24 @@ export default function AddQuiz() {
                           onChange={handleFormChange}
                           min="0"
                         />
+                      </div>
+
+                      <div className="col-md-6">
+                        <label className="form-label">Top 10 Coupon Reward</label>
+                        <select
+                          className="form-control"
+                          name="top10_coupon_id"
+                          value={formData.top10_coupon_id}
+                          onChange={handleFormChange}
+                        >
+                          <option value="">Select a coupon (optional)</option>
+                          {coupons.map((coupon) => (
+                            <option key={coupon.coupon_id} value={coupon.coupon_id}>
+                              {coupon.title} - {coupon.code}
+                            </option>
+                          ))}
+                        </select>
+                        <small className="text-muted">Coupon to reward top 10 participants</small>
                       </div>
 
                       <div className="col-md-12">

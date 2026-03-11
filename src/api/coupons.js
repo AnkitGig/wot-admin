@@ -1,29 +1,42 @@
 // Coupon API Service
 import { apiCall } from './config';
 
+// Helper function to get authorization headers
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('access_token');
+  if (!token) {
+    console.warn('[Coupons] No authentication token found in localStorage');
+    return {};
+  }
+  return {
+    'Authorization': `Bearer ${token}`,
+    'accept': 'application/json',
+  };
+};
+
 // Get all coupons
-export const getAllCoupons = async (token) => {
+export const getAllCoupons = async () => {
   try {
+    console.log('[Coupons] Fetching all coupons');
+    
     const response = await fetch('https://api.wayoftrading.com/aitredding/coupon/admin/all', {
       method: 'GET',
-      headers: {
-        'accept': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
+      headers: getAuthHeaders(),
     });
 
     const data = await response.json();
-    return {
-      success: response.ok,
-      data,
-      status: response.status,
-    };
+    console.log('[Coupons] API Response:', data);
+
+    if (!response.ok) {
+      console.error('[Coupons] Failed to fetch coupons:', data);
+      return { success: false, error: data.detail || 'Failed to fetch coupons', status: response.status };
+    }
+
+    console.log('[Coupons] Coupons fetched successfully');
+    return { success: true, data, status: response.status };
   } catch (error) {
-    console.error('Get all coupons API Error:', error);
-    return {
-      success: false,
-      message: error.message || 'Failed to fetch coupons',
-    };
+    console.error('[Coupons] Error fetching coupons:', error);
+    return { success: false, error: error.message };
   }
 };
 
