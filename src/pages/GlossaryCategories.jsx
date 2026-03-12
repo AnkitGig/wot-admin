@@ -1,26 +1,22 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { getAllGlossaries, deleteGlossary, updateGlossary, getAllGlossaryCategories } from '../api/glossary';
+import { getAllGlossaryCategories, deleteGlossaryCategory, updateGlossaryCategory } from '../api/glossary';
 import { useAuth } from '../context/AuthContext';
 import GlobalLoader from '../components/GlobalLoader';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
 
-export default function Glossaries() {
+export default function GlossaryCategories() {
   const { token } = useAuth();
-  const [glossaries, setGlossaries] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [showEditModal, setShowEditModal] = useState(false);
-  const [editingGlossary, setEditingGlossary] = useState(null);
-  const [categories, setCategories] = useState([]);
-  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [editingCategory, setEditingCategory] = useState(null);
   const [editFormData, setEditFormData] = useState({
-    term: '',
-    short_form: '',
-    category: '',
+    name: '',
     description: '',
   });
   const [pagination, setPagination] = useState({
@@ -31,57 +27,45 @@ export default function Glossaries() {
   });
 
   useEffect(() => {
-    fetchGlossaries(1);
-    fetchCategories();
+    fetchCategories(1);
   }, []);
 
-  const fetchCategories = async () => {
-    if (!token) return;
-    
-    setCategoriesLoading(true);
-    try {
-      const result = await getAllGlossaryCategories(token, 1, 100);
-      if (result.success) {
-        setCategories(result.data || []);
-      } else {
-        console.error('Failed to fetch categories:', result.message);
-      }
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    } finally {
-      setCategoriesLoading(false);
-    }
-  };
-
-  const fetchGlossaries = async (pageNumber = 1) => {
+  const fetchCategories = async (pageNumber = 1, search = '') => {
     setIsLoading(true);
-    const result = await getAllGlossaries(token, pageNumber, 10);
+    const result = await getAllGlossaryCategories(token, pageNumber, 10, search);
     
     if (result.success) {
-      setGlossaries(result.data || []);
+      setCategories(result.data || []);
       setPagination(result.pagination || { page: pageNumber, limit: 10, total: 0, count: 0 });
     } else {
       Swal.fire({
         icon: 'error',
-        title: 'Failed to Load Glossaries',
-        text: result.message || 'An error occurred while fetching glossaries',
+        title: 'Failed to Load Categories',
+        text: result.message || 'An error occurred while fetching glossary categories',
       });
-      setGlossaries([]);
+      setCategories([]);
     }
     setIsLoading(false);
   };
 
   const handlePageChange = (newPage) => {
-    fetchGlossaries(newPage);
+    fetchCategories(newPage, searchTerm);
   };
 
-  const handleEditClick = (glossary) => {
-    setEditingGlossary(glossary);
+  const handleSearch = (e) => {
+    e.preventDefault();
+    fetchCategories(1, searchTerm);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const handleEditClick = (category) => {
+    setEditingCategory(category);
     setEditFormData({
-      term: glossary.term,
-      short_form: glossary.short_form,
-      category: glossary.category,
-      description: glossary.description,
+      name: category.name,
+      description: category.description || '',
     });
     setShowEditModal(true);
   };
@@ -97,42 +81,42 @@ export default function Glossaries() {
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     
-    if (!editFormData.term || !editFormData.short_form || !editFormData.category || !editFormData.description) {
+    if (!editFormData.name.trim()) {
       Swal.fire({
         icon: 'warning',
         title: 'Validation Error',
-        text: 'All fields are required',
+        text: 'Category name is required',
       });
       return;
     }
 
-    const updateResult = await updateGlossary(editingGlossary.id, editFormData, token);
+    const updateResult = await updateGlossaryCategory(editingCategory.id, editFormData, token);
 
     if (updateResult.success) {
       Swal.fire({
         icon: 'success',
         title: 'Updated',
-        text: updateResult.message || 'Glossary updated successfully',
+        text: updateResult.message || 'Category updated successfully',
         timer: 1500,
         timerProgressBar: true,
         showConfirmButton: false,
       }).then(() => {
         setShowEditModal(false);
-        fetchGlossaries(pagination.page);
+        fetchCategories(pagination.page, searchTerm);
       });
     } else {
       Swal.fire({
         icon: 'error',
         title: 'Failed to Update',
-        text: updateResult.message || 'An error occurred while updating the glossary',
+        text: updateResult.message || 'An error occurred while updating the category',
       });
     }
   };
 
-  const handleDeleteGlossary = (glossaryId, glossaryTerm) => {
+  const handleDeleteCategory = (categoryId, categoryName) => {
     Swal.fire({
-      title: 'Delete Glossary',
-      text: `Are you sure you want to delete "${glossaryTerm}"? This action cannot be undone.`,
+      title: 'Delete Category',
+      text: `Are you sure you want to delete "${categoryName}"? This action cannot be undone.`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#d33',
@@ -141,24 +125,24 @@ export default function Glossaries() {
       cancelButtonText: 'Cancel',
     }).then(async (result) => {
       if (result.isConfirmed) {
-        const deleteResult = await deleteGlossary(glossaryId, token);
+        const deleteResult = await deleteGlossaryCategory(categoryId, token);
 
         if (deleteResult.success) {
           Swal.fire({
             icon: 'success',
             title: 'Deleted',
-            text: deleteResult.message || 'Glossary deleted successfully',
+            text: deleteResult.message || 'Category deleted successfully',
             timer: 1500,
             timerProgressBar: true,
             showConfirmButton: false,
           }).then(() => {
-            fetchGlossaries();
+            fetchCategories(pagination.page, searchTerm);
           });
         } else {
           Swal.fire({
             icon: 'error',
             title: 'Failed to Delete',
-            text: deleteResult.message || 'An error occurred while deleting the glossary',
+            text: deleteResult.message || 'An error occurred while deleting the category',
           });
         }
       }
@@ -176,15 +160,15 @@ export default function Glossaries() {
           <div className="page-header">
             <div className="content-page-header">
               <div>
-                <h5>Glossaries</h5>
+                <h5>Glossary Categories</h5>
               </div>
               <div className="list-btn">
                 <ul className="filter-list">
-                  <li>
-                    <Link className="btn btn-primary" to="/add-glossary-category"><i className="fa fa-plus-circle me-2"></i>Add Glossary Category</Link>
-                  </li>
                    <li>
                     <Link className="btn btn-primary" to="/add-glossary"><i className="fa fa-plus-circle me-2"></i>Add Glossary</Link>
+                  </li>
+                  <li>
+                    <Link className="btn btn-primary" to="/add-glossary-category"><i className="fa fa-plus-circle me-2"></i>Add Category</Link>
                   </li>
                 </ul>
               </div>
@@ -195,55 +179,85 @@ export default function Glossaries() {
             <div className="col-sm-12">
               <div className="card">
                 <div className="card-body">
+                  {/* Search Form */}
+                  <form onSubmit={handleSearch} className="mb-3">
+                    <div className="row">
+                      <div className="col-md-8">
+                        <input 
+                          type="text" 
+                          className="form-control" 
+                          placeholder="Search categories..."
+                          value={searchTerm}
+                          onChange={handleSearchChange}
+                        />
+                      </div>
+                      <div className="col-md-4">
+                        <button type="submit" className="btn btn-primary">
+                          <i className="fas fa-search"></i> Search
+                        </button>
+                        {searchTerm && (
+                          <button 
+                            type="button" 
+                            className="btn btn-secondary ms-2"
+                            onClick={() => {
+                              setSearchTerm('');
+                              fetchCategories(1, '');
+                            }}
+                          >
+                            <i className="fas fa-times"></i> Clear
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </form>
+
                   {isLoading ? (
                     <GlobalLoader visible={true} size="medium" />
-                  ) : glossaries.length === 0 ? (
+                  ) : categories.length === 0 ? (
                     <div className="text-center py-5">
-                      <p className="text-muted">No glossaries found</p>
+                      <p className="text-muted">No glossary categories found</p>
                     </div>
                   ) : (
                     <div className="table-responsive">
                       <table className="table table-striped">
                         <thead>
                           <tr>
-                            <th>Term</th>
-                            <th>Short Form</th>
-                            <th>Category</th>
+                            <th>Name</th>
                             <th>Description</th>
                             <th>Action</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {glossaries.map((glossary) => (
-                            <tr key={glossary.id}>
+                          {categories.map((category) => (
+                            <tr key={category.id}>
                               <td>
-                                <strong>{glossary.term}</strong>
+                                <strong>{category.name}</strong>
                               </td>
                               <td>
-                                <span className="badge bg-info">{glossary.short_form}</span>
-                              </td>
-                              <td>
-                                <span className="badge bg-secondary">{glossary.category}</span>
-                              </td>
-                              <td>
-                                <small title={glossary.description}>
-                                  {glossary.description?.substring(0, 60)}
-                                  {glossary.description?.length > 60 ? '...' : ''}
+                                <small title={category.description}>
+                                  {category.description ? (
+                                    <>
+                                      {category.description.substring(0, 80)}
+                                      {category.description.length > 80 ? '...' : ''}
+                                    </>
+                                  ) : (
+                                    <span className="text-muted">No description</span>
+                                  )}
                                 </small>
                               </td>
                               <td>
                                 <div className="d-flex gap-2">
                                   <button 
                                     className="btn btn-sm btn-outline-primary"
-                                    onClick={() => handleEditClick(glossary)}
-                                    title="Edit Glossary"
+                                    onClick={() => handleEditClick(category)}
+                                    title="Edit Category"
                                   >
                                     <i className="fas fa-edit"></i>
                                   </button>
                                   <button 
                                     className="btn btn-sm btn-outline-danger"
-                                    onClick={() => handleDeleteGlossary(glossary.id, glossary.term)}
-                                    title="Delete Glossary"
+                                    onClick={() => handleDeleteCategory(category.id, category.name)}
+                                    title="Delete Category"
                                   >
                                     <i className="fas fa-trash"></i>
                                   </button>
@@ -260,13 +274,13 @@ export default function Glossaries() {
             </div>
           </div>
 
-          {totalPages > 1 && glossaries.length > 0 && (
+          {totalPages > 1 && categories.length > 0 && (
             <div className="row mt-3">
               <div className="col-sm-12">
                 <div className="card">
                   <div className="card-body d-flex justify-content-between align-items-center">
                     <small className="text-muted">
-                      Page {pagination.page} of {totalPages} | Showing {glossaries.length} of {pagination.total} glossaries
+                      Page {pagination.page} of {totalPages} | Showing {categories.length} of {pagination.total} categories
                     </small>
                     <nav aria-label="Page navigation">
                       <ul className="pagination mb-0">
@@ -316,73 +330,31 @@ export default function Glossaries() {
         <div className="modal-dialog modal-dialog-centered" role="document">
           <div className="modal-content">
             <div className="modal-header">
-              <h5 className="modal-title">Edit Glossary</h5>
+              <h5 className="modal-title">Edit Glossary Category</h5>
               <button type="button" className="btn-close" onClick={() => setShowEditModal(false)}></button>
             </div>
             <form onSubmit={handleEditSubmit}>
               <div className="modal-body">
                 <div className="mb-3">
-                  <label className="form-label">Term <span className="text-danger">*</span></label>
+                  <label className="form-label">Category Name <span className="text-danger">*</span></label>
                   <input 
                     type="text" 
                     className="form-control" 
-                    name="term"
-                    value={editFormData.term}
+                    name="name"
+                    value={editFormData.name}
                     onChange={handleEditInputChange}
                     required
                   />
                 </div>
                 <div className="mb-3">
-                  <label className="form-label">Short Form <span className="text-danger">*</span></label>
-                  <input 
-                    type="text" 
-                    className="form-control" 
-                    name="short_form"
-                    value={editFormData.short_form}
-                    onChange={handleEditInputChange}
-                    required
-                  />
-                </div>
-                <div className="mb-3">
-                  <label className="form-label">Category <span className="text-danger">*</span></label>
-                  <select 
-                    className="form-select" 
-                    name="category"
-                    value={editFormData.category}
-                    onChange={handleEditInputChange}
-                    required
-                    disabled={categoriesLoading}
-                  >
-                    <option value="">{categoriesLoading ? 'Loading categories...' : 'Select a category'}</option>
-                    {categories.map((category) => (
-                      <option key={category.id} value={category.name}>
-                        {category.name}
-                      </option>
-                    ))}
-                    {/* Fallback options if API fails */}
-                    {!categoriesLoading && categories.length === 0 && (
-                      <>
-                        <option value="SMC">SMC</option>
-                        <option value="Technical Analysis">Technical Analysis</option>
-                        <option value="ICT">ICT</option>
-                        <option value="Price Action">Price Action</option>
-                        <option value="Risk Management">Risk Management</option>
-                      </>
-                    )}
-                  </select>
-                  {categoriesLoading && (
-                    <small className="text-muted">Loading categories from server...</small>
-                  )}
-                </div>
-                <div className="mb-3">
-                  <label className="form-label">Description <span className="text-danger">*</span></label>
+                  <label className="form-label">Description</label>
                   <textarea 
                     className="form-control" 
                     rows="4"
                     name="description"
                     value={editFormData.description}
                     onChange={handleEditInputChange}
-                    required
+                    placeholder="Enter category description (optional)"
                   ></textarea>
                 </div>
               </div>

@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { addGlossary } from '../api/glossary';
+import { addGlossary, getAllGlossaryCategories } from '../api/glossary';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
@@ -11,12 +11,46 @@ export default function AddGlossary() {
   const navigate = useNavigate();
   const { token } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [formData, setFormData] = useState({
     term: '',
     short_form: '',
     category: '',
     description: '',
   });
+
+  useEffect(() => {
+    fetchCategories();
+  }, [token]);
+
+  const fetchCategories = async () => {
+    if (!token) return;
+    
+    setCategoriesLoading(true);
+    try {
+      const result = await getAllGlossaryCategories(token, 1, 100); // Fetch up to 100 categories
+      if (result.success) {
+        setCategories(result.data || []);
+      } else {
+        console.error('Failed to fetch categories:', result.message);
+        Swal.fire({
+          icon: 'warning',
+          title: 'Warning',
+          text: 'Could not load categories. Using default options.',
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      Swal.fire({
+        icon: 'warning',
+        title: 'Warning',
+        text: 'Could not load categories. Using default options.',
+      });
+    } finally {
+      setCategoriesLoading(false);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -156,14 +190,28 @@ export default function AddGlossary() {
                         value={formData.category}
                         onChange={handleInputChange}
                         required
+                        disabled={categoriesLoading}
                       >
-                        <option value="">Select a category</option>
-                        <option value="SMC">SMC</option>
-                        <option value="Technical Analysis">Technical Analysis</option>
-                        <option value="ICT">ICT</option>
-                        <option value="Price Action">Price Action</option>
-                        <option value="Risk Management">Risk Management</option>
+                        <option value="">{categoriesLoading ? 'Loading categories...' : 'Select a category'}</option>
+                        {categories.map((category) => (
+                          <option key={category.id} value={category.name}>
+                            {category.name}
+                          </option>
+                        ))}
+                        {/* Fallback options if API fails */}
+                        {!categoriesLoading && categories.length === 0 && (
+                          <>
+                            <option value="SMC">SMC</option>
+                            <option value="Technical Analysis">Technical Analysis</option>
+                            <option value="ICT">ICT</option>
+                            <option value="Price Action">Price Action</option>
+                            <option value="Risk Management">Risk Management</option>
+                          </>
+                        )}
                       </select>
+                      {categoriesLoading && (
+                        <small className="text-muted">Loading categories from server...</small>
+                      )}
                     </div>
 
                     <div className="col-md-6">

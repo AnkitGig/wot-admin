@@ -38,6 +38,8 @@ import EditCoupon from './pages/EditCoupon'
 import CouponCategories from './pages/CouponCategories'
 import AddCouponCategory from './pages/AddCouponCategory'
 import EditCouponCategory from './pages/EditCouponCategory'
+import GlossaryCategories from './pages/GlossaryCategories'
+import AddGlossaryCategory from './pages/AddGlossaryCategory'
 
 export default function App() {
   return (
@@ -89,6 +91,8 @@ export default function App() {
         <Route path="/coupon-categories" element={<ProtectedRoute><CouponCategories /></ProtectedRoute>} />
         <Route path="/add-coupon-category" element={<ProtectedRoute><AddCouponCategory /></ProtectedRoute>} />
         <Route path="/edit-coupon-category/:categoryId" element={<ProtectedRoute><EditCouponCategory /></ProtectedRoute>} />
+        <Route path="/glossary-categories" element={<ProtectedRoute><GlossaryCategories /></ProtectedRoute>} />
+        <Route path="/add-glossary-category" element={<ProtectedRoute><AddGlossaryCategory /></ProtectedRoute>} />
       </Routes>
     </AuthProvider>
   )

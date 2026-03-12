@@ -242,3 +242,243 @@ export const deleteGlossary = async (glossaryId, token) => {
     };
   }
 };
+
+// ===== GLOSSARY CATEGORY API FUNCTIONS =====
+
+// Add new glossary category
+export const addGlossaryCategory = async (categoryData, token) => {
+  try {
+    const url = `${API_BASE_URL}/admin/glossary-category`;
+    
+    const formData = new URLSearchParams();
+    formData.append('name', categoryData.name);
+    formData.append('description', categoryData.description || '');
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'accept': 'application/json',
+      },
+      body: formData.toString(),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      return {
+        success: false,
+        message: `HTTP Error: ${response.status}`,
+      };
+    }
+
+    const data = await response.json();
+
+    if (data.status === 1 || response.status === 200) {
+      return {
+        success: true,
+        data: data.data || data,
+        message: data.message || 'Glossary category added successfully',
+      };
+    } else {
+      return {
+        success: false,
+        message: data.message || 'Failed to add glossary category',
+      };
+    }
+  } catch (error) {
+    console.error('Add Glossary Category API Error:', error);
+    return {
+      success: false,
+      message: error.message || 'An error occurred while adding glossary category',
+    };
+  }
+};
+
+// Get all glossary categories with pagination and search
+export const getAllGlossaryCategories = async (token, page = 1, limit = 10, search = '') => {
+  try {
+    const searchParam = search ? `&search=${encodeURIComponent(search)}` : '';
+    const url = `${API_BASE_URL}/admin/glossary-category?page=${page}&limit=${limit}${searchParam}`;
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'accept': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      return {
+        success: false,
+        message: `HTTP Error: ${response.status}`,
+        data: [],
+        pagination: { page, limit, total: 0, count: 0 },
+      };
+    }
+
+    const data = await response.json();
+
+    if (data.status === 1) {
+      return {
+        success: true,
+        data: data.data || [],
+        message: data.message || 'Glossary categories fetched successfully',
+        pagination: {
+          page: data.page || page,
+          limit: data.limit || limit,
+          total: data.total || 0,
+          count: data.count || 0,
+        },
+      };
+    } else {
+      return {
+        success: false,
+        message: data.message || 'Failed to fetch glossary categories',
+        data: [],
+        pagination: { page, limit, total: 0, count: 0 },
+      };
+    }
+  } catch (error) {
+    console.error('Get Glossary Categories API Error:', error);
+    return {
+      success: false,
+      message: error.message || 'An error occurred while fetching glossary categories',
+      data: [],
+      pagination: { page: 1, limit: 10, total: 0, count: 0 },
+    };
+  }
+};
+
+// Get single glossary category by ID
+export const getGlossaryCategoryById = async (categoryId, token) => {
+  try {
+    const url = `${API_BASE_URL}/admin/glossary-category/${categoryId}`;
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'accept': 'application/json',
+      },
+    });
+
+    const data = await response.json();
+
+    if (data.status === 1) {
+      return {
+        success: true,
+        data: data.data,
+        message: data.message,
+      };
+    } else {
+      return {
+        success: false,
+        message: data.message || 'Failed to fetch glossary category',
+      };
+    }
+  } catch (error) {
+    console.error('Get Glossary Category API Error:', error);
+    return {
+      success: false,
+      message: error.message || 'An error occurred while fetching glossary category',
+    };
+  }
+};
+
+// Update glossary category
+export const updateGlossaryCategory = async (categoryId, categoryData, token) => {
+  try {
+    const url = `${API_BASE_URL}/admin/glossary-category/${categoryId}`;
+    
+    const formData = new URLSearchParams();
+    formData.append('name', categoryData.name);
+    formData.append('description', categoryData.description || '');
+
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'accept': 'application/json',
+      },
+      body: formData.toString(),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Update Glossary Category HTTP Error:', response.status, errorText);
+      return {
+        success: false,
+        message: `HTTP Error: ${response.status}`,
+      };
+    }
+
+    const data = await response.json();
+
+    if (data.status === 1) {
+      return {
+        success: true,
+        data: data.data,
+        message: data.message,
+      };
+    } else {
+      return {
+        success: false,
+        message: data.message || 'Failed to update glossary category',
+      };
+    }
+  } catch (error) {
+    console.error('Update Glossary Category API Error:', error);
+    return {
+      success: false,
+      message: error.message || 'An error occurred while updating glossary category',
+    };
+  }
+};
+
+// Delete glossary category
+export const deleteGlossaryCategory = async (categoryId, token) => {
+  try {
+    const url = `${API_BASE_URL}/admin/glossary-category/${categoryId}`;
+    
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'accept': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Delete Glossary Category HTTP Error:', response.status, errorText);
+      return {
+        success: false,
+        message: `HTTP Error: ${response.status}`,
+      };
+    }
+
+    const data = await response.json();
+
+    if (data.status === 1) {
+      return {
+        success: true,
+        data: data.data,
+        message: data.message,
+      };
+    } else {
+      return {
+        success: false,
+        message: data.message || 'Failed to delete glossary category',
+      };
+    }
+  } catch (error) {
+    console.error('Delete Glossary Category API Error:', error);
+    return {
+      success: false,
+      message: error.message || 'An error occurred while deleting glossary category',
+    };
+  }
+};
