@@ -75,13 +75,13 @@ export default function DurationPicker({ value, onChange, onClose }) {
             <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #ddd', borderRadius: '8px', overflow: 'hidden' }}>
               <button
                 type="button"
-                onClick={() => setMinutes(m => Math.max(0, m - 5))}
+                onClick={() => setMinutes(m => Math.max(0, m - 1))}
                 style={{ padding: '8px 12px', background: '#f5f5f5', border: 'none', cursor: 'pointer', fontSize: '16px' }}
               >−</button>
               <span style={{ flex: 1, textAlign: 'center', fontWeight: 600, fontSize: '18px' }}>{minutes}</span>
               <button
                 type="button"
-                onClick={() => setMinutes(m => Math.min(55, m + 5))}
+                onClick={() => setMinutes(m => Math.min(55, m + 1))}
                 style={{ padding: '8px 12px', background: '#f5f5f5', border: 'none', cursor: 'pointer', fontSize: '16px' }}
               >+</button>
             </div>
