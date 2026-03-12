@@ -217,7 +217,7 @@ export default function Courses() {
                                   {course.level}
                                 </span>
                               </td>
-                              <td>{course.duration_in_minutes} min</td>
+                              <td>{course.duration_in_minutes}</td>
                               <td>
                                 <button 
                                   className="btn btn-sm btn-outline-primary"
