@@ -243,6 +243,60 @@ export const deleteGlossary = async (glossaryId, token) => {
   }
 };
 
+// Import glossary from JSON file
+export const importGlossaryFromJSON = async (file, token) => {
+  try {
+    const url = `${API_BASE_URL}/admin/import-glossary`;
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    console.log('FormData contents:');
+    for (let [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'accept': 'application/json',
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('API Error Response:', errorText);
+      return {
+        success: false,
+        message: `HTTP Error: ${response.status} - ${errorText}`,
+      };
+    }
+
+    const data = await response.json();
+
+    if (data.status === 1 || response.status === 200) {
+      return {
+        success: true,
+        data: data.data || data,
+        message: data.message || 'Glossary imported successfully',
+      };
+    } else {
+      return {
+        success: false,
+        message: data.message || 'Failed to import glossary',
+      };
+    }
+  } catch (error) {
+    console.error('Import Glossary API Error:', error);
+    return {
+      success: false,
+      message: error.message || 'An error occurred while importing glossary',
+    };
+  }
+};
+
 // ===== GLOSSARY CATEGORY API FUNCTIONS =====
 
 // Add new glossary category
