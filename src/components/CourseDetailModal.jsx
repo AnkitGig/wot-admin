@@ -185,15 +185,7 @@ export default function CourseDetailModal({ show, courseData, isLoading, onClose
           <div className="modal-footer border-top">
             <button 
               type="button" 
-              className="btn btn-info" 
-              onClick={handleViewLessons}
-              disabled={isLoading}
-            >
-              <i className="fa fa-list me-2"></i>View Lessons
-            </button>
-            <button 
-              type="button" 
-              className="btn btn-secondary" 
+              className="btn btn-secondary mt-3" 
               onClick={onClose}
               disabled={isLoading}
             >
