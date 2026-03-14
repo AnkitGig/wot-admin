@@ -5,11 +5,13 @@ import Footer from '../components/Footer'
 import { getAllCoupons, deleteCoupon } from '../api/coupons'
 import { useAuth } from '../context/AuthContext'
 import Swal from 'sweetalert2'
+import { useNavigate } from 'react-router-dom'
 
 export default function Coupons() {
   const [coupons, setCoupons] = useState([])
   const [loading, setLoading] = useState(true)
   const { token } = useAuth()
+  const navigate = useNavigate()
 
   useEffect(() => {
     fetchCoupons()
@@ -43,7 +45,7 @@ export default function Coupons() {
   }
 
   const getStatusBadge = (isActive) => {
-    return isActive 
+    return isActive
       ? <span className="badge bg-success">Active</span>
       : <span className="badge bg-danger">Inactive</span>
   }
@@ -158,12 +160,16 @@ export default function Coupons() {
                               </small>
                             </td>
                             <td>
-                              <div className="btn-group btn-group-sm">
-                                <a href={`/edit-coupon/${coupon.coupon_id}`} className="btn btn-outline-primary" title="Edit">
+                              <div className="d-flex gap-2">
+                                <button
+                                  className="btn btn-sm btn-outline-primary"
+                                  title="Edit"
+                                  onClick={() => navigate(`/edit-coupon/${coupon.coupon_id}`)}
+                                >
                                   <i className="fas fa-edit"></i>
-                                </a>
-                                <button 
-                                  className="btn btn-outline-danger" 
+                                </button>
+                                <button
+                                  className="btn btn-sm btn-outline-danger"
                                   title="Delete"
                                   onClick={() => handleDelete(coupon.coupon_id)}
                                 >
