@@ -472,10 +472,11 @@ export default function EditLessonAdmin() {
                     <div className="col-md-4">
                       <label className="form-label">Is Downloadable</label>
                       <select
-                        className="form-select"
+                        className="form-control"
                         name="is_downloadable"
                         value={String(formData.is_downloadable)}
                         onChange={handleInputChange}
+                        style={{ appearance: "auto" }}
                       >
                         <option value="false">No</option>
                         <option value="true">Yes</option>
