@@ -288,12 +288,12 @@ export default function LessonContent() {
                     )}
                     {content && (
                       <>
-                        <button 
+                        {/* <button 
                           className="btn btn-warning me-2"
                           onClick={handleUpdateLesson}
                         >
                           <i className="fa fa-edit me-2"></i>Update
-                        </button>
+                        </button> */}
                         {/* <button 
                           className="btn btn-danger"
                           onClick={handleDeleteContent}

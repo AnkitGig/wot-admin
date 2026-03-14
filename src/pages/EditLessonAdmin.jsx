@@ -141,11 +141,7 @@ export default function EditLessonAdmin() {
   };
 
   const handleCancel = () => {
-    if (lessonData && lessonData.chapter_id) {
-      navigate(`/course/${lessonData.course_id}/chapter/${lessonData.chapter_id}/lessons`);
-    } else {
-      navigate('/lessons');
-    }
+    navigate(-1); // Go back to previous page
   };
 
   const handleSubmit = async (e) => {
@@ -192,11 +188,7 @@ export default function EditLessonAdmin() {
         timerProgressBar: true,
         showConfirmButton: false,
       }).then(() => {
-        if (lessonData && lessonData.chapter_id) {
-          navigate(`/course/${lessonData.course_id}/chapter/${lessonData.chapter_id}/lessons`);
-        } else {
-          navigate('/lessons');
-        }
+        navigate(-1); // Go back to previous page
       });
     } else {
       Swal.fire({
