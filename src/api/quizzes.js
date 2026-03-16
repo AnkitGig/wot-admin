@@ -88,6 +88,7 @@ export const updateQuiz = async (quizId, quizData) => {
     formData.append('is_featured', quizData.is_featured || false);
     formData.append('is_sponsored', quizData.is_sponsored || false);
     formData.append('featured_order', quizData.featured_order || 0);
+     formData.append('top10_coupon_id', quizData.coupon_id || '');
     if (quizData.image) formData.append('image', quizData.image);
     const response = await fetch(`${API_BASE_URL}/${quizId}/edit`, { method: 'PATCH', headers: getAuthHeaders(), body: formData });
     const data = await response.json();
