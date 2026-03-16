@@ -1,13 +1,22 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function Header() {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
   const toggleSidebar = () => {
     document.body.classList.toggle("mini-sidebar");
     const sidebar = document.getElementById("sidebar");
     if (sidebar) {
       sidebar.classList.toggle("active");
     }
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
   };
 
   return (
@@ -117,9 +126,13 @@ export default function Header() {
           </button>
 
           <div className="dropdown-menu dropdown-menu-end">
-            <Link to="/" className="dropdown-item">
+            <button 
+              className="dropdown-item" 
+              onClick={handleLogout}
+              style={{ border: 'none', background: 'none', width: '100%', textAlign: 'left' }}
+            >
               Log Out
-            </Link>
+            </button>
           </div>
         </li>
       </ul>
