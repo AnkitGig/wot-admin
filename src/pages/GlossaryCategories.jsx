@@ -18,6 +18,7 @@ export default function GlossaryCategories() {
   const [editFormData, setEditFormData] = useState({
     name: '',
     description: '',
+    color: '#941efd',
   });
   const [pagination, setPagination] = useState({
     page: 1,
@@ -66,6 +67,7 @@ export default function GlossaryCategories() {
     setEditFormData({
       name: category.name,
       description: category.description || '',
+      color: category.color || '#941efd',
     });
     setShowEditModal(true);
   };
@@ -325,6 +327,28 @@ export default function GlossaryCategories() {
                     onChange={handleEditInputChange}
                     placeholder="Enter category description (optional)"
                   ></textarea>
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Color</label>
+                  <div className="d-flex align-items-center gap-3">
+                    <input 
+                      type="color" 
+                      className="form-control form-control-color"
+                      style={{width: '60px', height: '40px', cursor: 'pointer'}}
+                      name="color"
+                      value={editFormData.color}
+                      onChange={handleEditInputChange}
+                    />
+                    <input 
+                      type="text" 
+                      className="form-control"
+                      placeholder="#941efd"
+                      name="color"
+                      value={editFormData.color}
+                      onChange={handleEditInputChange}
+                      style={{maxWidth: '150px'}}
+                    />
+                  </div>
                 </div>
               </div>
               <div className="modal-footer">
