@@ -199,6 +199,7 @@ export default function GlossaryCategories() {
                           <tr>
                             <th>Name</th>
                             <th>Description</th>
+                            <th>Color</th>
                             <th>Action</th>
                           </tr>
                         </thead>
@@ -219,6 +220,24 @@ export default function GlossaryCategories() {
                                     <span className="text-muted">No description</span>
                                   )}
                                 </small>
+                              </td>
+                              <td>
+                                {category.color ? (
+                                  <div className="d-flex align-items-center gap-2">
+                                    <div 
+                                      style={{
+                                        width: '24px',
+                                        height: '24px',
+                                        backgroundColor: category.color,
+                                        border: '1px solid #ddd',
+                                        borderRadius: '4px'
+                                      }}
+                                    ></div>
+                                    <small className="text-muted">{category.color}</small>
+                                  </div>
+                                ) : (
+                                  <span className="text-muted">No color</span>
+                                )}
                               </td>
                               <td>
                                 <div className="d-flex gap-2">
