@@ -10,7 +10,6 @@ export const addGlossary = async (glossaryData, token) => {
       short_form: glossaryData.short_form,
       category: glossaryData.category,
       description: glossaryData.description,
-      color: glossaryData.color,
     };
 
     const response = await fetch(url, {
