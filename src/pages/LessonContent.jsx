@@ -297,7 +297,7 @@ export default function LessonContent() {
               <div className="col-lg-8">
                 <div className="card border-0 shadow-soft">
                   <div className="card-body p-4">
-                    <div className="mb-4">{renderContent()}</div>
+                    {/* <div className="mb-4">{renderContent()}</div> */}
 
                     {lesson?.content?.pages && lesson.content.pages.length > 0 && (
                       <div className="mt-4 pt-4 border-top">
