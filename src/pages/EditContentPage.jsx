@@ -34,11 +34,11 @@ export default function EditContentPage() {
   const fetchLessonData = async () => {
     setIsLoading(true);
     const result = await getLessonAdmin(lessonId, token);
-    
+
     if (result.success) {
       setLesson(result.data);
       const pageData = result.data.content?.pages?.find(p => p.id === parseInt(pageId));
-      
+
       if (pageData) {
         setPage(pageData);
         setFormData({
@@ -53,7 +53,7 @@ export default function EditContentPage() {
           title: 'Page Not Found',
           text: 'The requested page was not found',
         }).then(() => {
-          navigate(`/courses/admin/lesson/${lessonId}/pages`);
+          navigate(-1);
         });
       }
     } else {
@@ -83,7 +83,7 @@ export default function EditContentPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.title.trim()) {
       Swal.fire({
         icon: 'warning',
@@ -104,14 +104,14 @@ export default function EditContentPage() {
 
     setIsSubmitting(true);
     const result = await updateLessonPage(lessonId, pageId, formData, token);
-    
+
     if (result.success) {
       Swal.fire({
         icon: 'success',
         title: 'Success',
         text: 'Page updated successfully',
       }).then(() => {
-        navigate(`/courses/admin/lesson/${lessonId}/pages`);
+        navigate(-1);
       });
     } else {
       Swal.fire({
@@ -135,16 +135,16 @@ export default function EditContentPage() {
   };
 
   const handleCancel = () => {
-    navigate(`/courses/admin/lesson/${lessonId}/pages`);
+    navigate(-1);
   };
 
   const modules = {
     toolbar: [
       [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
       ['bold', 'italic', 'underline', 'strike'],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      [{ 'script': 'sub'}, { 'script': 'super' }],
-      [{ 'indent': '-1'}, { 'indent': '+1' }],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      [{ 'script': 'sub' }, { 'script': 'super' }],
+      [{ 'indent': '-1' }, { 'indent': '+1' }],
       [{ 'direction': 'rtl' }],
       [{ 'color': [] }, { 'background': [] }],
       [{ 'align': [] }],
@@ -185,7 +185,16 @@ export default function EditContentPage() {
             <div className="row">
               <div className="col">
                 <h3 className="page-title">Edit Content Page</h3>
-               
+              </div>
+              <div className="col-auto">
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={handleCancel}
+                >
+                  <i className="fas fa-arrow-left me-2"></i>
+                  Back
+                </button>
               </div>
             </div>
           </div>
@@ -268,7 +277,7 @@ export default function EditContentPage() {
                           <div className="form-group">
                             <label className="form-label">Current Image</label>
                             <div className="d-flex align-items-center gap-3">
-                            <img
+                              <img
                                 src={page.image}
                                 alt="Current page image"
                                 className="img-thumbnail"

@@ -157,25 +157,23 @@ export default function AddContentPage() {
       <Sidebar />
       <div className="page-wrapper">
         <div className="content container-fluid">
-          <div className="page-header">
-            <div className="row">
-              <div className="col">
-                <h3 className="page-title">Add Content Page</h3>
-                <ul className="breadcrumb">
-                  <li className="breadcrumb-item">
-                    <a href="/dashboard">Dashboard</a>
-                  </li>
-                  <li className="breadcrumb-item">
-                    <a href="/lessons">Lessons</a>
-                  </li>
-                  <li className="breadcrumb-item">
-                    <a href={`/lesson/${lessonId}/content`}>Lesson Content</a>
-                  </li>
-                  <li className="breadcrumb-item active">Add Content Page</li>
-                </ul>
-              </div>
-            </div>
-          </div>
+        <div className="page-header">
+  <div className="row align-items-center">
+    <div className="col">
+      <h3 className="page-title">Add Content Page</h3>
+    </div>
+    <div className="col-auto">
+      <button
+        type="button"
+        className="btn btn-outline-secondary"
+        onClick={handleCancel}
+      >
+        <i className="fas fa-arrow-left me-2"></i>
+        Back
+      </button>
+    </div>
+  </div>
+</div>
 
           <div className="row">
             <div className="col-12">
