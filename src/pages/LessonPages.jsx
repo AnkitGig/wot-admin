@@ -133,84 +133,86 @@ export default function LessonPages() {
                   </div>
                 </div>
                 <div className="card-body">
-                  {pages.length > 0 ? (
-                    <div className="row">
-                      {pages.map((page) => (
-                        <div key={page.id} className="col-md-6 col-lg-4 mb-4">
-                          <div className="card h-100 border shadow-sm">
-                            <div className="card-body d-flex flex-column">
-                              <div className="d-flex justify-content-between align-items-start mb-2">
-                                <h6 className="card-title mb-0">{page.title}</h6>
-                                <span className="badge bg-primary">Page {page.page_number}</span>
-                              </div>
-                              
-                              <div className="flex-grow-1">
-                                {page.html_content && (
-                                  <div className="mb-2">
-                                    <small className="text-muted d-block">Content Preview:</small>
-                                    <small className="text-muted">
-                                      {(() => {
-                                        const tempDiv = document.createElement('div');
-                                        tempDiv.innerHTML = page.html_content;
-                                        const text = tempDiv.textContent || tempDiv.innerText || '';
-                                        return text.length > 50 ? text.substring(0, 50) + '...' : text;
-                                      })()}
-                                    </small>
-                                  </div>
-                                )}
+                {pages.length > 0 ? (
+  <div className="row">
+    {pages.map((page) => (
+      <div key={page.id} className="col-md-4 mb-4" style={{ display: 'flex' }}>
+        <div className="card border shadow-sm w-100" style={{ display: 'flex', flexDirection: 'column' }}>
+          <div className="card-body" style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+            
+            <div className="d-flex justify-content-between align-items-start mb-2">
+              <h6 className="card-title mb-0">{page.title}</h6>
+              <span className="badge bg-primary">Page {page.page_number}</span>
+            </div>
 
-                                {page.image && (
-                                  <div className="mb-2">
-                                    <img
-                                      src={page.image}
-                                      alt="Page image"
-                                      className="img-fluid rounded"
-                                      style={{ maxHeight: '80px', width: '100%', objectFit: 'cover' }}
-                                    />
-                                  </div>
-                                )}
-                              </div>
+            <div style={{ flex: 1 }}>
+              {page.html_content && (
+                <div className="mb-2">
+                  {/* <small className="text-muted d-block">Content Preview:</small>
+                  <small className="text-muted">
+                    {(() => {
+                      const tempDiv = document.createElement('div');
+                      tempDiv.innerHTML = page.html_content;
+                      const text = tempDiv.textContent || tempDiv.innerText || '';
+                      return text.length > 50 ? text.substring(0, 50) + '...' : text;
+                    })()}
+                  </small> */}
+                </div>
+              )}
 
-                              <div className="mt-auto">
-                                <div className="d-flex gap-2">
-                                  <button
-                                    className="btn btn-sm btn-primary"
-                                    onClick={() => handlePageClick(page)}
-                                  >
-                                    <i className="fa fa-eye me-1"></i>View
-                                  </button>
-                                  <button
-                                    className="btn btn-sm btn-warning"
-                                    onClick={() => navigate(`/courses/admin/lesson/${lessonId}/page/${page.id}/edit`)}
-                                  >
-                                    <i className="fa fa-edit me-1"></i>Edit
-                                  </button>
-                                  <button
-                                    className="btn btn-sm btn-danger"
-                                    onClick={() => handleDeletePage(page.id)}
-                                  >
-                                    <i className="fa fa-trash me-1"></i>Delete
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-5">
-                      <i className="fa fa-file-alt fa-3x text-muted mb-3"></i>
-                      <h5 className="text-muted">No pages found</h5>
-                      <p className="text-muted">Start by adding your first page to this lesson.</p>
-                      <button
-                        className="btn btn-primary"
-                        onClick={() => navigate(`/courses/admin/lesson/${lessonId}/page/add`)}
-                      >
-                        <i className="fa fa-plus me-2"></i>Add First Page
-                      </button>
-                    </div>
-                  )}
+              {page.image && (
+                <div className="mb-2">
+                  <img
+                    src={page.image}
+                    alt="Page image"
+                    className="img-fluid rounded"
+                    style={{ maxHeight: '80px', width: '100%', objectFit: 'cover' }}
+                  />
+                </div>
+              )}
+            </div>
+
+            <div style={{ marginTop: 'auto', paddingTop: '12px' }}>
+              <div className="d-flex gap-2">
+                <button
+                  className="btn btn-sm btn-primary"
+                  onClick={() => handlePageClick(page)}
+                >
+                  <i className="fa fa-eye me-1"></i>View
+                </button>
+                <button
+                  className="btn btn-sm btn-warning"
+                  onClick={() => navigate(`/courses/admin/lesson/${lessonId}/page/${page.id}/edit`)}
+                >
+                  <i className="fa fa-edit me-1"></i>Edit
+                </button>
+                <button
+                  className="btn btn-sm btn-danger"
+                  onClick={() => handleDeletePage(page.id)}
+                >
+                  <i className="fa fa-trash me-1"></i>Delete
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+) : (
+  <div className="text-center py-5">
+    <i className="fa fa-file-alt fa-3x text-muted mb-3"></i>
+    <h5 className="text-muted">No pages found</h5>
+    <p className="text-muted">Start by adding your first page to this lesson.</p>
+    <button
+      className="btn btn-primary"
+      onClick={() => navigate(`/courses/admin/lesson/${lessonId}/page/add`)}
+    >
+      <i className="fa fa-plus me-2"></i>Add First Page
+    </button>
+  </div>
+)}
                 </div>
               </div>
             </div>
