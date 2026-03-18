@@ -52,7 +52,7 @@ export default function LessonContent() {
     setIsLoading(true);
     console.log('[v0] Fetching lesson details for lessonId:', lessonId);
     const result = await getLessonAdmin(lessonId, token);
-    
+
     console.log('[v0] API Response:', result);
     if (result.success) {
       console.log('[v0] Lesson loaded:', result.data);
@@ -99,7 +99,7 @@ export default function LessonContent() {
 
     setIsLoading(true);
     const result = await createLessonContent(lessonId, contentFormData, token);
-    
+
     if (result.success) {
       Swal.fire({
         icon: 'success',
@@ -166,7 +166,7 @@ export default function LessonContent() {
 
     setIsLoading(true);
     const result = await updateLessonAdmin(lessonId, lessonFormData, token);
-    
+
     if (result.success) {
       Swal.fire({
         icon: 'success',
@@ -231,10 +231,13 @@ export default function LessonContent() {
         ) : null;
 
       case 'text':
+        // ✅ FIX: dangerouslySetInnerHTML se HTML tags properly render honge
         return content.text_content ? (
-          <div className="card-text text-dark" style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
-            {content.text_content}
-          </div>
+          <div
+            className="card-text text-dark"
+            style={{ wordWrap: 'break-word' }}
+            dangerouslySetInnerHTML={{ __html: content.text_content }}
+          />
         ) : null;
 
       case 'pdf':
@@ -247,9 +250,9 @@ export default function LessonContent() {
                 <strong>{content.title}</strong>
               </p>
               {content.file_size && <p className="text-muted mb-2">Size: {content.file_size}</p>}
-              <a 
-                href={content.file_url} 
-                target="_blank" 
+              <a
+                href={content.file_url}
+                target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-sm btn-primary"
               >
@@ -279,7 +282,7 @@ export default function LessonContent() {
                 <ul className="filter-list">
                   <li>
                     {!content && (
-                      <button 
+                      <button
                         className="btn btn-primary"
                         onClick={() => setShowContentModal(true)}
                       >
@@ -288,7 +291,7 @@ export default function LessonContent() {
                     )}
                   </li>
                   <li>
-                    <button 
+                    <button
                       className="btn btn-success"
                       onClick={() => navigate(`/courses/admin/lesson/${lessonId}/page/add`)}
                     >
@@ -296,7 +299,7 @@ export default function LessonContent() {
                     </button>
                   </li>
                   <li>
-                    <button 
+                    <button
                       className="btn btn-primary"
                       onClick={() => navigate(-1)}
                     >
@@ -326,83 +329,122 @@ export default function LessonContent() {
                           <h6 className="fw-bold mb-0">
                             <i className="fa fa-file-alt me-2"></i>Lesson Pages ({lesson.content.pages.length})
                           </h6>
-                          <button
-                            className="btn btn-sm btn-primary"
-                            onClick={() => navigate(`/courses/admin/lesson/${lessonId}/pages`)}
-                          >
-                            <i className="fa fa-list me-1"></i>View All Pages
-                          </button>
-                        </div>
                         
+                        </div>
+
                         <div className="row">
                           {lesson.content.pages.slice(0, 6).map((page) => (
-                            <div key={page.id} className="col-md-6 col-lg-4 mb-3">
-                              <div className="card h-100 border shadow-sm">
-                                <div className="card-body d-flex flex-column">
-                                  <div className="d-flex justify-content-between align-items-start mb-2">
-                                    <h6 className="card-title small mb-0">{page.title}</h6>
-                                    <span className="badge bg-primary">Page {page.page_number}</span>
-                                  </div>
-                                  
-                                  <div className="flex-grow-1">
-                                    {page.html_content && (
-                                      <div className="mb-2">
-                                        <small className="text-muted d-block">Content Preview:</small>
-                                        <small className="text-muted">
-                                          {(() => {
-                                            const tempDiv = document.createElement('div');
-                                            tempDiv.innerHTML = page.html_content;
-                                            const text = tempDiv.textContent || tempDiv.innerText || '';
-                                            return text.length > 80 ? text.substring(0, 80) + '...' : text;
-                                          })()}
-                                        </small>
-                                      </div>
-                                    )}
+                            <div key={page.id} className="col-md-6 col-lg-4 mb-3" style={{ display: 'flex' }}>
+                              <div style={{
+                                background: '#fff',
+                                borderRadius: '20px',
+                                padding: '16px',
+                                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                width: '100%',
+                                border: '1px solid #f0f0f0'
+                              }}>
+                                {/* Title + Badge */}
+                                <div className="d-flex justify-content-between align-items-start mb-2">
+                                  <h6 style={{ fontWeight: '700', fontSize: '14px', margin: 0 }}>{page.title}</h6>
+                                  <span style={{
+                                    background: 'linear-gradient(135deg, #6C63FF, #4ECDC4)',
+                                    color: '#fff',
+                                    borderRadius: '20px',
+                                    padding: '2px 10px',
+                                    fontSize: '11px',
+                                    fontWeight: '600',
+                                    whiteSpace: 'nowrap',
+                                    marginLeft: '6px'
+                                  }}>Page {page.page_number}</span>
+                                </div>
 
-                                    {page.image && (
-                                      <div className="mb-2">
-                                        <img
-                                          src={page.image}
-                                          alt="Page image"
-                                          className="img-fluid rounded"
-                                          style={{ maxHeight: '60px', width: '100%', objectFit: 'cover' }}
-                                        />
-                                      </div>
-                                    )}
-                                  </div>
+                                {/* Content Preview */}
+                                <div style={{ flex: 1 }}>
+                                  {page.html_content && (
+                                    <div className="mb-2">
+                                      <small style={{ color: '#999', display: 'block', marginBottom: '4px' }}>Content Preview:</small>
+                                      <small style={{ color: '#666' }}>
+                                        {(() => {
+                                          const tempDiv = document.createElement('div');
+                                          tempDiv.innerHTML = page.html_content;
+                                          const text = tempDiv.textContent || tempDiv.innerText || '';
+                                          return text.length > 80 ? text.substring(0, 80) + '...' : text;
+                                        })()}
+                                      </small>
+                                    </div>
+                                  )}
 
-                                  <div className="mt-auto">
-                                    <div className="d-flex gap-2">
-                                    <button
-                                      className="btn btn-sm btn-outline-primary flex-grow-1"
-                                      onClick={() => {
-                                        Swal.fire({
-                                          title: page.title,
-                                          html: `
-                                            <div style="text-align: left;">
-                                              <p><strong>Page Number:</strong> ${page.page_number}</p>
-                                              <div style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin: 10px 0;">
-                                                ${page.html_content}
-                                              </div>
-                                              ${page.image ? `<img src="${page.image}" style="max-width: 100%; height: auto;" />` : ''}
+                                  {page.image && (
+                                    <div className="mb-2">
+                                      <img
+                                        src={page.image}
+                                        alt="Page image"
+                                        style={{ maxHeight: '60px', width: '100%', objectFit: 'cover', borderRadius: '10px' }}
+                                      />
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Buttons */}
+                                <div style={{ marginTop: 'auto', paddingTop: '12px', display: 'flex', gap: '8px' }}>
+                                  <button
+                                    onClick={() => {
+                                      Swal.fire({
+                                        title: page.title,
+                                        html: `
+                                          <div style="text-align: left;">
+                                            <p><strong>Page Number:</strong> ${page.page_number}</p>
+                                            <div style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin: 10px 0;">
+                                              ${page.html_content}
                                             </div>
-                                          `,
-                                          width: '800px',
-                                          showCloseButton: true,
-                                          showConfirmButton: false
-                                        });
-                                      }}
-                                    >
-                                      <i className="fa fa-eye me-1"></i>View
-                                    </button>
-                                    <button
-                                      className="btn btn-sm btn-outline-warning"
-                                      onClick={() => navigate(`/courses/admin/lesson/${lessonId}/page/${page.id}/edit`)}
-                                    >
-                                      <i className="fa fa-edit me-1"></i>Edit
-                                    </button>
-                                  </div>
-                                  </div>
+                                            ${page.image ? `<img src="${page.image}" style="max-width: 100%; height: auto;" />` : ''}
+                                          </div>
+                                        `,
+                                        width: '800px',
+                                        showCloseButton: true,
+                                        showConfirmButton: false
+                                      });
+                                    }}
+                                    style={{
+                                      flex: 1,
+                                      padding: '8px',
+                                      borderRadius: '10px',
+                                      border: 'none',
+                                      background: 'linear-gradient(135deg, #6C63FF, #8B5CF6)',
+                                      color: '#fff',
+                                      fontWeight: '600',
+                                      fontSize: '12px',
+                                      cursor: 'pointer',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      gap: '4px'
+                                    }}
+                                  >
+                                    <i className="fa fa-eye"></i> View
+                                  </button>
+                                  <button
+                                    onClick={() => navigate(`/courses/admin/lesson/${lessonId}/page/${page.id}/edit`)}
+                                    style={{
+                                      flex: 1,
+                                      padding: '8px',
+                                      borderRadius: '10px',
+                                      border: 'none',
+                                      background: 'linear-gradient(135deg, #F59E0B, #FBBF24)',
+                                      color: '#fff',
+                                      fontWeight: '600',
+                                      fontSize: '12px',
+                                      cursor: 'pointer',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      gap: '4px'
+                                    }}
+                                  >
+                                    <i className="fa fa-edit"></i> Edit
+                                  </button>
                                 </div>
                               </div>
                             </div>
@@ -429,7 +471,7 @@ export default function LessonContent() {
                 <div className="card border-0 shadow-soft">
                   <div className="card-body">
                     <h6 className="fw-bold mb-3">Lesson Details</h6>
-                    
+
                     {lesson.description && (
                       <div className="mb-3">
                         <label className="text-muted small">Description</label>
@@ -484,9 +526,9 @@ export default function LessonContent() {
                     )}
 
                     <hr className="my-3" />
-                    
+
                     <h6 className="fw-bold mb-3">Content Details</h6>
-                    
+
                     <div className="mb-3">
                       <label className="text-muted small">Content Type</label>
                       <p className="mb-0">
@@ -539,7 +581,7 @@ export default function LessonContent() {
                           </button>
                         </p>
                         <div className="mt-2">
-                          {lesson.content.pages.slice(0, 3).map((page, index) => (
+                          {lesson.content.pages.slice(0, 3).map((page) => (
                             <small key={page.id} className="d-block text-muted">
                               Page {page.page_number}: {page.title}
                             </small>
@@ -586,9 +628,9 @@ export default function LessonContent() {
                 <div className="modal-content">
                   <div className="modal-header">
                     <h5 className="modal-title">{content ? 'Update Content' : 'Add Content'}</h5>
-                    <button 
-                      type="button" 
-                      className="btn-close" 
+                    <button
+                      type="button"
+                      className="btn-close"
                       onClick={() => setShowContentModal(false)}
                     ></button>
                   </div>
@@ -707,15 +749,15 @@ export default function LessonContent() {
                     </div>
                   </div>
                   <div className="modal-footer">
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       className="btn btn-secondary"
                       onClick={() => setShowContentModal(false)}
                     >
                       Cancel
                     </button>
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       className="btn btn-primary"
                       onClick={handleAddContent}
                       disabled={isLoading}
@@ -735,9 +777,9 @@ export default function LessonContent() {
                 <div className="modal-content">
                   <div className="modal-header">
                     <h5 className="modal-title">Update Lesson</h5>
-                    <button 
-                      type="button" 
-                      className="btn-close" 
+                    <button
+                      type="button"
+                      className="btn-close"
                       onClick={() => setShowLessonModal(false)}
                     ></button>
                   </div>
@@ -893,15 +935,15 @@ export default function LessonContent() {
                     </div>
                   </div>
                   <div className="modal-footer">
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       className="btn btn-secondary"
                       onClick={() => setShowLessonModal(false)}
                     >
                       Cancel
                     </button>
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       className="btn btn-primary"
                       onClick={handleUpdateLessonSubmit}
                       disabled={isLoading}
