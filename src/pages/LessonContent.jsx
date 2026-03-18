@@ -338,64 +338,71 @@ export default function LessonContent() {
                           {lesson.content.pages.slice(0, 6).map((page) => (
                             <div key={page.id} className="col-md-6 col-lg-4 mb-3">
                               <div className="card h-100 border shadow-sm">
-                                <div className="card-body p-3">
+                                <div className="card-body d-flex flex-column">
                                   <div className="d-flex justify-content-between align-items-start mb-2">
                                     <h6 className="card-title small mb-0">{page.title}</h6>
                                     <span className="badge bg-primary">Page {page.page_number}</span>
                                   </div>
                                   
-                                  {page.html_content && (
-                                    <div className="mb-2">
-                                      <small className="text-muted d-block">Content Preview:</small>
-                                      <small className="text-muted">
-                                        {(() => {
-                                          const tempDiv = document.createElement('div');
-                                          tempDiv.innerHTML = page.html_content;
-                                          const text = tempDiv.textContent || tempDiv.innerText || '';
-                                          return text.length > 80 ? text.substring(0, 80) + '...' : text;
-                                        })()}
-                                      </small>
-                                    </div>
-                                  )}
+                                  <div className="flex-grow-1">
+                                    {page.html_content && (
+                                      <div className="mb-2">
+                                        <small className="text-muted d-block">Content Preview:</small>
+                                        <small className="text-muted">
+                                          {(() => {
+                                            const tempDiv = document.createElement('div');
+                                            tempDiv.innerHTML = page.html_content;
+                                            const text = tempDiv.textContent || tempDiv.innerText || '';
+                                            return text.length > 80 ? text.substring(0, 80) + '...' : text;
+                                          })()}
+                                        </small>
+                                      </div>
+                                    )}
 
-                                  {page.image && (
-                                    <div className="mb-2">
-                                      <small className="text-success">
-                                        <i className="fa fa-image me-1"></i>Has Image
-                                      </small>
-                                    </div>
-                                  )}
+                                    {page.image && (
+                                      <div className="mb-2">
+                                        <img
+                                          src={page.image}
+                                          alt="Page image"
+                                          className="img-fluid rounded"
+                                          style={{ maxHeight: '60px', width: '100%', objectFit: 'cover' }}
+                                        />
+                                      </div>
+                                    )}
+                                  </div>
 
-                                  <div className="d-flex gap-2">
-                                  <button
-                                    className="btn btn-sm btn-outline-primary flex-grow-1"
-                                    onClick={() => {
-                                      Swal.fire({
-                                        title: page.title,
-                                        html: `
-                                          <div style="text-align: left;">
-                                            <p><strong>Page Number:</strong> ${page.page_number}</p>
-                                            <div style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin: 10px 0;">
-                                              ${page.html_content}
+                                  <div className="mt-auto">
+                                    <div className="d-flex gap-2">
+                                    <button
+                                      className="btn btn-sm btn-outline-primary flex-grow-1"
+                                      onClick={() => {
+                                        Swal.fire({
+                                          title: page.title,
+                                          html: `
+                                            <div style="text-align: left;">
+                                              <p><strong>Page Number:</strong> ${page.page_number}</p>
+                                              <div style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin: 10px 0;">
+                                                ${page.html_content}
+                                              </div>
+                                              ${page.image ? `<img src="${page.image}" style="max-width: 100%; height: auto;" />` : ''}
                                             </div>
-                                            ${page.image ? `<img src="${page.image}" style="max-width: 100%; height: auto;" />` : ''}
-                                          </div>
-                                        `,
-                                        width: '800px',
-                                        showCloseButton: true,
-                                        showConfirmButton: false
-                                      });
-                                    }}
-                                  >
-                                    <i className="fa fa-eye me-1"></i>View
-                                  </button>
-                                  <button
-                                    className="btn btn-sm btn-outline-warning"
-                                    onClick={() => navigate(`/courses/admin/lesson/${lessonId}/page/${page.id}/edit`)}
-                                  >
-                                    <i className="fa fa-edit me-1"></i>Edit
-                                  </button>
-                                </div>
+                                          `,
+                                          width: '800px',
+                                          showCloseButton: true,
+                                          showConfirmButton: false
+                                        });
+                                      }}
+                                    >
+                                      <i className="fa fa-eye me-1"></i>View
+                                    </button>
+                                    <button
+                                      className="btn btn-sm btn-outline-warning"
+                                      onClick={() => navigate(`/courses/admin/lesson/${lessonId}/page/${page.id}/edit`)}
+                                    >
+                                      <i className="fa fa-edit me-1"></i>Edit
+                                    </button>
+                                  </div>
+                                  </div>
                                 </div>
                               </div>
                             </div>
