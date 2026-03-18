@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { useAuth } from '../context/AuthContext';
-import { getLessonContent, createLessonContent, getLessonAdmin, updateLessonAdmin } from '../api/lessons';
+import { getLessonContent, createLessonContent, getLessonAdmin, updateLessonAdmin, deleteLessonPage } from '../api/lessons';
 import GlobalLoader from '../components/GlobalLoader';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
@@ -206,6 +206,40 @@ export default function LessonContent() {
     });
   };
 
+  const handleDeletePage = async (pageId, pageTitle) => {
+    Swal.fire({
+      title: 'Delete Lesson Page',
+      text: `Are you sure you want to delete "${pageTitle}"? This action cannot be undone.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it',
+      cancelButtonText: 'Cancel',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        setIsLoading(true);
+        const deleteResult = await deleteLessonPage(lessonId, pageId, token);
+
+        if (deleteResult.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Deleted!',
+            text: 'Lesson page has been deleted successfully.',
+          });
+          await fetchContent();
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Failed to Delete',
+            text: deleteResult.message || 'An error occurred while deleting the lesson page',
+          });
+        }
+        setIsLoading(false);
+      }
+    });
+  };
+
   const renderContent = () => {
     if (!content) return null;
 
@@ -231,7 +265,6 @@ export default function LessonContent() {
         ) : null;
 
       case 'text':
-        // ✅ FIX: dangerouslySetInnerHTML se HTML tags properly render honge
         return content.text_content ? (
           <div
             className="card-text text-dark"
@@ -329,12 +362,11 @@ export default function LessonContent() {
                           <h6 className="fw-bold mb-0">
                             <i className="fa fa-file-alt me-2"></i>Lesson Pages ({lesson.content.pages.length})
                           </h6>
-                        
                         </div>
 
                         <div className="row">
                           {lesson.content.pages.slice(0, 6).map((page) => (
-                            <div key={page.id} className="col-md-6 col-lg-4 mb-3" style={{ display: 'flex' }}>
+                            <div key={page.id} className="col-md-6 mb-3" style={{ display: 'flex' }}>
                               <div style={{
                                 background: '#fff',
                                 borderRadius: '20px',
@@ -343,11 +375,19 @@ export default function LessonContent() {
                                 display: 'flex',
                                 flexDirection: 'column',
                                 width: '100%',
-                                border: '1px solid #f0f0f0'
+                                border: '1px solid #f0f0f0',
+                                boxSizing: 'border-box',
+                                overflow: 'hidden',
                               }}>
                                 {/* Title + Badge */}
-                                <div className="d-flex justify-content-between align-items-start mb-2">
-                                  <h6 style={{ fontWeight: '700', fontSize: '14px', margin: 0 }}>{page.title}</h6>
+                                <div className="d-flex justify-content-between align-items-start mb-2" style={{ gap: '8px' }}>
+                                  <h6 style={{
+                                    fontWeight: '700',
+                                    fontSize: '14px',
+                                    margin: 0,
+                                    wordBreak: 'break-word',
+                                    flex: 1,
+                                  }}>{page.title}</h6>
                                   <span style={{
                                     background: 'linear-gradient(135deg, #6C63FF, #4ECDC4)',
                                     color: '#fff',
@@ -356,7 +396,7 @@ export default function LessonContent() {
                                     fontSize: '11px',
                                     fontWeight: '600',
                                     whiteSpace: 'nowrap',
-                                    marginLeft: '6px'
+                                    flexShrink: 0,
                                   }}>Page {page.page_number}</span>
                                 </div>
 
@@ -387,8 +427,14 @@ export default function LessonContent() {
                                   )}
                                 </div>
 
-                                {/* Buttons */}
-                                <div style={{ marginTop: 'auto', paddingTop: '12px', display: 'flex', gap: '8px' }}>
+                                {/* ✅ FIXED: Buttons — flexWrap added, minWidth set */}
+                                <div style={{
+                                  marginTop: 'auto',
+                                  paddingTop: '12px',
+                                  display: 'flex',
+                                  gap: '6px',
+                                  flexWrap: 'wrap',
+                                }}>
                                   <button
                                     onClick={() => {
                                       Swal.fire({
@@ -408,8 +454,9 @@ export default function LessonContent() {
                                       });
                                     }}
                                     style={{
-                                      flex: 1,
-                                      padding: '8px',
+                                      flex: '1 1 70px',
+                                      minWidth: '70px',
+                                      padding: '8px 6px',
                                       borderRadius: '10px',
                                       border: 'none',
                                       background: 'linear-gradient(135deg, #6C63FF, #8B5CF6)',
@@ -420,7 +467,7 @@ export default function LessonContent() {
                                       display: 'flex',
                                       alignItems: 'center',
                                       justifyContent: 'center',
-                                      gap: '4px'
+                                      gap: '4px',
                                     }}
                                   >
                                     <i className="fa fa-eye"></i> View
@@ -428,8 +475,9 @@ export default function LessonContent() {
                                   <button
                                     onClick={() => navigate(`/courses/admin/lesson/${lessonId}/page/${page.id}/edit`)}
                                     style={{
-                                      flex: 1,
-                                      padding: '8px',
+                                      flex: '1 1 70px',
+                                      minWidth: '70px',
+                                      padding: '8px 6px',
                                       borderRadius: '10px',
                                       border: 'none',
                                       background: 'linear-gradient(135deg, #F59E0B, #FBBF24)',
@@ -440,10 +488,31 @@ export default function LessonContent() {
                                       display: 'flex',
                                       alignItems: 'center',
                                       justifyContent: 'center',
-                                      gap: '4px'
+                                      gap: '4px',
                                     }}
                                   >
                                     <i className="fa fa-edit"></i> Edit
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeletePage(page.id, page.title)}
+                                    style={{
+                                      flex: '1 1 70px',
+                                      minWidth: '70px',
+                                      padding: '8px 6px',
+                                      borderRadius: '10px',
+                                      border: 'none',
+                                      background: 'linear-gradient(135deg, #EF4444, #DC2626)',
+                                      color: '#fff',
+                                      fontWeight: '600',
+                                      fontSize: '12px',
+                                      cursor: 'pointer',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      gap: '4px',
+                                    }}
+                                  >
+                                    <i className="fa fa-trash"></i> Delete
                                   </button>
                                 </div>
                               </div>
@@ -724,7 +793,7 @@ export default function LessonContent() {
                               checked={contentFormData.is_downloadable}
                               onChange={handleInputChange}
                             />
-                            Downloadable
+                            {' '}Downloadable
                           </label>
                         </div>
 
@@ -906,7 +975,7 @@ export default function LessonContent() {
                                   checked={lessonFormData.is_preview}
                                   onChange={handleLessonInputChange}
                                 />
-                                Preview Available
+                                {' '}Preview Available
                               </label>
                             </div>
                           </div>
@@ -920,7 +989,7 @@ export default function LessonContent() {
                                   checked={lessonFormData.is_locked}
                                   onChange={handleLessonInputChange}
                                 />
-                                Locked
+                                {' '}Locked
                               </label>
                             </div>
                           </div>
