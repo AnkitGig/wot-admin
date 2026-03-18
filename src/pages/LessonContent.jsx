@@ -573,12 +573,6 @@ export default function LessonContent() {
                         <label className="text-muted small">Pages</label>
                         <p className="mb-0">
                           <span className="badge bg-info">{lesson.content.pages.length} Pages</span>
-                          <button
-                            className="btn btn-sm btn-outline-info ms-2"
-                            onClick={() => navigate(`/courses/admin/lesson/${lessonId}/pages`)}
-                          >
-                            <i className="fa fa-eye me-1"></i>View
-                          </button>
                         </p>
                         <div className="mt-2">
                           {lesson.content.pages.slice(0, 3).map((page) => (
