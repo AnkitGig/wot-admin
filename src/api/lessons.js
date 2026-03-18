@@ -662,3 +662,63 @@ export const deleteLessonPage = async (lessonId, pageId, token) => {
     };
   }
 };
+
+// Update lesson page at /courses/admin/lesson/{lesson_id}/page/{page_id}
+export const updateLessonPage = async (lessonId, pageId, pageData, token) => {
+  try {
+    console.log('[v0] Updating lesson page:', pageId, 'for lesson:', lessonId);
+    const url = `${API_BASE_URL}/courses/admin/lesson/${lessonId}/page/${pageId}`;
+    
+    const formData = new FormData();
+    formData.append('title', pageData.title);
+    formData.append('html_content', pageData.html_content);
+    
+    if (pageData.image instanceof File) {
+      formData.append('image', pageData.image);
+    }
+    
+    if (pageData.remove_image !== undefined && pageData.remove_image !== null) {
+      formData.append('remove_image', pageData.remove_image);
+    }
+
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'accept': 'application/json',
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[v0] Update Page HTTP Error:', response.status, errorText);
+      return {
+        success: false,
+        message: `HTTP Error: ${response.status}`,
+      };
+    }
+
+    const data = await response.json();
+    console.log('[v0] Update lesson page response:', data);
+
+    if (data.status === 1) {
+      return {
+        success: true,
+        data: data.data,
+        message: data.message,
+      };
+    } else {
+      return {
+        success: false,
+        message: data.message || 'Failed to update lesson page',
+      };
+    }
+  } catch (error) {
+    console.error('Update Lesson Page API Error:', error);
+    return {
+      success: false,
+      message: error.message || 'An error occurred while updating lesson page',
+    };
+  }
+};

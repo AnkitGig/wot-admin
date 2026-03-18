@@ -42,6 +42,7 @@ import GlossaryCategories from './pages/GlossaryCategories'
 import AddGlossaryCategory from './pages/AddGlossaryCategory'
 import AddContentPage from './pages/AddContentPage'
 import LessonPages from './pages/LessonPages'
+import EditContentPage from './pages/EditContentPage'
 
 export default function App() {
   return (
@@ -97,6 +98,7 @@ export default function App() {
         <Route path="/add-glossary-category" element={<ProtectedRoute><AddGlossaryCategory /></ProtectedRoute>} />
         <Route path="/courses/admin/lesson/:lessonId/page/add" element={<ProtectedRoute><AddContentPage /></ProtectedRoute>} />
         <Route path="/courses/admin/lesson/:lessonId/pages" element={<ProtectedRoute><LessonPages /></ProtectedRoute>} />
+        <Route path="/courses/admin/lesson/:lessonId/page/:pageId/edit" element={<ProtectedRoute><EditContentPage /></ProtectedRoute>} />
       </Routes>
     </AuthProvider>
   )

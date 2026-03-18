@@ -366,8 +366,9 @@ export default function LessonContent() {
                                     </div>
                                   )}
 
+                                  <div className="d-flex gap-2">
                                   <button
-                                    className="btn btn-sm btn-outline-primary w-100"
+                                    className="btn btn-sm btn-outline-primary flex-grow-1"
                                     onClick={() => {
                                       Swal.fire({
                                         title: page.title,
@@ -386,8 +387,15 @@ export default function LessonContent() {
                                       });
                                     }}
                                   >
-                                    <i className="fa fa-eye me-1"></i>View Content
+                                    <i className="fa fa-eye me-1"></i>View
                                   </button>
+                                  <button
+                                    className="btn btn-sm btn-outline-warning"
+                                    onClick={() => navigate(`/courses/admin/lesson/${lessonId}/page/${page.id}/edit`)}
+                                  >
+                                    <i className="fa fa-edit me-1"></i>Edit
+                                  </button>
+                                </div>
                                 </div>
                               </div>
                             </div>

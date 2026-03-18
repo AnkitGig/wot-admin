@@ -112,18 +112,6 @@ export default function LessonPages() {
             <div className="row">
               <div className="col">
                 <h3 className="page-title">Lesson Pages</h3>
-                <ul className="breadcrumb">
-                  <li className="breadcrumb-item">
-                    <a href="/dashboard">Dashboard</a>
-                  </li>
-                  <li className="breadcrumb-item">
-                    <a href="/lessons">Lessons</a>
-                  </li>
-                  <li className="breadcrumb-item">
-                    <a href={`/lesson/${lessonId}/content`}>Lesson Content</a>
-                  </li>
-                  <li className="breadcrumb-item active">Pages</li>
-                </ul>
               </div>
             </div>
           </div>
@@ -177,6 +165,12 @@ export default function LessonPages() {
                                   onClick={() => handlePageClick(page)}
                                 >
                                   <i className="fa fa-eye me-1"></i>View
+                                </button>
+                                <button
+                                  className="btn btn-sm btn-warning"
+                                  onClick={() => navigate(`/courses/admin/lesson/${lessonId}/page/${page.id}/edit`)}
+                                >
+                                  <i className="fa fa-edit me-1"></i>Edit
                                 </button>
                                 <button
                                   className="btn btn-sm btn-danger"
