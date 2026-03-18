@@ -8,6 +8,14 @@ import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
 
+// ✅ Helper: escaped HTML string ko properly render karne ke liye unescape karo
+const unescapeHTML = (escapedStr) => {
+  if (!escapedStr) return '';
+  const txt = document.createElement('textarea');
+  txt.innerHTML = escapedStr;
+  return txt.value;
+};
+
 export default function LessonContent() {
   const { lessonId } = useParams();
   const { token } = useAuth();
@@ -17,6 +25,11 @@ export default function LessonContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [showContentModal, setShowContentModal] = useState(false);
   const [showLessonModal, setShowLessonModal] = useState(false);
+
+  // View Page Modal state
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [viewingPage, setViewingPage] = useState(null);
+
   const [lessonFormData, setLessonFormData] = useState({
     title: '',
     description: '',
@@ -41,8 +54,6 @@ export default function LessonContent() {
   });
 
   useEffect(() => {
-    console.log('[v0] LessonContent mounted with lessonId:', lessonId);
-    console.log('[v0] Token present:', !!token);
     if (lessonId && token) {
       fetchContent();
     }
@@ -50,12 +61,8 @@ export default function LessonContent() {
 
   const fetchContent = async () => {
     setIsLoading(true);
-    console.log('[v0] Fetching lesson details for lessonId:', lessonId);
     const result = await getLessonAdmin(lessonId, token);
-
-    console.log('[v0] API Response:', result);
     if (result.success) {
-      console.log('[v0] Lesson loaded:', result.data);
       setLesson(result.data);
       setContent(result.data.content);
     } else {
@@ -89,41 +96,21 @@ export default function LessonContent() {
 
   const handleAddContent = async () => {
     if (!contentFormData.title.trim()) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Validation Error',
-        text: 'Please enter content title',
-      });
+      Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'Please enter content title' });
       return;
     }
-
     setIsLoading(true);
     const result = await createLessonContent(lessonId, contentFormData, token);
-
     if (result.success) {
-      Swal.fire({
-        icon: 'success',
-        title: 'Success',
-        text: 'Content created successfully',
-      });
+      Swal.fire({ icon: 'success', title: 'Success', text: 'Content created successfully' });
       setShowContentModal(false);
       setContentFormData({
-        title: '',
-        content_type: 'text',
-        text_content: '',
-        duration: '',
-        file_size: '',
-        is_downloadable: false,
-        order_number: 1,
-        media: null,
+        title: '', content_type: 'text', text_content: '', duration: '',
+        file_size: '', is_downloadable: false, order_number: 1, media: null,
       });
       await fetchContent();
     } else {
-      Swal.fire({
-        icon: 'error',
-        title: 'Failed to Add Content',
-        text: result.message,
-      });
+      Swal.fire({ icon: 'error', title: 'Failed to Add Content', text: result.message });
     }
     setIsLoading(false);
   };
@@ -156,31 +143,17 @@ export default function LessonContent() {
 
   const handleUpdateLessonSubmit = async () => {
     if (!lessonFormData.title.trim()) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Validation Error',
-        text: 'Please enter lesson title',
-      });
+      Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'Please enter lesson title' });
       return;
     }
-
     setIsLoading(true);
     const result = await updateLessonAdmin(lessonId, lessonFormData, token);
-
     if (result.success) {
-      Swal.fire({
-        icon: 'success',
-        title: 'Success',
-        text: 'Lesson updated successfully',
-      });
+      Swal.fire({ icon: 'success', title: 'Success', text: 'Lesson updated successfully' });
       setShowLessonModal(false);
       await fetchContent();
     } else {
-      Swal.fire({
-        icon: 'error',
-        title: 'Failed to Update Lesson',
-        text: result.message,
-      });
+      Swal.fire({ icon: 'error', title: 'Failed to Update Lesson', text: result.message });
     }
     setIsLoading(false);
   };
@@ -197,11 +170,7 @@ export default function LessonContent() {
       cancelButtonText: 'Cancel',
     }).then((result) => {
       if (result.isConfirmed) {
-        Swal.fire({
-          title: 'Coming Soon',
-          text: 'Delete functionality will be available soon',
-          icon: 'info',
-        });
+        Swal.fire({ title: 'Coming Soon', text: 'Delete functionality will be available soon', icon: 'info' });
       }
     });
   };
@@ -220,13 +189,8 @@ export default function LessonContent() {
       if (result.isConfirmed) {
         setIsLoading(true);
         const deleteResult = await deleteLessonPage(lessonId, pageId, token);
-
         if (deleteResult.success) {
-          Swal.fire({
-            icon: 'success',
-            title: 'Deleted!',
-            text: 'Lesson page has been deleted successfully.',
-          });
+          Swal.fire({ icon: 'success', title: 'Deleted!', text: 'Lesson page has been deleted successfully.' });
           await fetchContent();
         } else {
           Swal.fire({
@@ -242,7 +206,6 @@ export default function LessonContent() {
 
   const renderContent = () => {
     if (!content) return null;
-
     switch (content.content_type?.toLowerCase()) {
       case 'video':
         return content.video_url ? (
@@ -253,7 +216,6 @@ export default function LessonContent() {
             </video>
           </div>
         ) : null;
-
       case 'audio':
         return content.video_url ? (
           <div className="mb-3">
@@ -263,38 +225,28 @@ export default function LessonContent() {
             </audio>
           </div>
         ) : null;
-
       case 'text':
         return content.text_content ? (
           <div
             className="card-text text-dark"
             style={{ wordWrap: 'break-word' }}
-            dangerouslySetInnerHTML={{ __html: content.text_content }}
+            dangerouslySetInnerHTML={{ __html: unescapeHTML(content.text_content) }}
           />
         ) : null;
-
       case 'pdf':
       case 'doc':
         return content.file_url ? (
           <div className="d-flex align-items-center gap-3">
             <i className={`fas ${content.content_type?.toLowerCase() === 'pdf' ? 'fa-file-pdf' : 'fa-file-word'} fa-3x text-danger`}></i>
             <div>
-              <p className="mb-2">
-                <strong>{content.title}</strong>
-              </p>
+              <p className="mb-2"><strong>{content.title}</strong></p>
               {content.file_size && <p className="text-muted mb-2">Size: {content.file_size}</p>}
-              <a
-                href={content.file_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-sm btn-primary"
-              >
+              <a href={content.file_url} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-primary">
                 <i className="fas fa-download me-2"></i>Download
               </a>
             </div>
           </div>
         ) : null;
-
       default:
         return <p className="text-muted">Content preview not available</p>;
     }
@@ -315,10 +267,7 @@ export default function LessonContent() {
                 <ul className="filter-list">
                   <li>
                     {!content && (
-                      <button
-                        className="btn btn-primary"
-                        onClick={() => setShowContentModal(true)}
-                      >
+                      <button className="btn btn-primary" onClick={() => setShowContentModal(true)}>
                         <i className="fa fa-plus me-2"></i>Add Content
                       </button>
                     )}
@@ -332,10 +281,7 @@ export default function LessonContent() {
                     </button>
                   </li>
                   <li>
-                    <button
-                      className="btn btn-primary"
-                      onClick={() => navigate(-1)}
-                    >
+                    <button className="btn btn-primary" onClick={() => navigate(-1)}>
                       <i className="fa fa-arrow-left me-2"></i>Back
                     </button>
                   </li>
@@ -351,11 +297,8 @@ export default function LessonContent() {
               <div className="col-lg-8">
                 <div className="card border-0 shadow-soft">
                   <div className="card-body p-4">
-                    <div className="mb-4">
-                      {renderContent()}
-                    </div>
+                    <div className="mb-4">{renderContent()}</div>
 
-                    {/* Pages Section */}
                     {lesson?.content?.pages && lesson.content.pages.length > 0 && (
                       <div className="mt-4 pt-4 border-top">
                         <div className="d-flex justify-content-between align-items-center mb-3">
@@ -368,106 +311,54 @@ export default function LessonContent() {
                           {lesson.content.pages.slice(0, 6).map((page) => (
                             <div key={page.id} className="col-md-6 mb-3" style={{ display: 'flex' }}>
                               <div style={{
-                                background: '#fff',
-                                borderRadius: '20px',
-                                padding: '16px',
-                                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                width: '100%',
-                                border: '1px solid #f0f0f0',
-                                boxSizing: 'border-box',
-                                overflow: 'hidden',
+                                background: '#fff', borderRadius: '20px', padding: '16px',
+                                boxShadow: '0 4px 20px rgba(0,0,0,0.08)', display: 'flex',
+                                flexDirection: 'column', width: '100%', border: '1px solid #f0f0f0',
+                                boxSizing: 'border-box', overflow: 'hidden',
                               }}>
-                                {/* Title + Badge */}
                                 <div className="d-flex justify-content-between align-items-start mb-2" style={{ gap: '8px' }}>
-                                  <h6 style={{
-                                    fontWeight: '700',
-                                    fontSize: '14px',
-                                    margin: 0,
-                                    wordBreak: 'break-word',
-                                    flex: 1,
-                                  }}>{page.title}</h6>
+                                  <h6 style={{ fontWeight: '700', fontSize: '14px', margin: 0, wordBreak: 'break-word', flex: 1 }}>
+                                    {page.title}
+                                  </h6>
                                   <span style={{
                                     background: 'linear-gradient(135deg, #6C63FF, #4ECDC4)',
-                                    color: '#fff',
-                                    borderRadius: '20px',
-                                    padding: '2px 10px',
-                                    fontSize: '11px',
-                                    fontWeight: '600',
-                                    whiteSpace: 'nowrap',
-                                    flexShrink: 0,
+                                    color: '#fff', borderRadius: '20px', padding: '2px 10px',
+                                    fontSize: '11px', fontWeight: '600', whiteSpace: 'nowrap', flexShrink: 0,
                                   }}>Page {page.page_number}</span>
                                 </div>
 
-                                {/* Content Preview */}
+                                {/* ✅ FIXED: unescapeHTML lagaya — properly render hoga */}
                                 <div style={{ flex: 1 }}>
                                   {page.html_content && (
                                     <div className="mb-2">
                                       <small style={{ color: '#999', display: 'block', marginBottom: '4px' }}>Content Preview:</small>
-                                      <small style={{ color: '#666' }}>
-                                        {(() => {
-                                          const tempDiv = document.createElement('div');
-                                          tempDiv.innerHTML = page.html_content;
-                                          const text = tempDiv.textContent || tempDiv.innerText || '';
-                                          return text.length > 80 ? text.substring(0, 80) + '...' : text;
-                                        })()}
-                                      </small>
+                                      <div
+                                        style={{
+                                          color: '#555', fontSize: '12px', maxHeight: '70px',
+                                          overflow: 'hidden', pointerEvents: 'none', lineHeight: '1.5',
+                                          WebkitMaskImage: 'linear-gradient(to bottom, black 50%, transparent 100%)',
+                                          maskImage: 'linear-gradient(to bottom, black 50%, transparent 100%)',
+                                        }}
+                                        dangerouslySetInnerHTML={{ __html: unescapeHTML(page.html_content) }}
+                                      />
                                     </div>
                                   )}
-
                                   {page.image && (
                                     <div className="mb-2">
-                                      <img
-                                        src={page.image}
-                                        alt="Page image"
-                                        style={{ maxHeight: '60px', width: '100%', objectFit: 'cover', borderRadius: '10px' }}
-                                      />
+                                      <img src={page.image} alt="Page image"
+                                        style={{ maxHeight: '60px', width: '100%', objectFit: 'cover', borderRadius: '10px' }} />
                                     </div>
                                   )}
                                 </div>
 
-                                {/* ✅ FIXED: Buttons — flexWrap added, minWidth set */}
-                                <div style={{
-                                  marginTop: 'auto',
-                                  paddingTop: '12px',
-                                  display: 'flex',
-                                  gap: '6px',
-                                  flexWrap: 'wrap',
-                                }}>
+                                <div style={{ marginTop: 'auto', paddingTop: '12px', display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                                   <button
-                                    onClick={() => {
-                                      Swal.fire({
-                                        title: page.title,
-                                        html: `
-                                          <div style="text-align: left;">
-                                            <p><strong>Page Number:</strong> ${page.page_number}</p>
-                                            <div style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin: 10px 0;">
-                                              ${page.html_content}
-                                            </div>
-                                            ${page.image ? `<img src="${page.image}" style="max-width: 100%; height: auto;" />` : ''}
-                                          </div>
-                                        `,
-                                        width: '800px',
-                                        showCloseButton: true,
-                                        showConfirmButton: false
-                                      });
-                                    }}
+                                    onClick={() => { setViewingPage(page); setShowViewModal(true); }}
                                     style={{
-                                      flex: '1 1 70px',
-                                      minWidth: '70px',
-                                      padding: '8px 6px',
-                                      borderRadius: '10px',
-                                      border: 'none',
-                                      background: 'linear-gradient(135deg, #6C63FF, #8B5CF6)',
-                                      color: '#fff',
-                                      fontWeight: '600',
-                                      fontSize: '12px',
-                                      cursor: 'pointer',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'center',
-                                      gap: '4px',
+                                      flex: '1 1 70px', minWidth: '70px', padding: '8px 6px', borderRadius: '10px',
+                                      border: 'none', background: 'linear-gradient(135deg, #6C63FF, #8B5CF6)',
+                                      color: '#fff', fontWeight: '600', fontSize: '12px', cursor: 'pointer',
+                                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px',
                                     }}
                                   >
                                     <i className="fa fa-eye"></i> View
@@ -475,20 +366,10 @@ export default function LessonContent() {
                                   <button
                                     onClick={() => navigate(`/courses/admin/lesson/${lessonId}/page/${page.id}/edit`)}
                                     style={{
-                                      flex: '1 1 70px',
-                                      minWidth: '70px',
-                                      padding: '8px 6px',
-                                      borderRadius: '10px',
-                                      border: 'none',
-                                      background: 'linear-gradient(135deg, #F59E0B, #FBBF24)',
-                                      color: '#fff',
-                                      fontWeight: '600',
-                                      fontSize: '12px',
-                                      cursor: 'pointer',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'center',
-                                      gap: '4px',
+                                      flex: '1 1 70px', minWidth: '70px', padding: '8px 6px', borderRadius: '10px',
+                                      border: 'none', background: 'linear-gradient(135deg, #F59E0B, #FBBF24)',
+                                      color: '#fff', fontWeight: '600', fontSize: '12px', cursor: 'pointer',
+                                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px',
                                     }}
                                   >
                                     <i className="fa fa-edit"></i> Edit
@@ -496,20 +377,10 @@ export default function LessonContent() {
                                   <button
                                     onClick={() => handleDeletePage(page.id, page.title)}
                                     style={{
-                                      flex: '1 1 70px',
-                                      minWidth: '70px',
-                                      padding: '8px 6px',
-                                      borderRadius: '10px',
-                                      border: 'none',
-                                      background: 'linear-gradient(135deg, #EF4444, #DC2626)',
-                                      color: '#fff',
-                                      fontWeight: '600',
-                                      fontSize: '12px',
-                                      cursor: 'pointer',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'center',
-                                      gap: '4px',
+                                      flex: '1 1 70px', minWidth: '70px', padding: '8px 6px', borderRadius: '10px',
+                                      border: 'none', background: 'linear-gradient(135deg, #EF4444, #DC2626)',
+                                      color: '#fff', fontWeight: '600', fontSize: '12px', cursor: 'pointer',
+                                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px',
                                     }}
                                   >
                                     <i className="fa fa-trash"></i> Delete
@@ -540,35 +411,30 @@ export default function LessonContent() {
                 <div className="card border-0 shadow-soft">
                   <div className="card-body">
                     <h6 className="fw-bold mb-3">Lesson Details</h6>
-
                     {lesson.description && (
                       <div className="mb-3">
                         <label className="text-muted small">Description</label>
                         <p className="mb-0 small">{lesson.description}</p>
                       </div>
                     )}
-
                     {lesson.duration && (
                       <div className="mb-3">
                         <label className="text-muted small">Lesson Duration</label>
                         <p className="mb-0 fw-bold">{lesson.duration}</p>
                       </div>
                     )}
-
                     {lesson.xp_points && (
                       <div className="mb-3">
                         <label className="text-muted small">XP Points</label>
                         <p className="mb-0 fw-bold">{lesson.xp_points}</p>
                       </div>
                     )}
-
                     {lesson.reward_points && (
                       <div className="mb-3">
                         <label className="text-muted small">Reward Points</label>
                         <p className="mb-0 fw-bold">{lesson.reward_points}</p>
                       </div>
                     )}
-
                     <div className="mb-3">
                       <label className="text-muted small">Preview Available</label>
                       <p className="mb-0">
@@ -577,7 +443,6 @@ export default function LessonContent() {
                         </span>
                       </p>
                     </div>
-
                     <div className="mb-3">
                       <label className="text-muted small">Locked Status</label>
                       <p className="mb-0">
@@ -586,18 +451,14 @@ export default function LessonContent() {
                         </span>
                       </p>
                     </div>
-
                     {lesson.order_number && (
                       <div className="mb-3">
                         <label className="text-muted small">Order</label>
                         <p className="mb-0 fw-bold">#{lesson.order_number}</p>
                       </div>
                     )}
-
                     <hr className="my-3" />
-
                     <h6 className="fw-bold mb-3">Content Details</h6>
-
                     <div className="mb-3">
                       <label className="text-muted small">Content Type</label>
                       <p className="mb-0">
@@ -606,28 +467,24 @@ export default function LessonContent() {
                         </span>
                       </p>
                     </div>
-
                     {content.duration && (
                       <div className="mb-3">
                         <label className="text-muted small">Duration</label>
                         <p className="mb-0 fw-bold">{content.duration}</p>
                       </div>
                     )}
-
                     {content.file_size && (
                       <div className="mb-3">
                         <label className="text-muted small">File Size</label>
                         <p className="mb-0 fw-bold">{content.file_size}</p>
                       </div>
                     )}
-
                     {content.order_number && (
                       <div className="mb-3">
                         <label className="text-muted small">Order</label>
                         <p className="mb-0 fw-bold">#{content.order_number}</p>
                       </div>
                     )}
-
                     <div className="mb-3">
                       <label className="text-muted small">Downloadable</label>
                       <p className="mb-0">
@@ -636,7 +493,6 @@ export default function LessonContent() {
                         </span>
                       </p>
                     </div>
-
                     {lesson?.content?.pages && lesson.content.pages.length > 0 && (
                       <div className="mb-3">
                         <label className="text-muted small">Pages</label>
@@ -650,24 +506,18 @@ export default function LessonContent() {
                             </small>
                           ))}
                           {lesson.content.pages.length > 3 && (
-                            <small className="text-muted">
-                              ...and {lesson.content.pages.length - 3} more
-                            </small>
+                            <small className="text-muted">...and {lesson.content.pages.length - 3} more</small>
                           )}
                         </div>
                       </div>
                     )}
-
                     {content.created_at && (
                       <div className="mb-3 pt-3 border-top">
                         <label className="text-muted small">Created</label>
                         <p className="mb-0 small">
                           {new Date(content.created_at).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
+                            year: 'numeric', month: 'long', day: 'numeric',
+                            hour: '2-digit', minute: '2-digit',
                           })}
                         </p>
                       </div>
@@ -684,6 +534,75 @@ export default function LessonContent() {
             </div>
           )}
 
+          {/* ✅ View Page Modal — unescapeHTML se properly render hoga */}
+          {showViewModal && viewingPage && (
+            <div
+              className="modal fade show d-block"
+              style={{ backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 9999 }}
+              onClick={(e) => { if (e.target === e.currentTarget) { setShowViewModal(false); setViewingPage(null); } }}
+            >
+              <div className="modal-dialog modal-lg modal-dialog-scrollable">
+                <div className="modal-content" style={{ borderRadius: '16px', overflow: 'hidden' }}>
+                  <div className="modal-header" style={{
+                    background: 'linear-gradient(135deg, #6C63FF, #4ECDC4)',
+                    color: '#fff', border: 'none', padding: '16px 24px',
+                  }}>
+                    <div>
+                      <h5 className="modal-title mb-0 fw-bold">{viewingPage.title}</h5>
+                      <small style={{ opacity: 0.85 }}>Page {viewingPage.page_number}</small>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => { setShowViewModal(false); setViewingPage(null); }}
+                      style={{
+                        background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '50%',
+                        width: '32px', height: '32px', color: '#fff', fontSize: '16px',
+                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}
+                    >✕</button>
+                  </div>
+
+                  <div className="modal-body p-4">
+                    {/* ✅ unescapeHTML — &lt;h2&gt; → <h2> → properly render hoga */}
+                    {viewingPage.html_content && (
+                      <div
+                        style={{ lineHeight: '1.8', color: '#333', fontSize: '15px' }}
+                        dangerouslySetInnerHTML={{ __html: unescapeHTML(viewingPage.html_content) }}
+                      />
+                    )}
+                    {viewingPage.image && (
+                      <div className="mt-3">
+                        <img src={viewingPage.image} alt="Page image"
+                          style={{ maxWidth: '100%', height: 'auto', borderRadius: '10px' }} />
+                      </div>
+                    )}
+                    {!viewingPage.html_content && !viewingPage.image && (
+                      <p className="text-muted text-center py-4">No content available for this page.</p>
+                    )}
+                  </div>
+
+                  <div className="modal-footer border-0 pt-0 pb-3 px-4">
+                    <button
+                      className="btn btn-outline-warning"
+                      onClick={() => {
+                        setShowViewModal(false);
+                        navigate(`/courses/admin/lesson/${lessonId}/page/${viewingPage.id}/edit`);
+                      }}
+                    >
+                      <i className="fa fa-edit me-2"></i>Edit This Page
+                    </button>
+                    <button
+                      className="btn btn-secondary"
+                      onClick={() => { setShowViewModal(false); setViewingPage(null); }}
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Content Modal */}
           {showContentModal && (
             <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
@@ -691,35 +610,20 @@ export default function LessonContent() {
                 <div className="modal-content">
                   <div className="modal-header">
                     <h5 className="modal-title">{content ? 'Update Content' : 'Add Content'}</h5>
-                    <button
-                      type="button"
-                      className="btn-close"
-                      onClick={() => setShowContentModal(false)}
-                    ></button>
+                    <button type="button" className="btn-close" onClick={() => setShowContentModal(false)}></button>
                   </div>
                   <div className="modal-body">
                     <div className="row">
                       <div className="col-12">
                         <div className="mb-3">
                           <label className="form-label">Content Title <span className="text-danger">*</span></label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="title"
-                            value={contentFormData.title}
-                            onChange={handleInputChange}
-                            placeholder="Enter content title"
-                          />
+                          <input type="text" className="form-control" name="title"
+                            value={contentFormData.title} onChange={handleInputChange} placeholder="Enter content title" />
                         </div>
-
                         <div className="mb-3">
                           <label className="form-label">Content Type <span className="text-danger">*</span></label>
-                          <select
-                            className="form-select"
-                            name="content_type"
-                            value={contentFormData.content_type}
-                            onChange={handleInputChange}
-                          >
+                          <select className="form-select" name="content_type"
+                            value={contentFormData.content_type} onChange={handleInputChange}>
                             <option value="text">Text</option>
                             <option value="video">Video</option>
                             <option value="audio">Audio</option>
@@ -727,104 +631,54 @@ export default function LessonContent() {
                             <option value="doc">Document</option>
                           </select>
                         </div>
-
                         {contentFormData.content_type === 'text' && (
                           <div className="mb-3">
                             <label className="form-label">Text Content</label>
-                            <textarea
-                              className="form-control"
-                              name="text_content"
-                              rows="4"
-                              value={contentFormData.text_content}
-                              onChange={handleInputChange}
-                              placeholder="Enter text content"
-                            ></textarea>
+                            <textarea className="form-control" name="text_content" rows="4"
+                              value={contentFormData.text_content} onChange={handleInputChange}
+                              placeholder="Enter text content"></textarea>
                           </div>
                         )}
-
-                        {(contentFormData.content_type === 'video' || contentFormData.content_type === 'audio' || contentFormData.content_type === 'pdf' || contentFormData.content_type === 'doc') && (
+                        {(contentFormData.content_type === 'video' || contentFormData.content_type === 'audio' ||
+                          contentFormData.content_type === 'pdf' || contentFormData.content_type === 'doc') && (
                           <div className="mb-3">
                             <label className="form-label">Media File</label>
-                            <input
-                              type="file"
-                              className="form-control"
-                              name="media"
-                              onChange={handleInputChange}
+                            <input type="file" className="form-control" name="media" onChange={handleInputChange}
                               accept={
                                 contentFormData.content_type === 'video' ? 'video/*' :
                                 contentFormData.content_type === 'audio' ? 'audio/*' :
-                                contentFormData.content_type === 'pdf' ? '.pdf' :
-                                '.doc,.docx'
-                              }
-                            />
+                                contentFormData.content_type === 'pdf' ? '.pdf' : '.doc,.docx'
+                              } />
                           </div>
                         )}
-
                         <div className="mb-3">
                           <label className="form-label">Duration</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="duration"
-                            value={contentFormData.duration}
-                            onChange={handleInputChange}
-                            placeholder="e.g., 10:30"
-                          />
+                          <input type="text" className="form-control" name="duration"
+                            value={contentFormData.duration} onChange={handleInputChange} placeholder="e.g., 10:30" />
                         </div>
-
                         <div className="mb-3">
                           <label className="form-label">File Size</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="file_size"
-                            value={contentFormData.file_size}
-                            onChange={handleInputChange}
-                            placeholder="e.g., 150MB"
-                          />
+                          <input type="text" className="form-control" name="file_size"
+                            value={contentFormData.file_size} onChange={handleInputChange} placeholder="e.g., 150MB" />
                         </div>
-
                         <div className="mb-3">
                           <label className="form-check-label">
-                            <input
-                              type="checkbox"
-                              className="form-check-input"
-                              name="is_downloadable"
-                              checked={contentFormData.is_downloadable}
-                              onChange={handleInputChange}
-                            />
+                            <input type="checkbox" className="form-check-input" name="is_downloadable"
+                              checked={contentFormData.is_downloadable} onChange={handleInputChange} />
                             {' '}Downloadable
                           </label>
                         </div>
-
                         <div className="mb-3">
                           <label className="form-label">Order Number</label>
-                          <input
-                            type="number"
-                            className="form-control"
-                            name="order_number"
-                            value={contentFormData.order_number}
-                            onChange={handleInputChange}
-                            min="1"
-                          />
+                          <input type="number" className="form-control" name="order_number"
+                            value={contentFormData.order_number} onChange={handleInputChange} min="1" />
                         </div>
                       </div>
                     </div>
                   </div>
                   <div className="modal-footer">
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      onClick={() => setShowContentModal(false)}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-primary"
-                      onClick={handleAddContent}
-                      disabled={isLoading}
-                    >
+                    <button type="button" className="btn btn-secondary" onClick={() => setShowContentModal(false)}>Cancel</button>
+                    <button type="button" className="btn btn-primary" onClick={handleAddContent} disabled={isLoading}>
                       {isLoading ? 'Processing...' : (content ? 'Update' : 'Add')} Content
                     </button>
                   </div>
@@ -840,121 +694,67 @@ export default function LessonContent() {
                 <div className="modal-content">
                   <div className="modal-header">
                     <h5 className="modal-title">Update Lesson</h5>
-                    <button
-                      type="button"
-                      className="btn-close"
-                      onClick={() => setShowLessonModal(false)}
-                    ></button>
+                    <button type="button" className="btn-close" onClick={() => setShowLessonModal(false)}></button>
                   </div>
                   <div className="modal-body">
                     <div className="row">
                       <div className="col-12">
                         <div className="mb-3">
                           <label className="form-label">Lesson Title <span className="text-danger">*</span></label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="title"
-                            value={lessonFormData.title}
-                            onChange={handleLessonInputChange}
-                            placeholder="Enter lesson title"
-                          />
+                          <input type="text" className="form-control" name="title"
+                            value={lessonFormData.title} onChange={handleLessonInputChange} placeholder="Enter lesson title" />
                         </div>
-
                         <div className="mb-3">
                           <label className="form-label">Description</label>
-                          <textarea
-                            className="form-control"
-                            name="description"
-                            rows="4"
-                            value={lessonFormData.description}
-                            onChange={handleLessonInputChange}
-                            placeholder="Enter lesson description"
-                          ></textarea>
+                          <textarea className="form-control" name="description" rows="4"
+                            value={lessonFormData.description} onChange={handleLessonInputChange}
+                            placeholder="Enter lesson description"></textarea>
                         </div>
-
                         <div className="row">
                           <div className="col-md-6">
                             <div className="mb-3">
                               <label className="form-label">Lesson Number</label>
-                              <input
-                                type="number"
-                                className="form-control"
-                                name="lesson_number"
-                                value={lessonFormData.lesson_number}
-                                onChange={handleLessonInputChange}
-                                min="0"
-                              />
+                              <input type="number" className="form-control" name="lesson_number"
+                                value={lessonFormData.lesson_number} onChange={handleLessonInputChange} min="0" />
                             </div>
                           </div>
                           <div className="col-md-6">
                             <div className="mb-3">
                               <label className="form-label">Duration</label>
-                              <input
-                                type="text"
-                                className="form-control"
-                                name="duration"
-                                value={lessonFormData.duration}
-                                onChange={handleLessonInputChange}
-                                placeholder="e.g., 20 minutes"
-                              />
+                              <input type="text" className="form-control" name="duration"
+                                value={lessonFormData.duration} onChange={handleLessonInputChange} placeholder="e.g., 20 minutes" />
                             </div>
                           </div>
                         </div>
-
                         <div className="row">
                           <div className="col-md-6">
                             <div className="mb-3">
                               <label className="form-label">XP Points</label>
-                              <input
-                                type="number"
-                                className="form-control"
-                                name="xp_points"
-                                value={lessonFormData.xp_points}
-                                onChange={handleLessonInputChange}
-                                min="0"
-                              />
+                              <input type="number" className="form-control" name="xp_points"
+                                value={lessonFormData.xp_points} onChange={handleLessonInputChange} min="0" />
                             </div>
                           </div>
                           <div className="col-md-6">
                             <div className="mb-3">
                               <label className="form-label">Reward Points</label>
-                              <input
-                                type="number"
-                                className="form-control"
-                                name="reward_points"
-                                value={lessonFormData.reward_points}
-                                onChange={handleLessonInputChange}
-                                min="0"
-                              />
+                              <input type="number" className="form-control" name="reward_points"
+                                value={lessonFormData.reward_points} onChange={handleLessonInputChange} min="0" />
                             </div>
                           </div>
                         </div>
-
                         <div className="row">
                           <div className="col-md-6">
                             <div className="mb-3">
                               <label className="form-label">Order Number</label>
-                              <input
-                                type="number"
-                                className="form-control"
-                                name="order_number"
-                                value={lessonFormData.order_number}
-                                onChange={handleLessonInputChange}
-                                min="1"
-                              />
+                              <input type="number" className="form-control" name="order_number"
+                                value={lessonFormData.order_number} onChange={handleLessonInputChange} min="1" />
                             </div>
                           </div>
                           <div className="col-md-6">
                             <div className="mb-3">
                               <label className="form-label">Thumbnail</label>
-                              <input
-                                type="file"
-                                className="form-control"
-                                name="thumbnail"
-                                onChange={handleLessonInputChange}
-                                accept="image/*"
-                              />
+                              <input type="file" className="form-control" name="thumbnail"
+                                onChange={handleLessonInputChange} accept="image/*" />
                               {lesson?.thumbnail && (
                                 <small className="text-muted d-block mt-2">
                                   Current: <a href={lesson.thumbnail} target="_blank" rel="noopener noreferrer">View thumbnail</a>
@@ -963,18 +763,12 @@ export default function LessonContent() {
                             </div>
                           </div>
                         </div>
-
                         <div className="row">
                           <div className="col-md-6">
                             <div className="mb-3">
                               <label className="form-check-label">
-                                <input
-                                  type="checkbox"
-                                  className="form-check-input"
-                                  name="is_preview"
-                                  checked={lessonFormData.is_preview}
-                                  onChange={handleLessonInputChange}
-                                />
+                                <input type="checkbox" className="form-check-input" name="is_preview"
+                                  checked={lessonFormData.is_preview} onChange={handleLessonInputChange} />
                                 {' '}Preview Available
                               </label>
                             </div>
@@ -982,13 +776,8 @@ export default function LessonContent() {
                           <div className="col-md-6">
                             <div className="mb-3">
                               <label className="form-check-label">
-                                <input
-                                  type="checkbox"
-                                  className="form-check-input"
-                                  name="is_locked"
-                                  checked={lessonFormData.is_locked}
-                                  onChange={handleLessonInputChange}
-                                />
+                                <input type="checkbox" className="form-check-input" name="is_locked"
+                                  checked={lessonFormData.is_locked} onChange={handleLessonInputChange} />
                                 {' '}Locked
                               </label>
                             </div>
@@ -998,19 +787,8 @@ export default function LessonContent() {
                     </div>
                   </div>
                   <div className="modal-footer">
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      onClick={() => setShowLessonModal(false)}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-primary"
-                      onClick={handleUpdateLessonSubmit}
-                      disabled={isLoading}
-                    >
+                    <button type="button" className="btn btn-secondary" onClick={() => setShowLessonModal(false)}>Cancel</button>
+                    <button type="button" className="btn btn-primary" onClick={handleUpdateLessonSubmit} disabled={isLoading}>
                       {isLoading ? 'Updating...' : 'Update Lesson'}
                     </button>
                   </div>
