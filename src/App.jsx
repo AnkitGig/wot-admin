@@ -42,6 +42,9 @@ import GlossaryCategories from './pages/GlossaryCategories'
 import AddGlossaryCategory from './pages/AddGlossaryCategory'
 import AddContentPage from './pages/AddContentPage'
 import EditContentPage from './pages/EditContentPage'
+import NewsList from './pages/NewsList'
+import NewsShow from './pages/NewsShow'
+import EditNews from './pages/EditNews'
 
 export default function App() {
   return (
@@ -97,6 +100,9 @@ export default function App() {
         <Route path="/add-glossary-category" element={<ProtectedRoute><AddGlossaryCategory /></ProtectedRoute>} />
         <Route path="/courses/admin/lesson/:lessonId/page/add" element={<ProtectedRoute><AddContentPage /></ProtectedRoute>} />
         <Route path="/courses/admin/lesson/:lessonId/page/:pageId/edit" element={<ProtectedRoute><EditContentPage /></ProtectedRoute>} />
+        <Route path="/news" element={<ProtectedRoute><NewsList /></ProtectedRoute>} />
+        <Route path="/news/:newsId" element={<ProtectedRoute><NewsShow /></ProtectedRoute>} />
+        <Route path="/news/:newsId/edit" element={<ProtectedRoute><EditNews /></ProtectedRoute>} />
       </Routes>
     </AuthProvider>
   )
