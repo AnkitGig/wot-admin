@@ -136,7 +136,7 @@ export default function Glossaries() {
   const handleEditSubmit = async (e) => {
     e.preventDefault();
 
-    if (!editFormData.term || !editFormData.short_form || !editFormData.category || !editFormData.description) {
+    if (!editFormData.term || !editFormData.category || !editFormData.description) {
       Swal.fire({
         icon: 'warning',
         title: 'Validation Error',
@@ -297,7 +297,7 @@ export default function Glossaries() {
                         <thead>
                           <tr>
                             <th>Term</th>
-                            <th>Short Form</th>
+                            {/* <th>Short Form</th> */}
                             <th>Category</th>
                             <th>Description</th>
                             <th>Action</th>
@@ -309,9 +309,9 @@ export default function Glossaries() {
                               <td>
                                 <strong>{glossary.term}</strong>
                               </td>
-                              <td>
+                              {/* <td>
                                 <span className="badge bg-info">{glossary.short_form}</span>
-                              </td>
+                              </td> */}
                               <td>
                                 <span className="badge bg-secondary">{glossary.category}</span>
                               </td>
@@ -430,7 +430,7 @@ export default function Glossaries() {
                     required
                   />
                 </div>
-                <div className="mb-3">
+                {/* <div className="mb-3">
                   <label className="form-label">Short Form <span className="text-danger">*</span></label>
                   <input
                     type="text"
@@ -440,7 +440,7 @@ export default function Glossaries() {
                     onChange={handleEditInputChange}
                     required
                   />
-                </div>
+                </div> */}
                 <div className="mb-3">
                   <label className="form-label">Category <span className="text-danger">*</span></label>
                   <select

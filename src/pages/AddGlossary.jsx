@@ -283,14 +283,14 @@ export default function AddGlossary() {
       return;
     }
 
-    if (!formData.short_form.trim()) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Validation Error',
-        text: 'Please enter the short form',
-      });
-      return;
-    }
+    // if (!formData.short_form.trim()) {
+    //   Swal.fire({
+    //     icon: 'warning',
+    //     title: 'Validation Error',
+    //     text: 'Please enter the short form',
+    //   });
+    //   return;
+    // }
 
     if (!formData.category.trim()) {
       Swal.fire({
@@ -399,7 +399,7 @@ export default function AddGlossary() {
                       />
                     </div>
 
-                    <div className="col-md-6">
+                    {/* <div className="col-md-6">
                       <label className="form-label">Short Form <span className="text-danger">*</span></label>
                       <input 
                         type="text" 
@@ -410,7 +410,7 @@ export default function AddGlossary() {
                         onChange={handleInputChange}
                         required
                       />
-                    </div>
+                    </div> */}
 
                     <div className="col-md-6">
                       <label className="form-label">Category <span className="text-danger">*</span></label>

@@ -7,7 +7,7 @@ export const addGlossary = async (glossaryData, token) => {
     
     const payload = {
       term: glossaryData.term,
-      short_form: glossaryData.short_form,
+      // short_form: glossaryData.short_form,
       category: glossaryData.category,
       description: glossaryData.description,
     };
@@ -206,7 +206,7 @@ export const updateGlossary = async (glossaryId, glossaryData, token) => {
     
     const payload = {
       term: glossaryData.term,
-      short_form: glossaryData.short_form,
+      // short_form: glossaryData.short_form,
       category: glossaryData.category,
       description: glossaryData.description,
       color: glossaryData.color,
