@@ -39,29 +39,33 @@ export default function EditNews() {
     setLoading(true);
     try {
       const response = await getNewsById(token, newsId);
+      console.log('EditNews API Response:', response); // Debug log
       if (response.success) {
         const data = response.data; // Data is directly here, not nested
+        console.log('EditNews Data:', data); // Debug log
         setNewsData(data);
         
         // Pre-fill form with existing data - properly extract from nested structure
         const formData = {
-          title: data.payload?.article?.title || '',
-          summary: data.payload?.article?.summary || '',
-          content: data.payload?.article?.body || '',
-          category: data.payload?.primary_category || '',
-          tags: data.payload?.tags || [],
-          source: data.payload?.sources?.[0]?.name || '',
-          source_url: data.payload?.sources?.[0]?.url || '',
-          image_url: data.payload?.image?.url || '',
+          title: data.data?.payload?.article?.title || '',
+          summary: data.data?.payload?.article?.summary || '',
+          content: data.data?.payload?.article?.body || '',
+          category: data.data?.payload?.primary_category || '',
+          tags: data.data?.payload?.tags || [],
+          source: data.data?.payload?.sources?.[0]?.name || '',
+          source_url: data.data?.payload?.sources?.[0]?.url || '',
+          image_url: data.data?.payload?.image?.url || '',
           author: 'Admin',
-          is_published: data.status === 'published',
+          is_published: data.data?.status === 'published',
           is_featured: false
         };
+        console.log('EditNews Form Data:', formData); // Debug log
         setFormData(formData);
       } else {
         setError(response.message || 'Failed to fetch news data');
       }
     } catch (err) {
+      console.error('EditNews Fetch Error:', err); // Debug log
       setError('An error occurred while fetching news data');
     } finally {
       setLoading(false);

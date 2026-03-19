@@ -217,13 +217,13 @@ export default function NewsList() {
                               >
                                 <i className="fas fa-edit"></i>
                               </button>
-                              <button
+                              {/* <button
                                 className="btn btn-sm btn-outline-primary"
                                 onClick={() => window.open(article.s3_url, '_blank')}
                                 title="View S3 File"
                               >
                                 <i className="fas fa-external-link-alt"></i>
-                              </button>
+                              </button> */}
                               <button
                                 className="btn btn-sm btn-outline-danger"
                                 onClick={() => handleDelete(article.id)}
