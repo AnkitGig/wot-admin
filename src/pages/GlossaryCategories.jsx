@@ -198,7 +198,7 @@ export default function GlossaryCategories() {
                         <thead>
                           <tr>
                             <th>Name</th>
-                            <th>Description</th>
+                            {/* <th>Description</th> */}
                             <th>Color</th>
                             <th>Action</th>
                           </tr>
@@ -209,7 +209,7 @@ export default function GlossaryCategories() {
                               <td>
                                 <strong>{category.name}</strong>
                               </td>
-                              <td>
+                              {/* <td>
                                 <small title={category.description}>
                                   {category.description ? (
                                     <>
@@ -220,7 +220,7 @@ export default function GlossaryCategories() {
                                     <span className="text-muted">No description</span>
                                   )}
                                 </small>
-                              </td>
+                              </td> */}
                               <td>
                                 {category.color ? (
                                   <div className="d-flex align-items-center gap-2">

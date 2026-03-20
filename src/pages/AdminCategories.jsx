@@ -138,9 +138,9 @@ export default function AdminCategories() {
                         <thead>
                           <tr>
                             <th>Category Name</th>
-                            <th>Description</th>
+                            {/* <th>Description</th>
                             <th>Order</th>
-                            <th>Chapters</th>
+                            <th>Chapters</th> */}
                             <th>Status</th>
                             <th>Created Date</th>
                             <th>Action</th>
@@ -162,7 +162,7 @@ export default function AdminCategories() {
                                   <span className="fw-bold">{category.name}</span>
                                 </div>
                               </td>
-                              <td>
+                              {/* <td>
                                 <small className="text-muted">
                                   {category.description || 'No description'}
                                 </small>
@@ -172,7 +172,7 @@ export default function AdminCategories() {
                               </td>
                               <td>
                                 <span className="badge bg-info">{category.chapter_count || 0}</span>
-                              </td>
+                              </td> */}
                               <td>
                                 <span className={`badge ${getStatusBadge(category.is_active)}`}>
                                   {category.is_active ? 'Active' : 'Inactive'}
