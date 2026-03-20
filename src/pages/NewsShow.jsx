@@ -194,10 +194,10 @@ export default function NewsShow() {
                       <i className="fas fa-clock me-2"></i>
                       <span>Session: {meta?.session_label || 'N/A'}</span>
                     </div>
-                    <div className="d-flex align-items-center text-muted small mt-1">
+                    {/* <div className="d-flex align-items-center text-muted small mt-1">
                       <i className="fas fa-info-circle me-2"></i>
                       <span>Status: <span className="badge bg-success">{newsData?.data?.status}</span></span>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 
@@ -257,7 +257,7 @@ export default function NewsShow() {
               )}
 
               {/* Takeaways */}
-              {article?.takeaways && article.takeaways.length > 0 && (
+              {/* {article?.takeaways && article.takeaways.length > 0 && (
                 <div className="mb-4">
                   <h5>Key Takeaways</h5>
                   <ul className="list-group">
@@ -268,10 +268,10 @@ export default function NewsShow() {
                     ))}
                   </ul>
                 </div>
-              )}
+              )} */}
 
               {/* Sources */}
-              {sources && sources.length > 0 && (
+              {/* {sources && sources.length > 0 && (
                 <div className="mb-4">
                   <h5>Sources</h5>
                   <div className="list-group">
@@ -306,7 +306,7 @@ export default function NewsShow() {
                     ))}
                   </div>
                 </div>
-              )}
+              )} */}
             </div>
           </div>
         </div>
