@@ -255,6 +255,18 @@ export default function EditNews() {
                         onChange={handleChange}
                       />
                     </div>
+
+                    <div className="mb-3">
+                      <label htmlFor="image_url" className="form-label">Image URL</label>
+                      <input
+                        type="url"
+                        className="form-control"
+                        id="image_url"
+                        name="image_url"
+                        value={formData.image_url}
+                        onChange={handleChange}
+                      />
+                    </div>
                   </div>
 
                   <div className="col-md-4">
@@ -280,19 +292,7 @@ export default function EditNews() {
                         name="tags"
                         value={formData.tags.join(', ')}
                         onChange={handleTagsChange}
-                        placeholder="Tech, AI, Finance"
-                      />
-                    </div>
-
-                    <div className="mb-3">
-                      <label htmlFor="image_url" className="form-label">Image URL</label>
-                      <input
-                        type="url"
-                        className="form-control"
-                        id="image_url"
-                        name="image_url"
-                        value={formData.image_url}
-                        onChange={handleChange}
+                        placeholder="e.g., technology, AI, machine learning"
                       />
                     </div>
 
@@ -305,45 +305,14 @@ export default function EditNews() {
                         name="author"
                         value={formData.author}
                         onChange={handleChange}
+                        required
                       />
                     </div>
 
                     <div className="mb-3">
-                      <div className="form-check">
-                        <input
-                          className="form-check-input"
-                          type="checkbox"
-                          id="is_published"
-                          name="is_published"
-                          checked={formData.is_published}
-                          onChange={handleChange}
-                        />
-                        <label className="form-check-label" htmlFor="is_published">
-                          Published
-                        </label>
-                      </div>
-                    </div>
-
-                    <div className="mb-3">
-                      <div className="form-check">
-                        <input
-                          className="form-check-input"
-                          type="checkbox"
-                          id="is_featured"
-                          name="is_featured"
-                          checked={formData.is_featured}
-                          onChange={handleChange}
-                        />
-                        <label className="form-check-label" htmlFor="is_featured">
-                          Featured
-                        </label>
-                      </div>
-                    </div>
-
-                    <div className="d-grid gap-2">
-                      <button
-                        type="submit"
-                        className="btn btn-primary"
+                      <button 
+                        type="submit" 
+                        className="btn btn-primary w-100"
                         disabled={saving}
                       >
                         {saving ? (
