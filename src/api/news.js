@@ -166,3 +166,69 @@ export const deleteAllNews = async (token) => {
     };
   }
 };
+
+// Publish news by ID
+export const publishNews = async (token, newsId) => {
+  try {
+    const response = await fetch(`https://api.wayoftrading.com/aitredding/api/admin/news/${newsId}/publish`, {
+      method: 'PATCH',
+      headers: {
+        'accept': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      return {
+        success: true,
+        data: data,
+      };
+    } else {
+      return {
+        success: false,
+        message: data.message || 'Failed to publish news',
+      };
+    }
+  } catch (error) {
+    console.error('Publish News API Error:', error);
+    return {
+      success: false,
+      message: error.message || 'An error occurred while publishing news',
+    };
+  }
+};
+
+// Feature news by ID
+export const featureNews = async (token, newsId) => {
+  try {
+    const response = await fetch(`https://api.wayoftrading.com/aitredding/api/admin/news/${newsId}/feature`, {
+      method: 'PATCH',
+      headers: {
+        'accept': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      return {
+        success: true,
+        data: data,
+      };
+    } else {
+      return {
+        success: false,
+        message: data.message || 'Failed to feature news',
+      };
+    }
+  } catch (error) {
+    console.error('Feature News API Error:', error);
+    return {
+      success: false,
+      message: error.message || 'An error occurred while featuring news',
+    };
+  }
+};

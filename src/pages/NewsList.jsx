@@ -4,7 +4,7 @@ import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
-import { getNews, deleteNews, deleteAllNews } from '../api';
+import { getNews, deleteNews, deleteAllNews, publishNews, featureNews } from '../api';
 import { useAuth } from '../context/AuthContext';
 
 export default function NewsList() {
@@ -88,6 +88,34 @@ export default function NewsList() {
     }
   };
 
+  const handlePublish = async (newsId) => {
+    try {
+      const response = await publishNews(token, newsId);
+      if (response.success) {
+        Swal.fire('Published!', 'News article has been published.', 'success');
+        fetchNews();
+      } else {
+        Swal.fire('Error!', response.message || 'Failed to publish news', 'error');
+      }
+    } catch (err) {
+      Swal.fire('Error!', 'An error occurred while publishing news', 'error');
+    }
+  };
+
+  const handleFeature = async (newsId) => {
+    try {
+      const response = await featureNews(token, newsId);
+      if (response.success) {
+        Swal.fire('Featured!', 'News article has been featured.', 'success');
+        fetchNews();
+      } else {
+        Swal.fire('Error!', response.message || 'Failed to feature news', 'error');
+      }
+    } catch (err) {
+      Swal.fire('Error!', 'An error occurred while featuring news', 'error');
+    }
+  };
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleString();
   };
@@ -156,6 +184,8 @@ export default function NewsList() {
                         <th>Scheduled At</th>
                         <th>Status</th>
                         <th>Views</th>
+                        <th>Publish</th>
+                        <th>Feature</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
@@ -202,6 +232,46 @@ export default function NewsList() {
                             <span className="badge bg-info">{article.views || 0}</span>
                           </td>
                           <td>
+                            <div className="d-flex align-items-center gap-2">
+                              <div
+                                className="form-check form-switch mb-0"
+                                title={`Click to ${article.status === 'published' ? 'unpublish' : 'publish'} news`}
+                              >
+                                <input
+                                  className="form-check-input"
+                                  type="checkbox"
+                                  role="switch"
+                                  checked={article.status === 'published'}
+                                  onChange={() => handlePublish(article.id)}
+                                  style={{ cursor: 'pointer', width: '40px', height: '20px' }}
+                                />
+                              </div>
+                              <span className={`badge ${article.status === 'published' ? 'bg-success' : 'bg-warning'}`}>
+                                {article.status === 'published' ? 'Published' : 'Draft'}
+                              </span>
+                            </div>
+                          </td>
+                          <td>
+                            <div className="d-flex align-items-center gap-2">
+                              <div
+                                className="form-check form-switch mb-0"
+                                title={`Click to ${article.is_featured ? 'unfeature' : 'feature'} news`}
+                              >
+                                <input
+                                  className="form-check-input"
+                                  type="checkbox"
+                                  role="switch"
+                                  checked={article.is_featured || false}
+                                  onChange={() => handleFeature(article.id)}
+                                  style={{ cursor: 'pointer', width: '40px', height: '20px' }}
+                                />
+                              </div>
+                              <span className={`badge ${article.is_featured ? 'bg-warning' : 'bg-secondary'}`}>
+                                {article.is_featured ? 'Featured' : 'Normal'}
+                              </span>
+                            </div>
+                          </td>
+                          <td>
                             <div className="btn-group">
                               <button
                                 className="btn btn-sm btn-outline-success"
@@ -217,13 +287,6 @@ export default function NewsList() {
                               >
                                 <i className="fas fa-edit"></i>
                               </button>
-                              {/* <button
-                                className="btn btn-sm btn-outline-primary"
-                                onClick={() => window.open(article.s3_url, '_blank')}
-                                title="View S3 File"
-                              >
-                                <i className="fas fa-external-link-alt"></i>
-                              </button> */}
                               <button
                                 className="btn btn-sm btn-outline-danger"
                                 onClick={() => handleDelete(article.id)}
