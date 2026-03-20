@@ -400,6 +400,7 @@ export default function AddQuiz() {
                           name="entry_type"
                           value={formData.entry_type}
                           onChange={handleFormChange}
+                           style={{ appearance: "auto" }}
                         >
                           <option value="FREE">Free</option>
                           <option value="PAID">Paid</option>

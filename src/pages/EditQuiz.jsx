@@ -275,10 +275,11 @@ export default function EditQuiz() {
                     <div className="col-md-4">
                       <label className="form-label">Entry Type <span className="text-danger">*</span></label>
                       <select
-                        className="form-select"
+                        className="form-control"
                         name="entry_type"
                         value={formData.entry_type}
                         onChange={handleFormChange}
+                         style={{ appearance: "auto" }}
                       >
                         <option value="FREE">Free</option>
                         <option value="PAID">Paid</option>
@@ -336,10 +337,11 @@ export default function EditQuiz() {
                     <div className="col-md-6">
                       <label className="form-label">Coupon</label>
                       <select
-                        className="form-select"
+                        className="form-control"
                         name="coupon_id"
                         value={formData.coupon_id}
                         onChange={handleFormChange}
+                         style={{ appearance: "auto" }}
                       >
                         <option value="">No Coupon</option>
                         {coupons && coupons.length > 0 ? (
