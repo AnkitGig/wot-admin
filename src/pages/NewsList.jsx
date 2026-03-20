@@ -92,13 +92,15 @@ export default function NewsList() {
     try {
       const response = await publishNews(token, newsId);
       if (response.success) {
-        Swal.fire('Published!', 'News article has been published.', 'success');
+        // Use the message from API response or default based on is_published status
+        const message = response.message || 'News status updated successfully';
+        Swal.fire('Success!', message, 'success');
         fetchNews();
       } else {
-        Swal.fire('Error!', response.message || 'Failed to publish news', 'error');
+        Swal.fire('Error!', response.message || 'Failed to update news status', 'error');
       }
     } catch (err) {
-      Swal.fire('Error!', 'An error occurred while publishing news', 'error');
+      Swal.fire('Error!', 'An error occurred while updating news status', 'error');
     }
   };
 
@@ -106,13 +108,15 @@ export default function NewsList() {
     try {
       const response = await featureNews(token, newsId);
       if (response.success) {
-        Swal.fire('Featured!', 'News article has been featured.', 'success');
+        // Use the message from API response or default based on is_featured status
+        const message = response.message || 'News status updated successfully';
+        Swal.fire('Success!', message, 'success');
         fetchNews();
       } else {
-        Swal.fire('Error!', response.message || 'Failed to feature news', 'error');
+        Swal.fire('Error!', response.message || 'Failed to update news feature status', 'error');
       }
     } catch (err) {
-      Swal.fire('Error!', 'An error occurred while featuring news', 'error');
+      Swal.fire('Error!', 'An error occurred while updating news feature status', 'error');
     }
   };
 

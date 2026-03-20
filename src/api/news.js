@@ -184,6 +184,7 @@ export const publishNews = async (token, newsId) => {
       return {
         success: true,
         data: data,
+        message: data.message || 'News published successfully',
       };
     } else {
       return {
@@ -217,6 +218,7 @@ export const featureNews = async (token, newsId) => {
       return {
         success: true,
         data: data,
+        message: data.message || 'News featured successfully',
       };
     } else {
       return {
