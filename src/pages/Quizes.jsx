@@ -474,6 +474,13 @@ export default function Quizes() {
                               <td>
                                 <div className="d-flex gap-2">
                                   <button
+                                    className="btn btn-sm btn-outline-primary"
+                                    onClick={() => handleViewQuestions(quiz)}
+                                    title="View Questions"
+                                  >
+                                    <i className="fas fa-list"></i>
+                                  </button>
+                                  <button
                                     className="btn btn-sm btn-outline-warning"
                                     title="Edit Quiz"
                                     onClick={() => handleEditQuiz(quiz.quiz_id)}
