@@ -65,6 +65,13 @@ export default function Sidebar() {
             </li>
 
             <li>
+              <Link to="/tool-flags" className={isActive("/tool-flags")}>
+                <i className="fas fa-tools me-2"></i>
+                <span>Tool Flags</span>
+              </Link>
+            </li>
+
+            <li>
               <Link to="/courses" className={isActive("/courses")}>
                 <i className="fas fa-book me-2"></i>
                 <span>Courses</span>

@@ -48,6 +48,7 @@ import EditNews from './pages/EditNews'
 import Plans from './pages/Plans'
 import AddPlan from './pages/AddPlan'
 import EditPlan from './pages/EditPlan'
+import ToolFlags from './pages/ToolFlags'
 
 export default function App() {
   return (
@@ -109,6 +110,7 @@ export default function App() {
         <Route path="/plans" element={<ProtectedRoute><Plans /></ProtectedRoute>} />
         <Route path="/add-plan" element={<ProtectedRoute><AddPlan /></ProtectedRoute>} />
         <Route path="/edit-plan/:planId" element={<ProtectedRoute><EditPlan /></ProtectedRoute>} />
+        <Route path="/tool-flags" element={<ProtectedRoute><ToolFlags /></ProtectedRoute>} />
       </Routes>
     </AuthProvider>
   )
