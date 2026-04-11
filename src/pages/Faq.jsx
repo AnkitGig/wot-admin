@@ -3,8 +3,10 @@ import { getFAQs, createFAQ, updateFAQ, deleteFAQ } from '../api/faq';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import Swal from 'sweetalert2';
+import { useAuth } from '../context/AuthContext';
 
 export default function FAQ() {
+  const { token } = useAuth();
   const [faqs, setFaqs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -14,9 +16,11 @@ export default function FAQ() {
   const fetchFAQs = async () => {
     setLoading(true);
     try {
-      const response = await getFAQs();
-      if (response.status === 1) {
+      const response = await getFAQs(token);
+      if (response.success) {
         setFaqs(response.data);
+      } else {
+        Swal.fire('Error', response.message || 'Failed to fetch FAQs', 'error');
       }
     } catch (error) {
       Swal.fire('Error', 'Failed to fetch FAQs', 'error');
@@ -26,8 +30,10 @@ export default function FAQ() {
   };
 
   useEffect(() => {
-    fetchFAQs();
-  }, []);
+    if (token) {
+      fetchFAQs();
+    }
+  }, [token]);
 
   const handleOpenModal = (faq = null) => {
     if (faq) {
@@ -50,16 +56,26 @@ export default function FAQ() {
     e.preventDefault();
     try {
       if (editingId) {
-        await updateFAQ(editingId, formData);
-        Swal.fire('Success', 'FAQ updated successfully', 'success');
+        const response = await updateFAQ(editingId, formData, token);
+        if (response.success) {
+          Swal.fire('Success', 'FAQ updated successfully', 'success');
+          handleCloseModal();
+          fetchFAQs();
+        } else {
+          Swal.fire('Error', response.message || 'Failed to update FAQ', 'error');
+        }
       } else {
-        await createFAQ(formData);
-        Swal.fire('Success', 'FAQ created successfully', 'success');
+        const response = await createFAQ(formData, token);
+        if (response.success) {
+          Swal.fire('Success', 'FAQ created successfully', 'success');
+          handleCloseModal();
+          fetchFAQs();
+        } else {
+          Swal.fire('Error', response.message || 'Failed to create FAQ', 'error');
+        }
       }
-      handleCloseModal();
-      fetchFAQs();
     } catch (error) {
-      Swal.fire('Error', error.response?.data?.message || 'Operation failed', 'error');
+      Swal.fire('Error', error.message || 'Operation failed', 'error');
     }
   };
 
@@ -76,9 +92,13 @@ export default function FAQ() {
 
     if (result.isConfirmed) {
       try {
-        await deleteFAQ(id);
-        Swal.fire('Deleted!', 'FAQ has been deleted.', 'success');
-        fetchFAQs();
+        const response = await deleteFAQ(id, token);
+        if (response.success) {
+          Swal.fire('Deleted!', 'FAQ has been deleted.', 'success');
+          fetchFAQs();
+        } else {
+          Swal.fire('Error', response.message || 'Failed to delete FAQ', 'error');
+        }
       } catch (error) {
         Swal.fire('Error', 'Failed to delete FAQ', 'error');
       }
