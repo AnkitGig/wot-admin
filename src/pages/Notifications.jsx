@@ -19,12 +19,12 @@ const Notifications = () => {
   const [formData, setFormData] = useState({
     title: {
       english: '',
-      hindi: '',
+      french: '',
       spanish: ''
     },
     body: {
       english: '',
-      hindi: '',
+      french: '',
       spanish: ''
     }
   });
@@ -103,8 +103,8 @@ const Notifications = () => {
 
         // Reset form
         setFormData({
-          title: { english: '', hindi: '', spanish: '' },
-          body: { english: '', hindi: '', spanish: '' }
+          title: { english: '', french: '', spanish: '' },
+          body: { english: '', french: '', spanish: '' }
         });
         setSelectedUsers([]);
         setSendToAll(true);
@@ -166,13 +166,13 @@ const Notifications = () => {
                         </div>
                         <div className="col-md-4">
                           <div className="form-group">
-                            <label>Hindi Title</label>
+                            <label>French Title</label>
                             <input
                               type="text"
                               className="form-control"
-                              placeholder="Hindi Title"
-                              value={formData.title.hindi}
-                              onChange={(e) => handleInputChange('title', 'hindi', e.target.value)}
+                              placeholder="French Title"
+                              value={formData.title.french}
+                              onChange={(e) => handleInputChange('title', 'french', e.target.value)}
                             />
                           </div>
                         </div>
@@ -212,13 +212,13 @@ const Notifications = () => {
                         </div>
                         <div className="col-md-6">
                           <div className="form-group">
-                            <label>Hindi Body</label>
+                            <label>French Body</label>
                             <textarea
                               className="form-control"
                               rows="3"
-                              placeholder="Hindi Content"
-                              value={formData.body.hindi}
-                              onChange={(e) => handleInputChange('body', 'hindi', e.target.value)}
+                              placeholder="French Content"
+                              value={formData.body.french}
+                              onChange={(e) => handleInputChange('body', 'french', e.target.value)}
                             ></textarea>
                           </div>
                         </div>
