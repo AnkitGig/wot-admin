@@ -1,13 +1,46 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Header from '../components/Header'
 import Sidebar from '../components/Sidebar'
 import Footer from '../components/Footer'
+import GlobalLoader from '../components/GlobalLoader'
+import { useAuth } from '../context/AuthContext'
 
 export default function Dashboard() {
+  const { token } = useAuth()
+  const [stats, setStats] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const progressChartRef = useRef(null)
   const roleChartRef = useRef(null)
 
   useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch('https://api.wayoftrading.com/aitredding/admin/tools/stats', {
+          headers: {
+            'accept': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        const data = await response.json()
+        if (data.status === 1) {
+          setStats(data.data)
+        } else {
+          setError(data.message || 'Failed to fetch stats')
+        }
+      } catch (err) {
+        setError('Error fetching stats')
+        console.error(err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (token) {
+      fetchStats()
+    }
+
     let progressChartInstance = null
     let roleChartInstance = null
 
@@ -74,7 +107,7 @@ export default function Dashboard() {
       if (progressChartInstance) progressChartInstance.destroy()
       if (roleChartInstance) roleChartInstance.destroy()
     }
-  }, [])
+  }, [token])
 
   return (
     <div className="main-wrapper">
@@ -97,123 +130,103 @@ export default function Dashboard() {
           </div>
 
           {/* KPI Cards */}
-          <div className="row g-4 mb-4">
-            {[
-              { title: "Total Users", value: "4,280" },
-              { title: "Active Courses", value: "38" },
-              { title: "Completion Rate", value: "76%" },
-              { title: "AI Requests", value: "12.4k" },
-            ].map((item, i) => (
-              <div className="col-md-3" key={i}>
-                <div className="card card-financial p-4">
-                  <h6 className="fw-bold mb-2 text-white">{item.title}</h6>
-                  <h3 className="text-white">{item.value}</h3>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Charts */}
-          <div className="row g-4 mb-4">
-            <div className="col-md-8">
-              <div className="card p-4 shadow-soft border-0">
-                <h6 className="mb-3">Learning Progress (Monthly)</h6>
-                <div style={{ height: "300px" }}>
-                  <canvas ref={progressChartRef}></canvas>
-                </div>
-              </div>
+          {loading ? (
+            <div className="d-flex justify-content-center py-5">
+              <GlobalLoader visible={true} size="medium" />
             </div>
-
-            <div className="col-md-4">
-              <div className="card p-4 shadow-soft border-0">
-                <h6 className="mb-3">User Roles</h6>
-                <div style={{ height: "250px" }}>
-                  <canvas ref={roleChartRef}></canvas>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Projects & AI */}
-          <div className="row g-4 mb-4">
-            <div className="col-md-6">
-              <div className="card p-4 shadow-soft border-0">
-                <h6 className="mb-3">📚 Ongoing Learning Projects</h6>
-                <div className="list-group">
-                  {[
-                    ["Technical Analysis Mastery", "Intermediate • 18 Lessons", "72%", "success"],
-                    ["Smart Money Concepts", "Advanced • 12 Lessons", "45%", "warning"],
-                    ["Price Action Basics", "Beginner • 10 Lessons", "90%", "primary"],
-                    ["AI-Assisted Trading", "Simulation Based", "28%", "danger"],
-                  ].map(([title, desc, percent, color], i) => (
-                    <div key={i} className="list-group-item d-flex justify-content-between">
-                      <div>
-                        <strong>{title}</strong><br />
-                        <small className="text-muted">{desc}</small>
-                      </div>
-                      <span className={`badge bg-${color}`}>{percent}</span>
+          ) : error ? (
+            <div className="alert alert-danger">{error}</div>
+          ) : (
+            <>
+              <div className="row g-4 mb-4">
+                {[
+                  { title: "Active Subscriptions", value: stats?.subscriptions?.active || 0 },
+                  { title: "Tool Usage (30d)", value: (stats?.tool_usage_last_30d?.coach_ai || 0) + (stats?.tool_usage_last_30d?.ai_chart_analyzer || 0) },
+                  { title: "Tool Clicks (OPENED)", value: stats?.tool_clicks_last_30d?.OPENED || 0 },
+                  { title: "Disabled Tools", value: stats?.disabled_tools?.length || 0 },
+                ].map((item, i) => (
+                  <div className="col-md-3" key={i}>
+                    <div className="card card-financial p-4 h-100">
+                      <h6 className="fw-bold mb-2 text-white">{item.title}</h6>
+                      <h3 className="text-white">{item.value}</h3>
                     </div>
-                  ))}
+                  </div>
+                ))}
+              </div>
+
+              {/* Projects & AI */}
+              <div className="row g-4 mb-4">
+                <div className="col-md-6">
+                  <div className="card p-4 shadow-soft border-0 h-100">
+                    <h6 className="mb-3">📊 Tool Clicks (Last 30 Days)</h6>
+                    <ul className="list-group">
+                      <li className="list-group-item d-flex justify-content-between">
+                        <span>Opened</span><strong>{stats?.tool_clicks_last_30d?.OPENED || 0}</strong>
+                      </li>
+                      <li className="list-group-item d-flex justify-content-between">
+                        <span>Paywall Hits</span><strong>{stats?.tool_clicks_last_30d?.PAYWALL || 0}</strong>
+                      </li>
+                      <li className="list-group-item d-flex justify-content-between">
+                        <span>Popups</span><strong>{stats?.tool_clicks_last_30d?.POPUP || 0}</strong>
+                      </li>
+                      <li className="list-group-item d-flex justify-content-between">
+                        <span>Disabled Clicks</span><strong className="text-danger">{stats?.tool_clicks_last_30d?.DISABLED || 0}</strong>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="col-md-6">
+                  <div className="card p-4 shadow-soft border-0 h-100">
+                    <h6 className="mb-3">🤖 AI Tool Usage (Last 30 Days)</h6>
+                    <ul className="list-group">
+                      <li className="list-group-item d-flex justify-content-between">
+                        <span>Coach AI</span><strong>{stats?.tool_usage_last_30d?.coach_ai || 0}</strong>
+                      </li>
+                      <li className="list-group-item d-flex justify-content-between">
+                        <span>AI Chart Analyzer</span><strong>{stats?.tool_usage_last_30d?.ai_chart_analyzer || 0}</strong>
+                      </li>
+                      <li className="list-group-item d-flex justify-content-between">
+                        <span>Broker Entitlements</span><strong className="text-success">{stats?.broker_entitlements?.active || 0} Active</strong>
+                      </li>
+                      <li className="list-group-item d-flex justify-content-between">
+                        <span>Manual Overrides</span><strong>{stats?.manual_overrides?.active || 0}</strong>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="col-md-6">
-              <div className="card p-4 shadow-soft border-0">
-                <h6 className="mb-3">🤖 AI System Insights</h6>
-                <ul className="list-group">
-                  <li className="list-group-item d-flex justify-content-between">
-                    <span>AI Tutor Queries Today</span><strong>1,248</strong>
-                  </li>
-                  <li className="list-group-item d-flex justify-content-between">
-                    <span>Chart Analysis Requests</span><strong>620</strong>
-                  </li>
-                  <li className="list-group-item d-flex justify-content-between">
-                    <span>RAG Accuracy</span><strong className="text-success">94%</strong>
-                  </li>
-                  <li className="list-group-item d-flex justify-content-between">
-                    <span>Avg Response Time</span><strong>1.3s</strong>
-                  </li>
-                  <li className="list-group-item d-flex justify-content-between">
-                    <span>Status</span><span className="badge bg-success">Operational</span>
-                  </li>
-                </ul>
+              {/* Disabled Tools */}
+              <div className="card p-4 shadow-soft border-0 mb-4">
+                <h6 className="mb-3">🚫 Disabled Tools</h6>
+                <div className="table-responsive">
+                  <table className="table align-middle">
+                    <thead>
+                      <tr>
+                        <th>Tool Name</th>
+                        <th>Disabled Reason</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {stats?.disabled_tools?.length > 0 ? (
+                        stats.disabled_tools.map((tool, i) => (
+                          <tr key={i}>
+                            <td>{tool.tool_name}</td>
+                            <td>{tool.disabled_reason || 'N/A'}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="2" className="text-center py-3">No tools are currently disabled</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
-          </div>
-
-          {/* Recently Updated Courses */}
-          <div className="card p-4 shadow-soft border-0 mb-4">
-            <h6 className="mb-3">🆕 Recently Updated Courses</h6>
-            <div className="table-responsive">
-              <table className="table align-middle">
-                <thead>
-                  <tr>
-                    <th>Course</th>
-                    <th>Instructor</th>
-                    <th>Last Update</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[
-                    ["Market Structure & Trend", "Rahul Verma", "01 Feb 2026", "success", "Published"],
-                    ["Forex Risk Management", "Sarah Lee", "31 Jan 2026", "warning", "Draft"],
-                    ["Crypto Scalping", "John Carter", "30 Jan 2026", "success", "Published"],
-                    ["AI Chart Reading", "Admin", "29 Jan 2026", "info", "Review"],
-                    ["Options Greeks", "Emma Brown", "28 Jan 2026", "danger", "Blocked"],
-                  ].map(([course, instructor, date, color, status], i) => (
-                    <tr key={i}>
-                      <td>{course}</td>
-                      <td>{instructor}</td>
-                      <td>{date}</td>
-                      <td><span className={`badge bg-${color}`}>{status}</span></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+            </>
+          )}
 
         </div>
       </div>
