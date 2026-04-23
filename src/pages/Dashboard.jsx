@@ -158,7 +158,7 @@ export default function Dashboard() {
               <div className="row g-4 mb-4">
                 <div className="col-md-6">
                   <div className="card p-4 shadow-soft border-0 h-100">
-                    <h6 className="mb-3">📊 Tool Clicks (Last 30 Days)</h6>
+                    <h6 className="mb-3"><i className="fas fa-chart-bar me-2 text-primary"></i>Tool Clicks (Last 30 Days)</h6>
                     <ul className="list-group">
                       <li className="list-group-item d-flex justify-content-between">
                         <span>Opened</span><strong>{stats?.tool_clicks_last_30d?.OPENED || 0}</strong>
@@ -178,7 +178,7 @@ export default function Dashboard() {
 
                 <div className="col-md-6">
                   <div className="card p-4 shadow-soft border-0 h-100">
-                    <h6 className="mb-3">🤖 AI Tool Usage (Last 30 Days)</h6>
+                    <h6 className="mb-3"><i className="fas fa-robot me-2 text-info"></i>AI Tool Usage (Last 30 Days)</h6>
                     <ul className="list-group">
                       <li className="list-group-item d-flex justify-content-between">
                         <span>Coach AI</span><strong>{stats?.tool_usage_last_30d?.coach_ai || 0}</strong>
@@ -199,7 +199,7 @@ export default function Dashboard() {
 
               {/* Disabled Tools */}
               <div className="card p-4 shadow-soft border-0 mb-4">
-                <h6 className="mb-3">🚫 Disabled Tools</h6>
+                <h6 className="mb-3"><i className="fas fa-ban me-2 text-danger"></i>Disabled Tools</h6>
                 <div className="table-responsive">
                   <table className="table align-middle">
                     <thead>
