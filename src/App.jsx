@@ -55,6 +55,9 @@ import Notifications from './pages/Notifications'
 
 
 
+import EmailTemplates from './pages/EmailTemplates'
+import EditEmailTemplate from './pages/EditEmailTemplate'
+
 export default function App() {
   return (
     <AuthProvider>
@@ -119,7 +122,10 @@ export default function App() {
         <Route path="/faq" element={<ProtectedRoute><FAQ /></ProtectedRoute>} />
         <Route path="/packs" element={<ProtectedRoute><Pack /></ProtectedRoute>} />
         <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+        <Route path="/email-templates" element={<ProtectedRoute><EmailTemplates /></ProtectedRoute>} />
+        <Route path="/edit-email-template/:id" element={<ProtectedRoute><EditEmailTemplate /></ProtectedRoute>} />
       </Routes>
     </AuthProvider>
   )
 }
+

@@ -132,6 +132,13 @@ export default function Sidebar() {
               </Link>
             </li>
 
+            <li>
+              <Link to="/email-templates" className={isActive("/email-templates")}>
+                <i className="fas fa-envelope me-2"></i>
+                <span>Email Templates</span>
+              </Link>
+            </li>
+
             {/* <li>
               <Link to="/coupon-categories" className={isActive("/coupon-categories")}>
                 <i className="fas fa-layer-group me-2"></i>

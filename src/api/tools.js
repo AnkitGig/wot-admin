@@ -106,3 +106,70 @@ export const updateToolFlag = async (token, toolName, isEnabled, disabledReason 
     };
   }
 };
+
+export const getEmailTemplates = async (token) => {
+  try {
+    const response = await fetch('https://api.wayoftrading.com/aitredding/admin/tools/email-templates', {
+      method: 'GET',
+      headers: {
+        'accept': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (data.status === 1) {
+      return {
+        success: true,
+        data: data.data,
+      };
+    } else {
+      return {
+        success: false,
+        message: data.message || 'Failed to fetch email templates',
+      };
+    }
+  } catch (error) {
+    console.error('Error fetching email templates:', error);
+    return {
+      success: false,
+      message: 'An error occurred while fetching email templates',
+    };
+  }
+};
+
+export const updateEmailTemplate = async (token, id, templateData) => {
+  try {
+    const response = await fetch(`https://api.wayoftrading.com/aitredding/admin/tools/email-templates/${id}`, {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(templateData),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      return {
+        success: true,
+        message: data.message || 'Template updated successfully',
+        data: data.data,
+      };
+    } else {
+      return {
+        success: false,
+        message: data.message || 'Failed to update template',
+      };
+    }
+  } catch (error) {
+    console.error('Error updating email template:', error);
+    return {
+      success: false,
+      message: 'An error occurred while updating template',
+    };
+  }
+};
