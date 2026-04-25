@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { getAllGlossaries, deleteGlossary, updateGlossary, getAllGlossaryCategories, searchGlossaries } from '../api/glossary';
+import { getAllGlossaries, deleteGlossary, updateGlossary, getAllGlossaryCategories, searchGlossaries, deleteAllGlossaries } from '../api/glossary';
 import { useAuth } from '../context/AuthContext';
 import GlobalLoader from '../components/GlobalLoader';
 import Header from '../components/Header';
@@ -30,6 +30,9 @@ export default function Glossaries() {
     total: 0,
     count: 0,
   });
+  const [selectedGlossaries, setSelectedGlossaries] = useState([]);
+  const [selectAll, setSelectAll] = useState(false);
+
 
   useEffect(() => {
     fetchGlossaries(1);
@@ -73,6 +76,8 @@ export default function Glossaries() {
     if (result.success) {
       setGlossaries(result.data || []);
       setPagination(result.pagination || { page: pageNumber, limit: 10, total: 0, count: 0 });
+      setSelectedGlossaries([]);
+      setSelectAll(false);
     } else {
       Swal.fire({
         icon: 'error',
@@ -93,6 +98,8 @@ export default function Glossaries() {
     if (result.success) {
       setGlossaries(result.data || []);
       setPagination(result.pagination || { page: pageNumber, limit: 10, total: 0, count: 0 });
+      setSelectedGlossaries([]);
+      setSelectAll(false);
     } else {
       setGlossaries([]);
       setPagination({ page: 1, limit: 10, total: 0, count: 0 });
@@ -211,6 +218,73 @@ export default function Glossaries() {
     });
   };
 
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedGlossaries([]);
+    } else {
+      setSelectedGlossaries(glossaries.map(g => g.id));
+    }
+    setSelectAll(!selectAll);
+  };
+
+  const handleSelectOne = (id) => {
+    if (selectedGlossaries.includes(id)) {
+      setSelectedGlossaries(selectedGlossaries.filter(item => item !== id));
+      setSelectAll(false);
+    } else {
+      const newSelected = [...selectedGlossaries, id];
+      setSelectedGlossaries(newSelected);
+      if (newSelected.length === glossaries.length) {
+        setSelectAll(true);
+      }
+    }
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedGlossaries.length === 0) return;
+
+    Swal.fire({
+      title: 'Delete Selected Glossaries',
+      text: `Are you sure you want to delete ${selectedGlossaries.length} selected glossaries? This action cannot be undone.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete them',
+      cancelButtonText: 'Cancel',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        setIsLoading(true);
+        const deleteResult = await deleteAllGlossaries(selectedGlossaries, token);
+        setIsLoading(false);
+
+        if (deleteResult.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Deleted',
+            text: deleteResult.message || 'Selected glossaries deleted successfully',
+            timer: 1500,
+            timerProgressBar: true,
+            showConfirmButton: false,
+          }).then(() => {
+            if (searchTerm.trim()) {
+              handleSearch(pagination.page);
+            } else {
+              fetchGlossaries(pagination.page);
+            }
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Failed to Delete',
+            text: deleteResult.message || 'An error occurred while deleting selected glossaries',
+          });
+        }
+      }
+    });
+  };
+
+
   const totalPages = Math.ceil(pagination.total / pagination.limit);
 
   return (
@@ -235,8 +309,20 @@ export default function Glossaries() {
                   <li>
                     <Link className="btn btn-primary" to="/add-glossary"><i className="fa fa-plus-circle me-2"></i>Add Glossary</Link>
                   </li>
+                  {selectedGlossaries.length > 0 && (
+                    <li>
+                      <button
+                        className="btn btn-danger"
+                        onClick={handleBulkDelete}
+                      >
+                        <i className="fas fa-trash me-2"></i>
+                        Delete Selected ({selectedGlossaries.length})
+                      </button>
+                    </li>
+                  )}
                 </ul>
               </div>
+
             </div>
           </div>
 
@@ -276,15 +362,30 @@ export default function Glossaries() {
                     </div>
                   </div>
 
+
+
                   <div className="table-responsive">
                     <table className="table table-striped">
                       <thead>
                         <tr>
+                          <th style={{ width: '50px' }}>
+                            <div className="form-check">
+                              <input
+                                type="checkbox"
+                                className="form-check-input"
+                                checked={selectAll}
+                                onChange={handleSelectAll}
+                                disabled={glossaries.length === 0}
+                              />
+                            </div>
+                          </th>
                           <th>Term</th>
                           <th>Category</th>
                           <th>Description</th>
-                          <th>Action</th>
+                          <th className="text-end">Action</th>
                         </tr>
+
+
                       </thead>
                       <tbody>
                         {isLoading ? (
@@ -310,6 +411,16 @@ export default function Glossaries() {
                           glossaries.map((glossary) => (
                             <tr key={glossary.id}>
                               <td>
+                                <div className="form-check">
+                                  <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    checked={selectedGlossaries.includes(glossary.id)}
+                                    onChange={() => handleSelectOne(glossary.id)}
+                                  />
+                                </div>
+                              </td>
+                              <td>
                                 <strong>{glossary.term}</strong>
                               </td>
                               <td>
@@ -321,8 +432,8 @@ export default function Glossaries() {
                                   {glossary.description?.length > 60 ? '...' : ''}
                                 </small>
                               </td>
-                              <td>
-                                <div className="d-flex gap-2">
+                              <td className="text-end">
+                                <div className="d-flex gap-2 justify-content-end">
                                   <button
                                     className="btn btn-sm btn-info me-1"
                                     onClick={() => handleEditClick(glossary)}
@@ -340,6 +451,8 @@ export default function Glossaries() {
                                 </div>
                               </td>
                             </tr>
+
+
                           ))
                         )}
                       </tbody>

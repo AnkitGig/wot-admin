@@ -291,6 +291,52 @@ export const deleteGlossary = async (glossaryId, token) => {
   }
 };
 
+export const deleteAllGlossaries = async (ids, token) => {
+  try {
+    const url = `${API_BASE_URL}/admin/bulk-delete-tradingGlossary`;
+
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'accept': 'application/json',
+      },
+      body: JSON.stringify({ ids }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Delete All Glossaries HTTP Error:', response.status, errorText);
+      return {
+        success: false,
+        message: `HTTP Error: ${response.status}`,
+      };
+    }
+
+    const data = await response.json();
+
+    if (data.status === 1 || response.status === 200) {
+      return {
+        success: true,
+        data: data.data,
+        message: data.message || 'Glossaries deleted successfully',
+      };
+    } else {
+      return {
+        success: false,
+        message: data.message || 'Failed to delete selected glossaries',
+      };
+    }
+  } catch (error) {
+    console.error('Delete All Glossaries API Error:', error);
+    return {
+      success: false,
+      message: error.message || 'An error occurred while deleting selected glossaries',
+    };
+  }
+};
+
 export const importGlossaryFromJSON = async (file, token) => {
   try {
     const url = `${API_BASE_URL}/admin/import-glossary`;
