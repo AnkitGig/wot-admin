@@ -57,6 +57,8 @@ import Notifications from './pages/Notifications'
 
 import EmailTemplates from './pages/EmailTemplates'
 import EditEmailTemplate from './pages/EditEmailTemplate'
+import Broker from './pages/Broker.JSX'
+import AddBroker from './pages/AddBroker'
 
 export default function App() {
   return (
@@ -123,6 +125,9 @@ export default function App() {
         <Route path="/packs" element={<ProtectedRoute><Pack /></ProtectedRoute>} />
         <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
         <Route path="/email-templates" element={<ProtectedRoute><EmailTemplates /></ProtectedRoute>} />
+         <Route path="/Broker" element={<ProtectedRoute><Broker /></ProtectedRoute>} />
+        <Route path="/broker/add" element={<ProtectedRoute><AddBroker /></ProtectedRoute>} />
+        <Route path="/broker/edit/:id" element={<ProtectedRoute><AddBroker /></ProtectedRoute>} />
         <Route path="/edit-email-template/:id" element={<ProtectedRoute><EditEmailTemplate /></ProtectedRoute>} />
       </Routes>
     </AuthProvider>
