@@ -103,9 +103,6 @@ export default function Plans() {
           <div className="row">
             <div className="col-sm-12">
               <div className="card">
-                <div className="card-header">
-                  <h3 className="card-title">All Plans</h3>
-                </div>
                 <div className="card-body">
                   <div className="table-responsive">
                     <table className="table table-bordered table-striped">
