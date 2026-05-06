@@ -15,11 +15,13 @@ export default function GlossaryCategories() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
-  const [editFormData, setEditFormData] = useState({
-    name: '',
-    description: '',
-    color: '#941efd',
-  });
+const [editFormData, setEditFormData] = useState({
+  name_en: "",
+  name_fr: "",
+  name_es: "",
+  description: "",
+  color: "#941efd",
+});
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 10,
@@ -62,15 +64,19 @@ export default function GlossaryCategories() {
     setSearchTerm(e.target.value);
   };
 
-  const handleEditClick = (category) => {
-    setEditingCategory(category);
-    setEditFormData({
-      name: category.name,
-      description: category.description || '',
-      color: category.color || '#941efd',
-    });
-    setShowEditModal(true);
-  };
+const handleEditClick = (category) => {
+  setEditingCategory(category);
+
+  setEditFormData({
+    name_en: category.name?.en || "",
+    name_fr: category.name?.fr || "",
+    name_es: category.name?.es || "",
+    description: category.description || "",
+    color: category.color || "#941efd",
+  });
+
+  setShowEditModal(true);
+};
 
   const handleEditInputChange = (e) => {
     const { name, value } = e.target;
@@ -80,40 +86,70 @@ export default function GlossaryCategories() {
     }));
   };
 
-  const handleEditSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!editFormData.name.trim()) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Validation Error',
-        text: 'Category name is required',
-      });
-      return;
-    }
+const handleEditSubmit = async (e) => {
+  e.preventDefault();
 
-    const updateResult = await updateGlossaryCategory(editingCategory.id, editFormData, token);
+  // validation
+if (
+  !editFormData.name_en?.trim() ||
+  !editFormData.name_fr?.trim() ||
+  !editFormData.name_es?.trim()
+) {
+  Swal.fire({
+    icon: "warning",
+    title: "Validation Error",
+    text: "All category names are required",
+  });
 
+  return;
+}
+
+  try {
+    const updateResult = await updateGlossaryCategory(
+        editingCategory.id,
+        editFormData,
+        token
+      );
+console.log('updateResult',updateResult)
     if (updateResult.success) {
       Swal.fire({
-        icon: 'success',
-        title: 'Updated',
-        text: updateResult.message || 'Category updated successfully',
+        icon: "success",
+        title: "Updated",
+        text:
+          updateResult.message ||
+          "Category updated successfully",
         timer: 1500,
         timerProgressBar: true,
         showConfirmButton: false,
       }).then(() => {
         setShowEditModal(false);
-        fetchCategories(pagination.page, searchTerm);
+
+        fetchCategories(
+          pagination.page,
+          searchTerm
+        );
       });
     } else {
       Swal.fire({
-        icon: 'error',
-        title: 'Failed to Update',
-        text: updateResult.message || 'An error occurred while updating the category',
+        icon: "error",
+        title: "Failed to Update",
+        text:
+          updateResult.message ||
+          "An error occurred while updating the category",
       });
     }
-  };
+  } catch (error) {
+    console.error(error);
+
+    Swal.fire({
+      icon: "error",
+      title: "Server Error",
+      text:
+        error.message ||
+        "Something went wrong",
+    });
+  }
+};
 
   const handleDeleteCategory = (categoryId, categoryName) => {
     Swal.fire({
@@ -319,17 +355,63 @@ export default function GlossaryCategories() {
             </div>
             <form onSubmit={handleEditSubmit}>
               <div className="modal-body">
-                <div className="mb-3">
-                  <label className="form-label">Category Name <span className="text-danger">*</span></label>
-                  <input 
-                    type="text" 
-                    className="form-control" 
-                    name="name"
-                    value={editFormData.name}
-                    onChange={handleEditInputChange}
-                    required
-                  />
-                </div>
+               <div className="row">
+
+  {/* ENGLISH */}
+  <div className="col-lg-4 col-md-6 col-12 mb-3">
+    <label className="form-label">
+      English Category Name
+      <span className="text-danger">*</span>
+    </label>
+
+    <input
+      type="text"
+      className="form-control"
+      placeholder="Enter English category name"
+      name="name_en"
+      value={editFormData.name_en}
+      onChange={handleEditInputChange}
+      required
+    />
+  </div>
+
+  {/* FRENCH */}
+  <div className="col-lg-4 col-md-6 col-12 mb-3">
+    <label className="form-label">
+      French Category Name
+      <span className="text-danger">*</span>
+    </label>
+
+    <input
+      type="text"
+      className="form-control"
+      placeholder="Enter French category name"
+      name="name_fr"
+      value={editFormData.name_fr}
+      onChange={handleEditInputChange}
+      required
+    />
+  </div>
+
+  {/* SPANISH */}
+  <div className="col-lg-4 col-md-6 col-12 mb-3">
+    <label className="form-label">
+      Spanish Category Name
+      <span className="text-danger">*</span>
+    </label>
+
+    <input
+      type="text"
+      className="form-control"
+      placeholder="Enter Spanish category name"
+      name="name_es"
+      value={editFormData.name_es}
+      onChange={handleEditInputChange}
+      required
+    />
+  </div>
+
+</div>
                 <div className="mb-3">
                   <label className="form-label">Description</label>
                   <textarea 

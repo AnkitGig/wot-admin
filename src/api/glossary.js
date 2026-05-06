@@ -198,11 +198,15 @@ export const updateGlossary = async (glossaryId, glossaryData, token) => {
   try {
     const url = `${API_BASE_URL}/admin/update-tradingGlossary/${glossaryId}`;
 
+    // Payload is already in the required multilingual format from the frontend
+    // No need to transform – just send it as is.
     const payload = {
-      term: glossaryData.term,
-      category: glossaryData.category,
-      description: glossaryData.description,
-      color: glossaryData.color,
+      term: glossaryData.term,           // { en, fr, es }
+      short_form: glossaryData.short_form || "",
+      category: glossaryData.category,   // { en, fr, es }
+      description: glossaryData.description, // { en, fr, es }
+      // Include color only if your backend supports it and you have it
+      // color: glossaryData.color,
     };
 
     const response = await fetch(url, {
@@ -217,7 +221,7 @@ export const updateGlossary = async (glossaryId, glossaryData, token) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('[v0] Update Glossary HTTP Error:', response.status, errorText);
+      console.error('Update Glossary HTTP Error:', response.status, errorText);
       return {
         success: false,
         message: `HTTP Error: ${response.status}`,
@@ -239,7 +243,7 @@ export const updateGlossary = async (glossaryId, glossaryData, token) => {
       };
     }
   } catch (error) {
-    console.error('[v0] Update Glossary API Error:', error);
+    console.error('Update Glossary API Error:', error);
     return {
       success: false,
       message: error.message || 'An error occurred while updating glossary term',
@@ -337,50 +341,109 @@ export const deleteAllGlossaries = async (ids, token) => {
   }
 };
 
-export const importGlossaryFromJSON = async (file, token) => {
+export const importGlossaryFromJSON = async (
+  file,
+  token
+) => {
   try {
-    const url = `${API_BASE_URL}/admin/import-glossary`;
+    console.log('api called')
+    // validation
+    if (!file) {
+      return {
+        success: false,
+        message: "Please select a JSON file",
+      };
+    }
 
+    // file type validation
+    if (
+      file.type !== "application/json" &&
+      !file.name.endsWith(".json")
+    ) {
+      return {
+        success: false,
+        message:
+          "Only JSON files are allowed",
+      };
+    }
+
+    const url = `${API_BASE_URL}/admin/upload-glossary-json`;
+
+    // form data
     const formData = new FormData();
-    formData.append('file', file);
 
+    formData.append("file", file);
+
+    // api request
     const response = await fetch(url, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'accept': 'application/json',
+        Authorization: `Bearer ${token}`,
+        accept: "application/json",
       },
       body: formData,
     });
 
+    // parse response safely
+    let data = {};
+
+    try {
+      data = await response.json();
+    } catch (err) {
+      console.error(
+        "JSON Parse Error:",
+        err
+      );
+    }
+
+    console.log(
+      "Import API Response:",
+      data
+    );
+
+    // error handling
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('API Error Response:', errorText);
       return {
         success: false,
-        message: `HTTP Error: ${response.status} - ${errorText}`,
+        message:
+          data?.detail ||
+          data?.message ||
+          `HTTP Error ${response.status}`,
       };
     }
 
-    const data = await response.json();
-
-    if (data.status === 1 || response.status === 200) {
+    // success
+    if (
+      data.status === 1 ||
+      response.status === 200
+    ) {
       return {
         success: true,
         data: data.data || data,
-        message: data.message || 'Glossary imported successfully',
-      };
-    } else {
-      return {
-        success: false,
-        message: data.message || 'Failed to import glossary',
+        message:
+          data.message ||
+          "Glossary imported successfully",
       };
     }
-  } catch (error) {
-    console.error('Import Glossary API Error:', error);
+
+    // fallback
     return {
       success: false,
-      message: error.message || 'An error occurred while importing glossary',
+      message:
+        data.message ||
+        "Failed to import glossary",
+    };
+  } catch (error) {
+    console.error(
+      "Import Glossary API Error:",
+      error
+    );
+
+    return {
+      success: false,
+      message:
+        error.message ||
+        "Something went wrong while importing glossary",
     };
   }
 };
@@ -438,7 +501,7 @@ export const addGlossaryCategory = async (categoryData, token) => {
 export const getAllGlossaryCategories = async (token, page = 1, limit = 10, search = '') => {
   try {
     const searchParam = search ? `&search=${encodeURIComponent(search)}` : '';
-    const url = `${API_BASE_URL}/admin/glossary-category?page=${page}&limit=${limit}${searchParam}`;
+    const url = `${API_BASE_URL}/admin/glossary-categories?page=${page}&limit=${limit}${searchParam}`;
 
     const response = await fetch(url, {
       method: 'GET',
@@ -525,28 +588,49 @@ export const getGlossaryCategoryById = async (categoryId, token) => {
   }
 };
 
-export const updateGlossaryCategory = async (categoryId, categoryData, token) => {
+export const updateGlossaryCategory = async (
+  
+  categoryId,
+  categoryData,
+  token
+) => {
+  console.log('updateGlossaryCategory called')
   try {
-    const url = `${API_BASE_URL}/admin/glossary-category/${categoryId}`;
+    const url = `${API_BASE_URL}/admin/glossary-category/${categoryId}?lang=en`;
 
-    const formData = new URLSearchParams();
-    formData.append('name', categoryData.name);
-    formData.append('description', categoryData.description || '');
-    formData.append('color', categoryData.color || '#000000');
+    // JSON payload
+    const payload = {
+      name: {
+        en: categoryData.name_en,
+        fr: categoryData.name_fr,
+        es: categoryData.name_es,
+      },
+      description:
+        categoryData.description || "",
+      color:
+        categoryData.color || "#000000",
+    };
 
     const response = await fetch(url, {
-      method: 'PUT',
+      method: "PUT",
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'accept': 'application/json',
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        accept: "application/json",
       },
-      body: formData.toString(),
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Update Glossary Category HTTP Error:', response.status, errorText);
+      const errorText =
+        await response.text();
+
+      console.error(
+        "Update Glossary Category HTTP Error:",
+        response.status,
+        errorText
+      );
+
       return {
         success: false,
         message: `HTTP Error: ${response.status}`,
@@ -564,14 +648,22 @@ export const updateGlossaryCategory = async (categoryId, categoryData, token) =>
     } else {
       return {
         success: false,
-        message: data.message || 'Failed to update glossary category',
+        message:
+          data.message ||
+          "Failed to update glossary category",
       };
     }
   } catch (error) {
-    console.error('Update Glossary Category API Error:', error);
+    console.error(
+      "Update Glossary Category API Error:",
+      error
+    );
+
     return {
       success: false,
-      message: error.message || 'An error occurred while updating glossary category',
+      message:
+        error.message ||
+        "An error occurred while updating glossary category",
     };
   }
 };

@@ -1,30 +1,30 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2';
-import { addCourse } from '../api/courses';
-import { useAuth } from '../context/AuthContext';
-import Header from '../components/Header';
-import Sidebar from '../components/Sidebar';
-import Footer from '../components/Footer';
-import DurationPicker from '../components/DurationPicker';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import { addCourse } from "../api/courses";
+import { useAuth } from "../context/AuthContext";
+import Header from "../components/Header";
+import Sidebar from "../components/Sidebar";
+import Footer from "../components/Footer";
+import DurationPicker from "../components/DurationPicker";
 
 export default function AddCourse() {
   const navigate = useNavigate();
   const { token } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    title: '',
-    slug: '',
-    description: '',
-    short_description: '',
-    objectives: '',
-    duration_in_minutes: '',
-    level: 'Beginner',
-    language: 'English',
-    price: '',
+    title: "",
+    slug: "",
+    description: "",
+    short_description: "",
+    objectives: "",
+    duration_in_minutes: "",
+    level: "Beginner",
+    language: "English",
+    price: "",
     is_free: true,
     is_featured: false,
-    status: 'draft',
+    status: "draft",
     certificate_available: false,
     image: null,
     thumbnail: null,
@@ -40,11 +40,11 @@ export default function AddCourse() {
     let finalValue = value;
 
     // Handle boolean fields from select dropdowns
-    if (['is_free', 'is_featured', 'certificate_available'].includes(name)) {
-      finalValue = value === 'true' || value === true;
+    if (["is_free", "is_featured", "certificate_available"].includes(name)) {
+      finalValue = value === "true" || value === true;
     }
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: finalValue,
     }));
@@ -53,7 +53,7 @@ export default function AddCourse() {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         image: file,
       }));
@@ -70,7 +70,7 @@ export default function AddCourse() {
   const handleThumbnailChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         thumbnail: file,
       }));
@@ -87,7 +87,7 @@ export default function AddCourse() {
   const handleVideoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         intro_video: file,
       }));
@@ -97,19 +97,19 @@ export default function AddCourse() {
   };
 
   const handleDurationChange = (durationText) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       duration_in_minutes: durationText,
     }));
   };
 
   const formatDurationDisplay = (duration) => {
-    if (!duration) return 'Click to select duration';
+    if (!duration) return "Click to select duration";
     return duration;
   };
 
   const handleCancel = () => {
-    navigate('/courses');
+    navigate("/courses");
   };
 
   const handleSubmit = async (e) => {
@@ -118,63 +118,63 @@ export default function AddCourse() {
     // Validation
     if (!formData.title.trim()) {
       Swal.fire({
-        icon: 'warning',
-        title: 'Validation Error',
-        text: 'Please enter course title',
+        icon: "warning",
+        title: "Validation Error",
+        text: "Please enter course title",
       });
       return;
     }
 
     if (!formData.slug.trim()) {
       Swal.fire({
-        icon: 'warning',
-        title: 'Validation Error',
-        text: 'Please enter course slug',
+        icon: "warning",
+        title: "Validation Error",
+        text: "Please enter course slug",
       });
       return;
     }
 
     if (!formData.description.trim()) {
       Swal.fire({
-        icon: 'warning',
-        title: 'Validation Error',
-        text: 'Please enter course description',
+        icon: "warning",
+        title: "Validation Error",
+        text: "Please enter course description",
       });
       return;
     }
 
     if (!formData.objectives.trim()) {
       Swal.fire({
-        icon: 'warning',
-        title: 'Validation Error',
-        text: 'Please enter course objectives',
+        icon: "warning",
+        title: "Validation Error",
+        text: "Please enter course objectives",
       });
       return;
     }
 
     if (!formData.duration_in_minutes) {
       Swal.fire({
-        icon: 'warning',
-        title: 'Validation Error',
-        text: 'Please select course duration',
+        icon: "warning",
+        title: "Validation Error",
+        text: "Please select course duration",
       });
       return;
     }
 
     if (!formData.image) {
       Swal.fire({
-        icon: 'warning',
-        title: 'Validation Error',
-        text: 'Please upload course image',
+        icon: "warning",
+        title: "Validation Error",
+        text: "Please upload course image",
       });
       return;
     }
 
     if (!formData.thumbnail) {
       Swal.fire({
-        icon: 'warning',
-        title: 'Validation Error',
-        text: 'Please upload course thumbnail',
+        icon: "warning",
+        title: "Validation Error",
+        text: "Please upload course thumbnail",
       });
       return;
     }
@@ -185,20 +185,20 @@ export default function AddCourse() {
 
     if (result.success) {
       Swal.fire({
-        icon: 'success',
-        title: 'Course Created',
-        text: result.message || 'Course created successfully!',
+        icon: "success",
+        title: "Course Created",
+        text: result.message || "Course created successfully!",
         timer: 1500,
         timerProgressBar: true,
         showConfirmButton: false,
       }).then(() => {
-        navigate('/courses');
+        navigate("/courses");
       });
     } else {
       Swal.fire({
-        icon: 'error',
-        title: 'Failed to Create Course',
-        text: result.message || 'An error occurred while creating the course',
+        icon: "error",
+        title: "Failed to Create Course",
+        text: result.message || "An error occurred while creating the course",
       });
     }
 
@@ -219,7 +219,9 @@ export default function AddCourse() {
               <div className="list-btn">
                 <ul className="filter-list">
                   <li>
-                    <Link className="btn btn-primary" to="/courses"><i className="fa fa-plus-circle me-2"></i>View All</Link>
+                    <Link className="btn btn-primary" to="/courses">
+                      <i className="fa fa-plus-circle me-2"></i>View All
+                    </Link>
                   </li>
                 </ul>
               </div>
@@ -231,8 +233,11 @@ export default function AddCourse() {
               <div className="card">
                 <div className="card-body">
                   <form onSubmit={handleSubmit} className="row g-3">
+                    {/* english title */}
                     <div className="col-md-8">
-                      <label className="form-label">Course Title <span className="text-danger">*</span></label>
+                      <label className="form-label">
+                        Course Title <span className="text-danger"></span>
+                      </label>
                       <input
                         type="text"
                         className="form-control"
@@ -243,9 +248,41 @@ export default function AddCourse() {
                         required
                       />
                     </div>
-
+                    {/* french title */}
+                    <div className="col-md-8">
+                      <label className="form-label">
+                        Titre du cours <span className="text-danger"></span>
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Entrez le titre du cours"
+                        name="title"
+                        value={formData.title}
+                        onChange={handleInputChange}
+                        required
+                      />
+                    </div>
+                    {/* spanish title */}
+                    <div className="col-md-8">
+                      <label className="form-label">
+                        Título del curso <span className="text-danger"></span>
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Ingrese el título del curso"
+                        name="title"
+                        value={formData.title}
+                        onChange={handleInputChange}
+                        required
+                      />
+                    </div>
+                    {/* ===================== */}
                     <div className="col-md-4">
-                      <label className="form-label">Slug <span className="text-danger">*</span></label>
+                      <label className="form-label">
+                        Slug <span className="text-danger"></span>
+                      </label>
                       <input
                         type="text"
                         className="form-control"
@@ -258,7 +295,9 @@ export default function AddCourse() {
                     </div>
 
                     <div className="col-md-4">
-                      <label className="form-label">Level <span className="text-danger">*</span></label>
+                      <label className="form-label">
+                        Level <span className="text-danger"></span>
+                      </label>
                       <select
                         className="form-control"
                         name="level"
@@ -273,17 +312,21 @@ export default function AddCourse() {
                     </div>
 
                     <div className="col-md-4">
-                      <label className="form-label">Duration <span className="text-danger">*</span></label>
+                      <label className="form-label">
+                        Duration <span className="text-danger"></span>
+                      </label>
                       <div className="input-group">
                         <input
                           type="text"
                           className="form-control"
                           name="duration_in_minutes"
-                          value={formatDurationDisplay(formData.duration_in_minutes)}
+                          value={formatDurationDisplay(
+                            formData.duration_in_minutes,
+                          )}
                           onChange={handleInputChange}
                           placeholder="Click to select duration"
                           readOnly
-                          style={{ cursor: 'pointer' }}
+                          style={{ cursor: "pointer" }}
                           onClick={() => setShowDurationPicker(true)}
                         />
                         <button
@@ -297,7 +340,9 @@ export default function AddCourse() {
                     </div>
 
                     <div className="col-md-4">
-                      <label className="form-label">Language <span className="text-danger">*</span></label>
+                      <label className="form-label">
+                        Language <span className="text-danger"></span>
+                      </label>
                       <input
                         type="text"
                         className="form-control"
@@ -310,7 +355,9 @@ export default function AddCourse() {
                     </div>
 
                     <div className="col-md-4">
-                      <label className="form-label">Status <span className="text-danger">*</span></label>
+                      <label className="form-label">
+                        Status <span className="text-danger"></span>
+                      </label>
                       <select
                         className="form-control"
                         name="status"
@@ -322,9 +369,12 @@ export default function AddCourse() {
                         <option value="Published">Published</option>
                       </select>
                     </div>
-
+                    {/* --------English Version----------- */}
                     <div className="col-md-12">
-                      <label className="form-label">Course Description <span className="text-danger">*</span></label>
+                      <label className="form-label">
+                        Course Description{" "}
+                        <span className="text-danger"></span>
+                      </label>
                       <textarea
                         className="form-control"
                         rows="4"
@@ -335,7 +385,39 @@ export default function AddCourse() {
                         required
                       ></textarea>
                     </div>
-
+                    {/* --------French Version----------- */}
+                    <div className="col-md-12">
+                      <label className="form-label">
+                        Description du cours{" "}
+                        <span className="text-danger"></span>
+                      </label>
+                      <textarea
+                        className="form-control"
+                        rows="4"
+                        placeholder="Entrez une description détaillée du cours"
+                        name="description"
+                        value={formData.description}
+                        onChange={handleInputChange}
+                        required
+                      ></textarea>
+                    </div>
+                    {/* --------Spanish Version----------- */}
+                    <div className="col-md-12">
+                      <label className="form-label">
+                        Descripción del curso{" "}
+                        <span className="text-danger"></span>
+                      </label>
+                      <textarea
+                        className="form-control"
+                        rows="4"
+                        placeholder="Ingrese una descripción detallada del curso"
+                        name="description"
+                        value={formData.description}
+                        onChange={handleInputChange}
+                        required
+                      ></textarea>
+                    </div>
+                    {/* ============Short Description========= */}
                     <div className="col-md-12">
                       <label className="form-label">Short Description</label>
                       <textarea
@@ -347,9 +429,35 @@ export default function AddCourse() {
                         onChange={handleInputChange}
                       ></textarea>
                     </div>
+                    {/* French */}
+                    <div className="col-md-12">
+                      <label className="form-label">Brève description</label>
+                      <textarea
+                        className="form-control"
+                        rows="2"
+                        placeholder="Entrez une brève description du cours"
+                        name="short_description"
+                        value={formData.short_description}
+                        onChange={handleInputChange}
+                      ></textarea>
+                    </div>
+                    {/* spanish */}
+                    <div className="col-md-12">
+                      <label className="form-label">Descripción breve</label>
+                      <textarea
+                        className="form-control"
+                        rows="2"
+                        placeholder="Ingrese una breve descripción del curso"
+                        name="short_description"
+                        value={formData.short_description}
+                        onChange={handleInputChange}
+                      ></textarea>
+                    </div>
 
                     <div className="col-md-12">
-                      <label className="form-label">Course Objectives <span className="text-danger">*</span></label>
+                      <label className="form-label">
+                        Course Objectives <span className="text-danger"></span>
+                      </label>
                       <textarea
                         className="form-control"
                         rows="3"
@@ -407,7 +515,9 @@ export default function AddCourse() {
                     </div>
 
                     <div className="col-md-6">
-                      <label className="form-label">Certificate Available</label>
+                      <label className="form-label">
+                        Certificate Available
+                      </label>
                       <select
                         className="form-control"
                         name="certificate_available"
@@ -421,7 +531,9 @@ export default function AddCourse() {
                     </div>
 
                     <div className="col-md-12">
-                      <label className="form-label">Course Image <span className="text-danger">*</span></label>
+                      <label className="form-label">
+                        Course Image <span className="text-danger"></span>
+                      </label>
                       <input
                         type="file"
                         className="form-control"
@@ -434,14 +546,20 @@ export default function AddCourse() {
                           <img
                             src={imagePreview}
                             alt="Image Preview"
-                            style={{ maxWidth: '200px', maxHeight: '200px', borderRadius: '4px' }}
+                            style={{
+                              maxWidth: "200px",
+                              maxHeight: "200px",
+                              borderRadius: "4px",
+                            }}
                           />
                         </div>
                       )}
                     </div>
 
                     <div className="col-md-12">
-                      <label className="form-label">Course Thumbnail <span className="text-danger">*</span></label>
+                      <label className="form-label">
+                        Course Thumbnail <span className="text-danger"></span>
+                      </label>
                       <input
                         type="file"
                         className="form-control"
@@ -454,7 +572,11 @@ export default function AddCourse() {
                           <img
                             src={thumbnailPreview}
                             alt="Thumbnail Preview"
-                            style={{ maxWidth: '200px', maxHeight: '200px', borderRadius: '4px' }}
+                            style={{
+                              maxWidth: "200px",
+                              maxHeight: "200px",
+                              borderRadius: "4px",
+                            }}
                           />
                         </div>
                       )}
@@ -488,7 +610,8 @@ export default function AddCourse() {
                         className="btn btn-primary ms-2"
                         disabled={isLoading}
                       >
-                        <i className="bi bi-check-circle"></i> {isLoading ? 'Creating...' : 'Create Course'}
+                        <i className="bi bi-check-circle"></i>{" "}
+                        {isLoading ? "Creating..." : "Create Course"}
                       </button>
                     </div>
                   </form>
