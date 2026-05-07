@@ -26,7 +26,11 @@ export default function AddGlossaryCategory() {
     name_en: "",
     name_fr: "",
     name_es: "",
-    description: "",
+
+    description_en: "",
+    description_fr: "",
+    description_es: "",
+
     color: "#941efd",
   });
   // =========================
@@ -52,65 +56,69 @@ export default function AddGlossaryCategory() {
   // MANUAL SUBMIT
   // =========================
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (
-    !formData.name_en.trim() ||
-    !formData.name_fr.trim() ||
-    !formData.name_es.trim()
-  ) {
-    return Swal.fire({
-      icon: "warning",
-      title: "Validation Error",
-      text: "Please fill all category names",
-    });
-  }
-
-  try {
-    setIsLoading(true);
-
-    const payload = {
-      name: {
-        en: formData.name_en,
-        fr: formData.name_fr,
-        es: formData.name_es,
-      },
-      description: formData.description,
-      color: formData.color,
-    };
-
-    console.log(payload);
-
-    const result = await addGlossaryCategory(payload);
-
-    if (result.status === 1 == 1) {
-      Swal.fire({
-        icon: "success",
-        title: "Category Created",
-        text:
-          result.message ||
-          "Glossary category created successfully!",
-      });
-    } else {
-      Swal.fire({
-        icon: "error",
-        title: "Failed",
-        text: result.message,
+    if (
+      !formData.name_en.trim() ||
+      !formData.name_fr.trim() ||
+      !formData.name_es.trim()
+    ) {
+      return Swal.fire({
+        icon: "warning",
+        title: "Validation Error",
+        text: "Please fill all category names",
       });
     }
-    navigate('/glossary-categories')
-  } catch (error) {
-    console.log(error);
 
-    Swal.fire({
-      icon: "error",
-      title: "Server Error",
-      text: error.message,
-    });
-  } finally {
-    setIsLoading(false);
-  }
-};
+    try {
+      setIsLoading(true);
+
+      const payload = {
+        name: {
+          en: formData.name_en,
+          fr: formData.name_fr,
+          es: formData.name_es,
+        },
+        description: formData.description_en,
+        // description: {
+        //   en: formData.description_en,
+        //   fr: formData.description_fr,
+        //   es: formData.description_es,
+        // },
+
+        color: formData.color,
+      };
+
+      console.log(payload);
+
+      const result = await addGlossaryCategory(payload);
+
+      if ((result.status === 1) == 1) {
+        Swal.fire({
+          icon: "success",
+          title: "Category Created",
+          text: result.message || "Glossary category created successfully!",
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Failed",
+          text: result.message,
+        });
+      }
+      navigate("/glossary-categories");
+    } catch (error) {
+      console.log(error);
+
+      Swal.fire({
+        icon: "error",
+        title: "Server Error",
+        text: error.message,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // =========================
   // JSON FILE CHANGE
@@ -245,112 +253,189 @@ export default function AddGlossaryCategory() {
                   {/* MANUAL FORM */}
                   {/* ========================= */}
                   {activeTab === "manual" && (
-                    <form onSubmit={handleSubmit} className="row g-3">
-                      {/* CATEGORY NAME */}
-                      <div className="row g-3">
-                        {/* ENGLISH */}
-                        <div className="col-lg-4 col-md-6 col-12">
-                          <label className="form-label">
-                            Category Name (English)
-                            <span className="text-danger">*</span>
-                          </label>
-
-                          <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Enter category name in English"
-                            name="name_en"
-                            value={formData.name_en}
-                            onChange={handleInputChange}
-                            required
-                          />
+                    <form onSubmit={handleSubmit}>
+                      {/* ================= ENGLISH SECTION ================= */}
+                      <div
+                        className="card border-0 shadow-sm mb-4"
+                        style={{ backgroundColor: "#e8f1ff" }}
+                      >
+                        <div className="card-header bg-primary text-white">
+                          <h5 className="mb-0">🇺🇸 English Category</h5>
                         </div>
 
-                        {/* FRENCH */}
-                        <div className="col-lg-4 col-md-6 col-12">
-                          <label className="form-label">
-                            Category Name (French)
-                            <span className="text-danger">*</span>
-                          </label>
+                        <div className="card-body">
+                          {/* CATEGORY NAME */}
+                          <div className="mb-3">
+                            <label className="form-label">
+                              Category Name (English)
+                              <span className="text-danger">*</span>
+                            </label>
 
-                          <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Enter category name in French"
-                            name="name_fr"
-                            value={formData.name_fr}
-                            onChange={handleInputChange}
-                            required
-                          />
-                        </div>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Enter category name in English"
+                              name="name_en"
+                              value={formData.name_en}
+                              onChange={handleInputChange}
+                              required
+                            />
+                          </div>
 
-                        {/* SPANISH */}
-                        <div className="col-lg-4 col-md-6 col-12">
-                          <label className="form-label">
-                            Category Name (Spanish)
-                            <span className="text-danger">*</span>
-                          </label>
+                          {/* DESCRIPTION */}
+                          <div className="mb-3">
+                            <label className="form-label">
+                              Description (English) optional
+                            </label>
 
-                          <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Enter category name in Spanish"
-                            name="name_es"
-                            value={formData.name_es}
-                            onChange={handleInputChange}
-                            required
-                          />
+                            <textarea
+                              className="form-control"
+                              rows="4"
+                              placeholder="Enter English description"
+                              name="description_en"
+                              value={formData.description_en}
+                              onChange={handleInputChange}
+                            ></textarea>
+                          </div>
                         </div>
                       </div>
 
-                      {/* DESCRIPTION */}
-                      <div className="col-md-12">
-                        <label className="form-label">Description</label>
+                      {/* ================= FRENCH SECTION ================= */}
+                      <div
+                        className="card border-0 shadow-sm mb-4"
+                        style={{ backgroundColor: "#fff4e5" }}
+                      >
+                        <div
+                          className="card-header text-dark"
+                          style={{ backgroundColor: "#ffb74d" }}
+                        >
+                          <h5 className="mb-0">🇫🇷 French Category</h5>
+                        </div>
 
-                        <textarea
-                          className="form-control"
-                          rows="6"
-                          placeholder="Enter category description"
-                          name="description"
-                          value={formData.description}
-                          onChange={handleInputChange}
-                        ></textarea>
-                      </div>
+                        <div className="card-body">
+                          {/* CATEGORY NAME */}
+                          <div className="mb-3">
+                            <label className="form-label">
+                              Nom de la Catégorie (Français)
+                              <span className="text-danger">*</span>
+                            </label>
 
-                      {/* COLOR */}
-                      <div className="col-md-6">
-                        <label className="form-label">Color</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Entrez le nom de la catégorie"
+                              name="name_fr"
+                              value={formData.name_fr}
+                              onChange={handleInputChange}
+                              required
+                            />
+                          </div>
 
-                        <div className="d-flex align-items-center gap-3">
-                          <input
-                            type="color"
-                            className="form-control form-control-color"
-                            style={{
-                              width: "60px",
-                              height: "40px",
-                              cursor: "pointer",
-                            }}
-                            name="color"
-                            value={formData.color}
-                            onChange={handleInputChange}
-                          />
+                          {/* DESCRIPTION */}
+                          {/* <div className="mb-3">
+                            <label className="form-label">
+                              Description (Français)
+                            </label>
 
-                          <input
-                            type="text"
-                            className="form-control"
-                            placeholder="#941efd"
-                            name="color"
-                            value={formData.color}
-                            onChange={handleInputChange}
-                            style={{
-                              maxWidth: "150px",
-                            }}
-                          />
+                            <textarea
+                              className="form-control"
+                              rows="4"
+                              placeholder="Entrez la description française"
+                              name="description_fr"
+                              value={formData.description_fr}
+                              onChange={handleInputChange}
+                            ></textarea>
+                          </div> */}
                         </div>
                       </div>
 
-                      {/* BUTTONS */}
-                      <div className="col-md-12 text-end mt-3">
+                      {/* ================= SPANISH SECTION ================= */}
+                      <div
+                        className="card border-0 shadow-sm mb-4"
+                        style={{ backgroundColor: "#e8fff1" }}
+                      >
+                        <div
+                          className="card-header text-dark"
+                          style={{ backgroundColor: "#66bb6a" }}
+                        >
+                          <h5 className="mb-0">🇪🇸 Spanish Category</h5>
+                        </div>
+
+                        <div className="card-body">
+                          {/* CATEGORY NAME */}
+                          <div className="mb-3">
+                            <label className="form-label">
+                              Nombre de la Categoría (Español)
+                              <span className="text-danger">*</span>
+                            </label>
+
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Ingrese el nombre de la categoría"
+                              name="name_es"
+                              value={formData.name_es}
+                              onChange={handleInputChange}
+                              required
+                            />
+                          </div>
+
+                          {/* DESCRIPTION */}
+                          {/* <div className="mb-3">
+                            <label className="form-label">
+                              Descripción (Español)
+                            </label>
+
+                            <textarea
+                              className="form-control"
+                              rows="4"
+                              placeholder="Ingrese la descripción en español"
+                              name="description_es"
+                              value={formData.description_es}
+                              onChange={handleInputChange}
+                            ></textarea>
+                          </div> */}
+                        </div>
+                      </div>
+
+                      {/* ================= COLOR SECTION ================= */}
+                      <div className="card border-0 shadow-sm mb-4">
+                        <div className="card-header bg-dark text-white">
+                          <h5 className="mb-0">🎨 Category Color</h5>
+                        </div>
+
+                        <div className="card-body">
+                          <div className="d-flex align-items-center gap-3">
+                            <input
+                              type="color"
+                              className="form-control form-control-color"
+                              style={{
+                                width: "70px",
+                                height: "45px",
+                                cursor: "pointer",
+                              }}
+                              name="color"
+                              value={formData.color}
+                              onChange={handleInputChange}
+                            />
+
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="#941efd"
+                              name="color"
+                              value={formData.color}
+                              onChange={handleInputChange}
+                              style={{
+                                maxWidth: "180px",
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* ================= BUTTONS ================= */}
+                      <div className="text-end">
                         <button
                           type="button"
                           className="btn btn-secondary"

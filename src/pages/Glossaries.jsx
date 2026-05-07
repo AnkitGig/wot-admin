@@ -589,77 +589,252 @@ export default function Glossaries() {
       </div>
 
       {/* Edit Modal - Multilingual */}
-      <div className={`modal fade ${showEditModal ? 'show' : ''}`} style={{ display: showEditModal ? 'block' : 'none' }} tabIndex="-1">
-        <div className="modal-dialog modal-dialog-centered modal-lg">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title">Edit Glossary</h5>
-              <button type="button" className="btn-close" onClick={() => setShowEditModal(false)}></button>
-            </div>
-            <form onSubmit={handleEditSubmit}>
-              <div className="modal-body">
-                {/* Term - 3 languages */}
-                <div className="row mb-3">
-                  <div className="col-md-4">
-                    <label className="form-label">English Term <span className="text-danger">*</span></label>
-                    <input type="text" className="form-control" name="term_en" value={editFormData.term_en} onChange={handleEditInputChange} required />
-                  </div>
-                  <div className="col-md-4">
-                    <label className="form-label">French Term</label>
-                    <input type="text" className="form-control" name="term_fr" value={editFormData.term_fr} onChange={handleEditInputChange} />
-                  </div>
-                  <div className="col-md-4">
-                    <label className="form-label">Spanish Term</label>
-                    <input type="text" className="form-control" name="term_es" value={editFormData.term_es} onChange={handleEditInputChange} />
-                  </div>
-                </div>
+     <div
+  className={`modal fade ${showEditModal ? "show" : ""}`}
+  style={{ display: showEditModal ? "block" : "none" }}
+  tabIndex="-1"
+>
+  <div className="modal-dialog modal-dialog-centered modal-xl">
+    <div className="modal-content border-0 shadow-lg">
 
-                {/* Short Form */}
-                <div className="mb-3">
-                  <label className="form-label">Short Form</label>
-                  <input type="text" className="form-control" name="short_form" value={editFormData.short_form} onChange={handleEditInputChange} placeholder="e.g., BTC" />
-                </div>
+      {/* HEADER */}
+      <div className="modal-header text-white"  style={{ backgroundColor: "#222222", color:"#ffffff" }}>
+        <h5 className="modal-title text-light" >
+          Edit Glossary
+        </h5>
 
-                {/* Category - 3 languages */}
-                <div className="row mb-3">
-                  <div className="col-md-4">
-                    <label className="form-label">English Category <span className="text-danger">*</span></label>
-                    <input type="text" className="form-control" name="category_en" value={editFormData.category_en} onChange={handleEditInputChange} required />
-                  </div>
-                  <div className="col-md-4">
-                    <label className="form-label">French Category</label>
-                    <input type="text" className="form-control" name="category_fr" value={editFormData.category_fr} onChange={handleEditInputChange} />
-                  </div>
-                  <div className="col-md-4">
-                    <label className="form-label">Spanish Category</label>
-                    <input type="text" className="form-control" name="category_es" value={editFormData.category_es} onChange={handleEditInputChange} />
-                  </div>
-                </div>
-
-                {/* Description - 3 languages */}
-                <div className="row mb-3">
-                  <div className="col-md-4">
-                    <label className="form-label">English Description</label>
-                    <textarea className="form-control" rows="3" name="description_en" value={editFormData.description_en} onChange={handleEditInputChange}></textarea>
-                  </div>
-                  <div className="col-md-4">
-                    <label className="form-label">French Description</label>
-                    <textarea className="form-control" rows="3" name="description_fr" value={editFormData.description_fr} onChange={handleEditInputChange}></textarea>
-                  </div>
-                  <div className="col-md-4">
-                    <label className="form-label">Spanish Description</label>
-                    <textarea className="form-control" rows="3" name="description_es" value={editFormData.description_es} onChange={handleEditInputChange}></textarea>
-                  </div>
-                </div>
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowEditModal(false)}>Cancel</button>
-                <button type="submit" className="btn btn-primary" disabled={isLoading}>{isLoading ? 'Saving...' : 'Save Changes'}</button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <button
+          type="button"
+          className="btn-close btn-close-white"
+          onClick={() => setShowEditModal(false)}
+        ></button>
       </div>
+
+      <form onSubmit={handleEditSubmit}>
+        <div className="modal-body">
+
+          {/* ================= ENGLISH ================= */}
+          <div
+            className="card border-0 shadow-sm mb-4"
+            style={{ backgroundColor: "#e8f1ff" }}
+          >
+            <div className="card-header bg-primary text-white">
+              <h5 className="mb-0">🇺🇸 English Details</h5>
+            </div>
+
+            <div className="card-body">
+
+              {/* TERM */}
+              <div className="mb-3">
+                <label className="form-label">
+                  English Term
+                  <span className="text-danger">*</span>
+                </label>
+
+                <input
+                  type="text"
+                  className="form-control"
+                  name="term_en"
+                  value={editFormData.term_en}
+                  onChange={handleEditInputChange}
+                  required
+                />
+              </div>
+
+              {/* SHORT FORM */}
+              <div className="mb-3">
+                <label className="form-label">
+                  Short Form
+                </label>
+
+                <input
+                  type="text"
+                  className="form-control"
+                  name="short_form"
+                  value={editFormData.short_form}
+                  onChange={handleEditInputChange}
+                  placeholder="e.g. BTC"
+                />
+              </div>
+
+              {/* CATEGORY */}
+              <div className="mb-3">
+                <label className="form-label">
+                  English Category
+                </label>
+
+                <input
+                  type="text"
+                  className="form-control"
+                  name="category_en"
+                  value={editFormData.category_en}
+                  onChange={handleEditInputChange}
+                />
+              </div>
+
+              {/* DESCRIPTION */}
+              <div className="mb-3">
+                <label className="form-label">
+                  English Description
+                </label>
+
+                <textarea
+                  className="form-control"
+                  rows="4"
+                  name="description_en"
+                  value={editFormData.description_en}
+                  onChange={handleEditInputChange}
+                ></textarea>
+              </div>
+            </div>
+          </div>
+
+          {/* ================= FRENCH ================= */}
+          <div
+            className="card border-0 shadow-sm mb-4"
+            style={{ backgroundColor: "#fff4e5" }}
+          >
+            <div
+              className="card-header text-dark"
+              style={{ backgroundColor: "#ffb74d" }}
+            >
+              <h5 className="mb-0">🇫🇷 French Details</h5>
+            </div>
+
+            <div className="card-body">
+
+              {/* TERM */}
+              <div className="mb-3">
+                <label className="form-label">
+                  French Term
+                </label>
+
+                <input
+                  type="text"
+                  className="form-control"
+                  name="term_fr"
+                  value={editFormData.term_fr}
+                  onChange={handleEditInputChange}
+                />
+              </div>
+
+              {/* CATEGORY */}
+              <div className="mb-3">
+                <label className="form-label">
+                  French Category
+                </label>
+
+                <input
+                  type="text"
+                  className="form-control"
+                  name="category_fr"
+                  value={editFormData.category_fr}
+                  onChange={handleEditInputChange}
+                />
+              </div>
+
+              {/* DESCRIPTION */}
+              <div className="mb-3">
+                <label className="form-label">
+                  French Description
+                </label>
+
+                <textarea
+                  className="form-control"
+                  rows="4"
+                  name="description_fr"
+                  value={editFormData.description_fr}
+                  onChange={handleEditInputChange}
+                ></textarea>
+              </div>
+            </div>
+          </div>
+
+          {/* ================= SPANISH ================= */}
+          <div
+            className="card border-0 shadow-sm mb-4"
+            style={{ backgroundColor: "#e8fff1" }}
+          >
+            <div
+              className="card-header text-dark"
+              style={{ backgroundColor: "#66bb6a" }}
+            >
+              <h5 className="mb-0">🇪🇸 Spanish Details</h5>
+            </div>
+
+            <div className="card-body">
+
+              {/* TERM */}
+              <div className="mb-3">
+                <label className="form-label">
+                  Spanish Term
+                </label>
+
+                <input
+                  type="text"
+                  className="form-control"
+                  name="term_es"
+                  value={editFormData.term_es}
+                  onChange={handleEditInputChange}
+                />
+              </div>
+
+              {/* CATEGORY */}
+              <div className="mb-3">
+                <label className="form-label">
+                  Spanish Category
+                </label>
+
+                <input
+                  type="text"
+                  className="form-control"
+                  name="category_es"
+                  value={editFormData.category_es}
+                  onChange={handleEditInputChange}
+                />
+              </div>
+
+              {/* DESCRIPTION */}
+              <div className="mb-3">
+                <label className="form-label">
+                  Spanish Description
+                </label>
+
+                <textarea
+                  className="form-control"
+                  rows="4"
+                  name="description_es"
+                  value={editFormData.description_es}
+                  onChange={handleEditInputChange}
+                ></textarea>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        {/* FOOTER */}
+        <div className="modal-footer">
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={() => setShowEditModal(false)}
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={isLoading}
+          >
+            {isLoading ? "Saving..." : "Save Changes"}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
       <Footer />
     </div>

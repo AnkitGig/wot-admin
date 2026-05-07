@@ -333,170 +333,239 @@ export default function AddGlossary() {
 
                   {!importMode ? (
                     <form onSubmit={handleSubmit}>
-                      {/* TERM */}
-                      <div className="row g-3 mb-3">
-                        <div className="col-12">
-                          <label className="form-label">
-                            English Term
-                            <span className="text-danger">*</span>
-                          </label>
-
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="term_en"
-                            value={formData.term_en}
-                            onChange={handleInputChange}
-                            required
-                          />
+                      {/* ================= ENGLISH SECTION ================= */}
+                      <div
+                        className="card mb-4 border-0 shadow-sm"
+                        style={{ backgroundColor: "#e8f1ff" }}
+                      >
+                        <div className="card-header bg-primary text-white">
+                          <h5 className="mb-0">🇺🇸 English Details</h5>
                         </div>
 
-                        <div className="col-12">
-                          <label className="form-label">
-                            French Term
-                            <span className="text-danger">*</span>
-                          </label>
+                        <div className="card-body">
+                          {/* TERM */}
+                          <div className="mb-3">
+                            <label className="form-label">
+                              English Term
+                              <span className="text-danger">*</span>
+                            </label>
 
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="term_fr"
-                            value={formData.term_fr}
-                            onChange={handleInputChange}
-                            required
-                          />
-                        </div>
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="term_en"
+                              value={formData.term_en}
+                              onChange={handleInputChange}
+                              required
+                            />
+                          </div>
 
-                        <div className="col-12">
-                          <label className="form-label">
-                            Spanish Term
-                            <span className="text-danger">*</span>
-                          </label>
+                          {/* SHORT FORM */}
+                          <div className="mb-3">
+                            <label className="form-label">
+                              Short Form (Optional)
+                            </label>
 
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="term_es"
-                            value={formData.term_es}
-                            onChange={handleInputChange}
-                            required
-                          />
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="short_form"
+                              value={formData.short_form}
+                              onChange={handleInputChange}
+                              placeholder="e.g. BTC"
+                            />
+
+                            <small className="text-muted">
+                              Leave empty to auto-generate.
+                            </small>
+                          </div>
+
+                          {/* CATEGORY */}
+                          <div className="mb-3">
+                            <label className="form-label">Category</label>
+
+                            <select
+                              className="form-select"
+                              name="category_en"
+                              value={formData.category_en}
+                              onChange={(e) =>
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  category_en: e.target.value,
+                                }))
+                              }
+                              required
+                            >
+                              <option value="">Select Category</option>
+
+                              {categories.map((category) => (
+                                <option key={category.id} value={category.name}>
+                                  {category.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          {/* DESCRIPTION */}
+                          <div className="mb-3">
+                            <label className="form-label">Description</label>
+
+                            <textarea
+                              className="form-control"
+                              rows="4"
+                              name="description_en"
+                              value={formData.description_en}
+                              onChange={handleInputChange}
+                            ></textarea>
+                          </div>
                         </div>
                       </div>
 
-                      {/* SHORT FORM */}
-                      <div className="row g-3 mb-3">
-                        <div className="col-12">
-                          <label className="form-label">
-                            Short Form (optional)
-                          </label>
-
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="short_form"
-                            value={formData.short_form}
-                            onChange={handleInputChange}
-                            placeholder="e.g., BTC"
-                          />
-
-                          <small className="text-muted">
-                            Leave empty to auto-generate from English term.
-                          </small>
-                        </div>
-                      </div>
-
-                      {/* CATEGORY */}
-                      <div>
-                        <label className="form-label">Category</label>
-                        <select
-                          className="form-select mb-2"
-                          name="category_en"
-                          value={formData.category_en}
-                          onChange={(e) => {
-                            setFormData((prev) => ({
-                              ...prev,
-                              category_en: e.target.value,
-                            }));
-                          }}
-                          required
+                      {/* ================= FRENCH SECTION ================= */}
+                      <div
+                        className="card mb-4 border-0 shadow-sm"
+                        style={{ backgroundColor: "#fff4e5" }}
+                      >
+                        <div
+                          className="card-header text-dark"
+                          style={{ backgroundColor: "#ffb74d" }}
                         >
-                          <option value="">Select Category</option>
+                          <h5 className="mb-0">🇫🇷 French Details</h5>
+                        </div>
 
-                          {categories.map((category) => (
-                            <option key={category.id} value={category.name}>
-                              {category.name}
-                            </option>
-                          ))}
-                        </select>
+                        <div className="card-body">
+                          {/* TERM */}
+                          <div className="mb-3">
+                            <label className="form-label">
+                              Terme Français
+                              <span className="text-danger">*</span>
+                            </label>
+
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="term_fr"
+                              value={formData.term_fr}
+                              onChange={handleInputChange}
+                              required
+                            />
+                          </div>
+
+                          {/* CATEGORY */}
+                          <div className="mb-3">
+                            <label className="form-label">Catégorie</label>
+
+                            <select
+                              className="form-select"
+                              name="category_fr"
+                              value={formData.category_fr}
+                              onChange={(e) =>
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  category_fr: e.target.value,
+                                }))
+                              }
+                              required
+                            >
+                              <option value="">
+                                Sélectionner une catégorie
+                              </option>
+
+                              {categories.map((category) => (
+                                <option key={category.id} value={category.name}>
+                                  {category.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          {/* DESCRIPTION */}
+                          <div className="mb-3">
+                            <label className="form-label">Description</label>
+
+                            <textarea
+                              className="form-control"
+                              rows="4"
+                              name="description_fr"
+                              value={formData.description_fr}
+                              onChange={handleInputChange}
+                            ></textarea>
+                          </div>
+                        </div>
                       </div>
 
-                      {/* DESCRIPTION */}
-                      <div className="row g-3 mb-3">
-                        {/* English Description */}
-                        <div className="col-12">
-                          <label className="form-label">
-                            English Description
-                          </label>
-
-                          <textarea
-                            className="form-control"
-                            rows="4"
-                            name="description_en"
-                            value={formData.description_en}
-                            onChange={handleInputChange}
-                          ></textarea>
+                      {/* ================= SPANISH SECTION ================= */}
+                      <div
+                        className="card mb-4 border-0 shadow-sm"
+                        style={{ backgroundColor: "#e8fff1" }}
+                      >
+                        <div
+                          className="card-header text-dark"
+                          style={{ backgroundColor: "#66bb6a" }}
+                        >
+                          <h5 className="mb-0">🇪🇸 Spanish Details</h5>
                         </div>
 
-                        {/* French Description */}
-                        <div className="col-12">
-                          <label className="form-label">
-                            French Description
-                          </label>
+                        <div className="card-body">
+                          {/* TERM */}
+                          <div className="mb-3">
+                            <label className="form-label">
+                              Término Español
+                              <span className="text-danger">*</span>
+                            </label>
 
-                          <textarea
-                            className="form-control"
-                            rows="4"
-                            name="description_fr"
-                            value={formData.description_fr}
-                            onChange={handleInputChange}
-                          ></textarea>
-                        </div>
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="term_es"
+                              value={formData.term_es}
+                              onChange={handleInputChange}
+                              required
+                            />
+                          </div>
 
-                        {/* Spanish Description */}
-                        <div className="col-12">
-                          <label className="form-label">
-                            Spanish Description
-                          </label>
+                          {/* CATEGORY */}
+                          <div className="mb-3">
+                            <label className="form-label">Categoría</label>
 
-                          <textarea
-                            className="form-control"
-                            rows="4"
-                            name="description_es"
-                            value={formData.description_es}
-                            onChange={handleInputChange}
-                          ></textarea>
+                            <select
+                              className="form-select"
+                              name="category_es"
+                              value={formData.category_es}
+                              onChange={(e) =>
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  category_es: e.target.value,
+                                }))
+                              }
+                              required
+                            >
+                              <option value="">Seleccionar categoría</option>
+
+                              {categories.map((category) => (
+                                <option key={category.id} value={category.name}>
+                                  {category.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          {/* DESCRIPTION */}
+                          <div className="mb-3">
+                            <label className="form-label">Descripción</label>
+
+                            <textarea
+                              className="form-control"
+                              rows="4"
+                              name="description_es"
+                              value={formData.description_es}
+                              onChange={handleInputChange}
+                            ></textarea>
+                          </div>
                         </div>
                       </div>
 
-                      {/* DEFINITION */}
-                      {/* <div className="row g-3 mb-4">
-                        <div className="col-12">
-                          <label className="form-label">
-                            English Definition
-                          </label>
-
-                          <textarea
-                            className="form-control"
-                            rows="4"
-                            name="definition_en"
-                            value={formData.definition_en}
-                            onChange={handleInputChange}
-                          ></textarea>
-                        </div>
-                      </div> */}
-
-                      {/* BUTTONS */}
+                      {/* ================= BUTTONS ================= */}
                       <div className="text-end">
                         <button
                           type="button"
@@ -516,6 +585,8 @@ export default function AddGlossary() {
                       </div>
                     </form>
                   ) : (
+                    //========================french=====================//
+
                     // Import JSON section
                     <div className="row g-3">
                       <div className="col-md-8">
