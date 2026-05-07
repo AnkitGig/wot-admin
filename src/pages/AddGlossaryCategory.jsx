@@ -98,6 +98,7 @@ export default function AddGlossaryCategory() {
         text: result.message,
       });
     }
+    navigate('/glossary-categories')
   } catch (error) {
     console.log(error);
 

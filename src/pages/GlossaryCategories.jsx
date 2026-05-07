@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { getAllGlossaryCategories, deleteGlossaryCategory, updateGlossaryCategory } from '../api/glossary';
+import { getAllGlossaryCategories, deleteGlossaryCategory, updateGlossaryCategory, getGlossaryCategoryById } from '../api/glossary';
 import { useAuth } from '../context/AuthContext';
 import GlobalLoader from '../components/GlobalLoader';
 import Header from '../components/Header';
@@ -64,18 +64,47 @@ const [editFormData, setEditFormData] = useState({
     setSearchTerm(e.target.value);
   };
 
-const handleEditClick = (category) => {
-  setEditingCategory(category);
+const handleEditClick = async (category) => {
+  try {
+    setIsLoading(true);
 
-  setEditFormData({
-    name_en: category.name?.en || "",
-    name_fr: category.name?.fr || "",
-    name_es: category.name?.es || "",
-    description: category.description || "",
-    color: category.color || "#941efd",
-  });
+    const result = await getGlossaryCategoryById(
+      category.id,
+      token
+    );
+console.log('result',result)
+    if (result.success) {
+      const categoryData = result.data;
 
-  setShowEditModal(true);
+      setEditingCategory(categoryData);
+
+      setEditFormData({
+        name_en: categoryData.name?.en || "",
+        name_fr: categoryData.name?.fr || "",
+        name_es: categoryData.name?.es || "",
+        description: categoryData.description || "",
+        color: categoryData.color || "#941efd",
+      });
+
+      setShowEditModal(true);
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Failed",
+        text: result.message,
+      });
+    }
+  } catch (error) {
+    console.error(error);
+
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "Failed to fetch category details",
+    });
+  } finally {
+    setIsLoading(false);
+  }
 };
 
   const handleEditInputChange = (e) => {
@@ -347,7 +376,7 @@ console.log('updateResult',updateResult)
       </div>
 
       <div className={`modal fade ${showEditModal ? 'show' : ''}`} style={{ display: showEditModal ? 'block' : 'none' }} tabIndex="-1" role="dialog">
-        <div className="modal-dialog modal-dialog-centered" role="document">
+        <div className="modal-dialog modal-lg modal-dialog-centered" role="document">
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title">Edit Glossary Category</h5>
@@ -447,7 +476,7 @@ console.log('updateResult',updateResult)
                 </div>
               </div>
               <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowEditModal(false)}>Cancel</button>
+                <button type="button" className="btn btn-secondary mx-2" onClick={() => setShowEditModal(false)}>Cancel</button>
                 <button type="submit" className="btn btn-primary">Save Changes</button>
               </div>
             </form>

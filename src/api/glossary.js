@@ -501,7 +501,7 @@ export const addGlossaryCategory = async (categoryData, token) => {
 export const getAllGlossaryCategories = async (token, page = 1, limit = 10, search = '') => {
   try {
     const searchParam = search ? `&search=${encodeURIComponent(search)}` : '';
-    const url = `${API_BASE_URL}/admin/glossary-categories?page=${page}&limit=${limit}${searchParam}`;
+    const url = `${API_BASE_URL}/admin/glossary-categories?page=${page}&limit=${limit}`;
 
     const response = await fetch(url, {
       method: 'GET',

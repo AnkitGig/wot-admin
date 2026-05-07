@@ -12,11 +12,6 @@ import Sidebar from "../components/Sidebar";
 import Footer from "../components/Footer";
 
 // Dummy categories (used when token is missing or API fails)
-const DUMMY_CATEGORIES = [
-  { id: 1, name: { en: "Stocks", fr: "Actions", es: "Acciones" } },
-  { id: 2, name: { en: "Forex", fr: "Forex", es: "Forex" } },
-  { id: 3, name: { en: "Crypto", fr: "Crypto", es: "Cripto" } },
-];
 
 export default function AddGlossary() {
   const navigate = useNavigate();
@@ -28,7 +23,7 @@ export default function AddGlossary() {
   const [importMode, setImportMode] = useState(false);
   const [isUsingDummyData, setIsUsingDummyData] = useState(false);
   const abortControllerRef = useRef(null);
-
+  // console.log("categories", categories);
   const [formData, setFormData] = useState({
     term_en: "",
     term_fr: "",
@@ -59,7 +54,6 @@ export default function AddGlossary() {
 
     // If no token, use dummy categories
     if (!token) {
-      setCategories(DUMMY_CATEGORIES);
       setCategoriesLoading(false);
       setIsUsingDummyData(true);
       return;
@@ -69,18 +63,18 @@ export default function AddGlossary() {
       const result = await getAllGlossaryCategories(token, 1, 100, {
         signal: abortControllerRef.current.signal,
       });
+      // console.log("result", result);
       if (result.success && result.data?.length > 0) {
         setCategories(result.data);
       } else {
         // Fallback to dummy if API returns empty or fails
-        setCategories(DUMMY_CATEGORIES);
+
         setIsUsingDummyData(true);
       }
     } catch (err) {
       if (err.name !== "AbortError") {
         console.error(err);
-        setCategories(DUMMY_CATEGORIES);
-        setIsUsingDummyData(true);
+
         Swal.fire({
           icon: "warning",
           title: "Demo Mode",
@@ -214,8 +208,7 @@ export default function AddGlossary() {
       });
       return;
     }
-    if (
-      !formData.category_en.trim()) {
+    if (!formData.category_en.trim()) {
       Swal.fire({
         icon: "warning",
         title: "Validation Error",
@@ -234,7 +227,7 @@ export default function AddGlossary() {
         .toUpperCase()
         .slice(0, 10);
     }
-
+    console.log("shortForm", shortForm);
     const payload = {
       term: {
         en: formData.term_en,
@@ -258,7 +251,7 @@ export default function AddGlossary() {
         es: formData.definition_es,
       },
     };
-
+    console.log("payload", payload);
     setIsLoading(true);
     try {
       const result = await addGlossary(payload, token);
@@ -414,26 +407,33 @@ export default function AddGlossary() {
                       </div>
 
                       {/* CATEGORY */}
-                      <div className="row g-3 mb-3">
-                        <div className="col-12">
-                          <label className="form-label">
-                            English Category
-                            <span className="text-danger">*</span>
-                          </label>
+                      <div>
+                        <label className="form-label">Category</label>
+                        <select
+                          className="form-select mb-2"
+                          name="category_en"
+                          value={formData.category_en}
+                          onChange={(e) => {
+                            setFormData((prev) => ({
+                              ...prev,
+                              category_en: e.target.value,
+                            }));
+                          }}
+                          required
+                        >
+                          <option value="">Select Category</option>
 
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="category_en"
-                            value={formData.category_en}
-                            onChange={handleInputChange}
-                            required
-                          />
-                        </div>
+                          {categories.map((category) => (
+                            <option key={category.id} value={category.name}>
+                              {category.name}
+                            </option>
+                          ))}
+                        </select>
                       </div>
 
                       {/* DESCRIPTION */}
                       <div className="row g-3 mb-3">
+                        {/* English Description */}
                         <div className="col-12">
                           <label className="form-label">
                             English Description
@@ -444,6 +444,36 @@ export default function AddGlossary() {
                             rows="4"
                             name="description_en"
                             value={formData.description_en}
+                            onChange={handleInputChange}
+                          ></textarea>
+                        </div>
+
+                        {/* French Description */}
+                        <div className="col-12">
+                          <label className="form-label">
+                            French Description
+                          </label>
+
+                          <textarea
+                            className="form-control"
+                            rows="4"
+                            name="description_fr"
+                            value={formData.description_fr}
+                            onChange={handleInputChange}
+                          ></textarea>
+                        </div>
+
+                        {/* Spanish Description */}
+                        <div className="col-12">
+                          <label className="form-label">
+                            Spanish Description
+                          </label>
+
+                          <textarea
+                            className="form-control"
+                            rows="4"
+                            name="description_es"
+                            value={formData.description_es}
                             onChange={handleInputChange}
                           ></textarea>
                         </div>
