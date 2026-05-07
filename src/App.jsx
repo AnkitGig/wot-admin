@@ -59,6 +59,8 @@ import EmailTemplates from './pages/EmailTemplates'
 import EditEmailTemplate from './pages/EditEmailTemplate'
 import Broker from './pages/Broker.jsx'
 import AddBroker from './pages/AddBroker'
+import EditGlossary from './pages/EditGlossary.jsx'
+import ViewGlossary from './pages/ViewGlossary.jsx'
 
 export default function App() {
   return (
@@ -98,7 +100,11 @@ export default function App() {
         <Route path="/add-quiz" element={<ProtectedRoute><AddQuiz /></ProtectedRoute>} />
         <Route path="/add-user" element={<ProtectedRoute><AddUser /></ProtectedRoute>} />
         <Route path="/glossaries" element={<ProtectedRoute><Glossaries /></ProtectedRoute>} />
-        <Route path="/add-glossary" element={<ProtectedRoute><AddGlossary /></ProtectedRoute>} />
+        
+        <Route path="/add-glossary" element={<ProtectedRoute><AddGlossary mode="add" /></ProtectedRoute>} />
+        <Route path="/glossaries/edit/:id" element={<ProtectedRoute><EditGlossary/></ProtectedRoute>} />
+        <Route path="/glossaries/view/:id" element={<ProtectedRoute><ViewGlossary /></ProtectedRoute>} />
+        
         <Route path="/courses/admin/lesson/:lessonId" element={<ProtectedRoute><EditLessonAdmin /></ProtectedRoute>} />
         <Route path="/courses/admin/chapter/:chapterId/lesson" element={<ProtectedRoute><AddLessonToChapter /></ProtectedRoute>} />
         <Route path="/admin-categories" element={<ProtectedRoute><AdminCategories /></ProtectedRoute>} />
@@ -111,7 +117,11 @@ export default function App() {
         <Route path="/add-coupon-category" element={<ProtectedRoute><AddCouponCategory /></ProtectedRoute>} />
         <Route path="/edit-coupon-category/:categoryId" element={<ProtectedRoute><EditCouponCategory /></ProtectedRoute>} />
         <Route path="/glossary-categories" element={<ProtectedRoute><GlossaryCategories /></ProtectedRoute>} />
-        <Route path="/add-glossary-category" element={<ProtectedRoute><AddGlossaryCategory /></ProtectedRoute>} />
+        
+        <Route path="/glossary-category/add" element={<ProtectedRoute><AddGlossaryCategory mode="add" /></ProtectedRoute>} />
+        <Route path="/glossary-category/edit/:id" element={<ProtectedRoute><AddGlossaryCategory mode="edit" /></ProtectedRoute>} />
+        <Route path="/glossary-category/view/:id" element={<ProtectedRoute><AddGlossaryCategory mode="view" /></ProtectedRoute>} />
+       
         <Route path="/courses/admin/lesson/:lessonId/page/add" element={<ProtectedRoute><AddContentPage /></ProtectedRoute>} />
         <Route path="/courses/admin/lesson/:lessonId/page/:pageId/edit" element={<ProtectedRoute><EditContentPage /></ProtectedRoute>} />
         <Route path="/news" element={<ProtectedRoute><NewsList /></ProtectedRoute>} />

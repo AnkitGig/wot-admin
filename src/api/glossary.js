@@ -159,9 +159,9 @@ export const searchGlossaries = async (token, query, page = 1, limit = 10) => {
   }
 };
 
-export const getGlossaryById = async (glossaryId, token) => {
+export const getGlossaryById = async (glossaryId, token) => { 
   try {
-    const url = `${API_BASE_URL}/admin/get-TradingGlossary/${glossaryId}`;
+    const url = `${API_BASE_URL}/admin/TradingGlossary/${glossaryId}`;
 
     const response = await fetch(url, {
       method: 'GET',

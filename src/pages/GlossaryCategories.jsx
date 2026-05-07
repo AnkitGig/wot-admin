@@ -238,7 +238,7 @@ console.log('updateResult',updateResult)
                     <Link className="btn btn-primary" to="/add-glossary"><i className="fa fa-plus-circle me-2"></i>Add Glossary</Link>
                   </li>
                   <li>
-                    <Link className="btn btn-primary" to="/add-glossary-category"><i className="fa fa-plus-circle me-2"></i>Add Category</Link>
+                    <Link className="btn btn-primary" to="/glossary-category/add"><i className="fa fa-plus-circle me-2"></i>Add Category</Link>
                   </li>
                 </ul>
               </div>
