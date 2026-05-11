@@ -660,7 +660,7 @@ export default function Glossaries() {
                             </div>
                           </th>
                           <th>Term (EN)</th>
-                          <th>Short Form</th>
+                          {/* <th>Short Form</th> */}
                           <th>Category (EN)</th>
                           <th>Description (EN)</th>
                           <th className="text-end">Action</th>
@@ -712,7 +712,7 @@ export default function Glossaries() {
                               <td>
                                 <strong>{getDisplayTerm(glossary)}</strong>
                               </td>
-                              <td>{glossary.short_form || "—"}</td>
+                              {/* <td>{glossary.short_form || "—"}</td> */}
                               <td>
                                 <span className="badge bg-secondary">
                                   {getDisplayCategory(glossary)}
@@ -728,42 +728,42 @@ export default function Glossaries() {
                                 </small>
                               </td>
                               <td className="text-end">
-                               <div className="d-flex gap-2 justify-content-end">
+                                <div className="d-flex gap-2 justify-content-end">
 
-  {/* VIEW */}
-  <button
-    className="btn btn-sm btn-outline-primary"
-    onClick={() =>
-      navigate(`/glossaries/view/${glossary.id}`)
-    }
-    title="View Glossary"
-  >
-    View
-  </button>
+                                  {/* VIEW */}
+                                  <button
+                                    className="btn btn-sm btn-outline-primary"
+                                    onClick={() =>
+                                      navigate(`/glossaries/view/${glossary.id}`)
+                                    }
+                                    title="View Glossary"
+                                  >
+                                    View
+                                  </button>
 
-  {/* EDIT */}
-  <button
-    className="btn btn-sm btn-outline-primary"
-    onClick={() =>
-      navigate(`/glossaries/edit/${glossary.id}`)
-    }
-    title="Edit Glossary"
-  >
-    Edit
-  </button>
+                                  {/* EDIT */}
+                                  <button
+                                    className="btn btn-sm btn-outline-primary"
+                                    onClick={() =>
+                                      navigate(`/glossaries/edit/${glossary.id}`)
+                                    }
+                                    title="Edit Glossary"
+                                  >
+                                    Edit
+                                  </button>
 
-  {/* DELETE */}
-  <button
-    className="btn btn-sm btn-outline-danger"
-    onClick={() =>
-      handleDeleteGlossary(glossary.id)
-    }
-    title="Delete Glossary"
-  >
-    Delete
-  </button>
+                                  {/* DELETE */}
+                                  <button
+                                    className="btn btn-sm btn-outline-danger"
+                                    onClick={() =>
+                                      handleDeleteGlossary(glossary.id)
+                                    }
+                                    title="Delete Glossary"
+                                  >
+                                    Delete
+                                  </button>
 
-</div>
+                                </div>
                               </td>
                             </tr>
                           ))
