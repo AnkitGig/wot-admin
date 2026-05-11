@@ -100,6 +100,29 @@ export default function EditGlossary() {
     }));
   };
 
+  const handleCategoryChange = (e) => {
+    const { value } = e.target;
+    const selectedCategory = categories.find(
+      (cat) => cat.id === parseInt(value)
+    );
+
+    if (selectedCategory) {
+      setFormData((prev) => ({
+        ...prev,
+        category_en: selectedCategory.name.en || "",
+        category_fr: selectedCategory.name.fr || "",
+        category_es: selectedCategory.name.es || "",
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        category_en: "",
+        category_fr: "",
+        category_es: "",
+      }));
+    }
+  };
+
   // =========================
   // UPDATE
   // =========================
@@ -197,13 +220,13 @@ export default function EditGlossary() {
                       <select
                         className="form-select"
                         name="category_en"
-                        value={formData.category_en}
-                        onChange={handleInputChange}
+                        value={categories.find(cat => cat.name?.en === formData.category_en)?.id || ""}
+                        onChange={handleCategoryChange}
                       >
                         <option value="">Select Category</option>
                         {categories.map((category) => (
-                          <option key={category.id} value={category.name}>
-                            {category.name}
+                          <option key={category.id} value={category.id}>
+                            {category.name?.en || category.name}
                           </option>
                         ))}
                       </select>
@@ -248,13 +271,13 @@ export default function EditGlossary() {
                       <select
                         className="form-select"
                         name="category_fr"
-                        value={formData.category_fr}
-                        onChange={handleInputChange}
+                        value={categories.find(cat => cat.name?.fr === formData.category_fr)?.id || ""}
+                        onChange={handleCategoryChange}
                       >
                         <option value="">Sélectionner une catégorie</option>
                         {categories.map((category) => (
-                          <option key={category.id} value={category.name}>
-                            {category.name}
+                          <option key={category.id} value={category.id}>
+                            {category.name?.fr || category.name}
                           </option>
                         ))}
                       </select>
@@ -299,13 +322,13 @@ export default function EditGlossary() {
                       <select
                         className="form-select"
                         name="category_es"
-                        value={formData.category_es}
-                        onChange={handleInputChange}
+                        value={categories.find(cat => cat.name?.es === formData.category_es)?.id || ""}
+                        onChange={handleCategoryChange}
                       >
                         <option value="">Seleccionar categoría</option>
                         {categories.map((category) => (
-                          <option key={category.id} value={category.name}>
-                            {category.name}
+                          <option key={category.id} value={category.id}>
+                            {category.name?.es || category.name}
                           </option>
                         ))}
                       </select>
