@@ -12,21 +12,37 @@ export default function AddAdminCategory() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
+    name_en: '',
+    name_fr: '',
+    name_es: '',
+    description_en: '',
+    description_fr: '',
+    description_es: '',
     order_number: '',
     is_active: true,
     icon: null
   });
+  const [iconPreview, setIconPreview] = useState(null);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked, files } = e.target;
     
     if (type === 'file') {
+      const file = files[0] || null;
       setFormData(prev => ({
         ...prev,
-        [name]: files[0] || null
+        [name]: file
       }));
+
+      if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setIconPreview(reader.result);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        setIconPreview(null);
+      }
     } else if (type === 'checkbox') {
       setFormData(prev => ({
         ...prev,
@@ -43,32 +59,26 @@ export default function AddAdminCategory() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.name.trim()) {
+    if (!formData.name_en.trim()) {
       Swal.fire({
         icon: 'error',
         title: 'Validation Error',
-        text: 'Category name is required',
+        text: 'English category name is required',
       });
       return;
     }
 
     setIsLoading(true);
 
-    const submissionData = {
-      name: formData.name.trim(),
-      description: formData.description.trim(),
-      order_number: formData.order_number ? parseInt(formData.order_number) : 0,
-      is_active: formData.is_active,
-      icon: formData.icon
-    };
-
-    const result = await createAdminCategory(submissionData, token);
+    const result = await createAdminCategory(formData, token);
     
     if (result.success) {
       Swal.fire({
         icon: 'success',
         title: 'Category Created',
         text: result.message || 'Category created successfully',
+        timer: 1500,
+        showConfirmButton: false
       }).then(() => {
         navigate('/admin-categories');
       });
@@ -102,7 +112,7 @@ export default function AddAdminCategory() {
                 <ul className="filter-list">
                   <li>
                     <button 
-                      className="btn btn-outline-secondary"
+                      className="btn btn-primary"
                       onClick={handleCancel}
                       disabled={isLoading}
                     >
@@ -119,135 +129,77 @@ export default function AddAdminCategory() {
               <div className="card">
                 <div className="card-body">
                   <form onSubmit={handleSubmit}>
-                    <div className="row">
-                      <div className="col-12">
+                    <div className="row g-4">
+                      {/* English Name */}
+                      <div className="col-md-4">
                         <div className="form-group">
-                          <label htmlFor="name" className="form-label">
-                            Category Name <span className="text-danger">*</span>
-                          </label>
+                          <label className="form-label fw-bold">Category Name (English) <span className="text-danger">*</span></label>
                           <input
                             type="text"
                             className="form-control"
-                            id="name"
-                            name="name"
-                            value={formData.name}
+                            placeholder="Enter English name"
+                            name="name_en"
+                            value={formData.name_en}
                             onChange={handleInputChange}
-                            placeholder="Enter category name"
                             required
                             disabled={isLoading}
                           />
                         </div>
                       </div>
-                      
-                      {/* <div className="col-12">
+
+                      {/* Spanish Name */}
+                      <div className="col-md-4">
                         <div className="form-group">
-                          <label htmlFor="description" className="form-label">
-                            Description
-                          </label>
-                          <textarea
-                            className="form-control"
-                            id="description"
-                            name="description"
-                            value={formData.description}
-                            onChange={handleInputChange}
-                            placeholder="Enter category description"
-                            rows="4"
-                            disabled={isLoading}
-                          />
-                        </div>
-                      </div> */}
-                      
-                      {/* <div className="col-md-6">
-                        <div className="form-group">
-                          <label htmlFor="order_number" className="form-label">
-                            Order Number
-                          </label>
+                          <label className="form-label fw-bold">Nombre de la categoría (Spanish)</label>
                           <input
-                            type="number"
+                            type="text"
                             className="form-control"
-                            id="order_number"
-                            name="order_number"
-                            value={formData.order_number}
+                            placeholder="Ingrese el nombre en español"
+                            name="name_es"
+                            value={formData.name_es}
                             onChange={handleInputChange}
-                            placeholder="Enter order number"
-                            min="0"
                             disabled={isLoading}
                           />
-                          <small className="form-text text-muted">
-                            Lower numbers appear first
-                          </small>
                         </div>
-                      </div> */}
-                      
-                      {/* <div className="col-md-6">
+                      </div>
+
+                      {/* French Name */}
+                      <div className="col-md-4">
                         <div className="form-group">
-                          <label htmlFor="icon" className="form-label">
-                            Category Icon
-                          </label>
+                          <label className="form-label fw-bold">Nom de la catégorie (French)</label>
                           <input
-                            type="file"
+                            type="text"
                             className="form-control"
-                            id="icon"
-                            name="icon"
+                            placeholder="Entrez le nom en français"
+                            name="name_fr"
+                            value={formData.name_fr}
                             onChange={handleInputChange}
-                            accept="image/*"
                             disabled={isLoading}
                           />
-                          <small className="form-text text-muted">
-                            Upload an icon for the category (optional)
-                          </small>
-                        </div>
-                      </div> */}
-                      
-                      <div className="col-12">
-                        <div className="form-group">
-                          <div className="form-check">
-                            <input
-                              type="checkbox"
-                              className="form-check-input"
-                              id="is_active"
-                              name="is_active"
-                              checked={formData.is_active}
-                              onChange={handleInputChange}
-                              disabled={isLoading}
-                            />
-                            <label className="form-check-label" htmlFor="is_active">
-                              Active
-                            </label>
-                          </div>
                         </div>
                       </div>
                     </div>
                     
-                    <div className="form-group mt-4">
-                      <div className="d-flex gap-2">
-                        <button
-                          type="submit"
-                          className="btn btn-primary"
-                          disabled={isLoading}
-                        >
-                          {isLoading ? (
-                            <>
-                              <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                              Creating...
-                            </>
-                          ) : (
-                            <>
-                              <i className="fas fa-save me-2"></i>
-                              Create Category
-                            </>
-                          )}
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-outline-secondary"
-                          onClick={handleCancel}
-                          disabled={isLoading}
-                        >
-                          <i className="fas fa-times me-2"></i>
-                          Cancel
-                        </button>
-                      </div>
+                    <div className="text-end mt-5">
+                      <button
+                        type="button"
+                        className="btn btn-secondary px-4 me-2"
+                        onClick={handleCancel}
+                        disabled={isLoading}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="btn btn-primary px-4"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? (
+                          <><span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Creating...</>
+                        ) : (
+                          <><i className="fas fa-save me-2"></i>Create Category</>
+                        )}
+                      </button>
                     </div>
                   </form>
                 </div>

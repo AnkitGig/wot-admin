@@ -18,8 +18,12 @@ export default function AddLesson() {
   const [thumbnailPreview, setThumbnailPreview] = useState(null);
   const [showDurationPicker, setShowDurationPicker] = useState(false);
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
+    title_en: '',
+    title_fr: '',
+    title_es: '',
+    description_en: '',
+    description_fr: '',
+    description_es: '',
     lesson_number: 0,
     duration: '',
     xp_points: 0,
@@ -31,8 +35,12 @@ export default function AddLesson() {
     status: 'active',
     order_number: 1,
     content_type: 'text',
-    content_title: '',
-    text_content: '',
+    content_title_en: '',
+    content_title_fr: '',
+    content_title_es: '',
+    text_content_en: '',
+    text_content_fr: '',
+    text_content_es: '',
     thumbnail: null,
     media: null,
   });
@@ -88,20 +96,20 @@ export default function AddLesson() {
     e.preventDefault();
 
     // Validation
-    if (!formData.title.trim()) {
+    if (!formData.title_en.trim()) {
       Swal.fire({
         icon: 'warning',
         title: 'Validation Error',
-        text: 'Please enter lesson title',
+        text: 'Please enter English lesson title',
       });
       return;
     }
 
-    if (!formData.description.trim()) {
+    if (!formData.description_en.trim()) {
       Swal.fire({
         icon: 'warning',
         title: 'Validation Error',
-        text: 'Please enter lesson description',
+        text: 'Please enter English lesson description',
       });
       return;
     }
@@ -115,16 +123,18 @@ export default function AddLesson() {
       return;
     }
 
-    if (formData.content_type === 'text' && !formData.text_content.trim() && formData.text_content.replace(/<[^>]*>/g, '').trim() === '') {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Validation Error',
-        text: 'Please enter text content for text content type',
-      });
-      return;
+    if (formData.content_type === 'text') {
+      if (!formData.text_content_en.trim() || formData.text_content_en.replace(/<[^>]*>/g, '').trim() === '') {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Validation Error',
+          text: 'Please enter English text content',
+        });
+        return;
+      }
     }
 
-    if (['video', 'audio', 'doc', 'pdf'].includes(formData.content_type) && !formData.media) {
+    if (['video', 'audio'].includes(formData.content_type) && !formData.media) {
       Swal.fire({
         icon: 'warning',
         title: 'Validation Error',
@@ -134,9 +144,21 @@ export default function AddLesson() {
     }
 
     setIsLoading(true);
-    console.log('[v0] Creating lesson with data:', formData);
+    
+    // Map the single duration to localized fields for the API
+    const apiPayload = {
+      ...formData,
+      duration_en: formData.duration,
+      duration_fr: formData.duration,
+      duration_es: formData.duration,
+      content_duration_en: formData.duration,
+      content_duration_fr: formData.duration,
+      content_duration_es: formData.duration,
+    };
 
-    const result = await createLesson(chapterId, formData, token);
+    console.log('[v0] Creating lesson with data:', apiPayload);
+
+    const result = await createLesson(chapterId, apiPayload, token);
 
     if (result.success) {
       Swal.fire({
@@ -147,7 +169,6 @@ export default function AddLesson() {
         timerProgressBar: true,
         showConfirmButton: false,
       }).then(() => {
-        // Navigate back to the chapter lessons list page
         navigate(-1);
       });
     } else {
@@ -187,291 +208,442 @@ export default function AddLesson() {
             </div>
           </div>
           
-          <div className="row">
-            <div className="col-sm-12">
-              <div className="card">
-                <div className="card-body">
-                  <form className="row g-3" onSubmit={handleSubmit}>
-                    <div className="col-md-6">
+          <form onSubmit={handleSubmit}>
+            <div className="row g-4">
+              {/* English Column */}
+              <div className="col-md-4">
+                <div className="card h-100 shadow-none border" style={{ backgroundColor: '#f8f9fa' }}>
+                  <div className="card-header bg-white border-bottom-0 pt-3 text-center">
+                    <h6 className="fw-bold mb-0">English</h6>
+                  </div>
+                  <div className="card-body pt-0">
+                    <div className="mb-3">
                       <label className="form-label">Lesson Title <span className="text-danger">*</span></label>
                       <input 
                         type="text" 
-                        className="form-control" 
+                        className="form-control bg-white" 
                         placeholder="Enter lesson title"
-                        name="title"
-                        value={formData.title}
+                        name="title_en"
+                        value={formData.title_en}
                         onChange={handleInputChange}
                         required
                       />
                     </div>
-
-                    <div className="col-md-6">
-                      <label className="form-label">Lesson Number</label>
-                      <input 
-                        type="number" 
-                        className="form-control" 
-                        placeholder="0"
-                        name="lesson_number"
-                        value={formData.lesson_number}
-                        onChange={handleInputChange}
-                        min="0"
-                      />
-                    </div>
-
-                    <div className="col-md-12">
+                    <div className="mb-3">
                       <label className="form-label">Description <span className="text-danger">*</span></label>
                       <textarea 
-                        className="form-control" 
+                        className="form-control bg-white" 
                         rows="4" 
                         placeholder="Enter lesson description"
-                        name="description"
-                        value={formData.description}
+                        name="description_en"
+                        value={formData.description_en}
                         onChange={handleInputChange}
                         required
                       ></textarea>
                     </div>
-
-                    <div className="col-md-6">
-                      <label className="form-label">Content Type <span className="text-danger">*</span></label>
-                      <select 
-                        className="form-control"
-                        name="content_type"
-                        value={formData.content_type}
-                        onChange={handleInputChange}
-                        required
-                      >
-                        {contentTypeOptions.map(option => (
-                          <option key={option} value={option}>
-                            {option.charAt(0).toUpperCase() + option.slice(1)}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="col-md-6">
-                      <label className="form-label">Duration</label>
-                      <div className="input-group">
-                        <input
-                          type="text"
-                          className="form-control"
-                          name="duration"
-                          value={formatDurationDisplay(formData.duration)}
-                          onChange={handleInputChange}
-                          placeholder="Click to select duration"
-                          readOnly
-                          style={{ cursor: 'pointer' }}
-                          onClick={() => setShowDurationPicker(true)}
-                        />
-                        <button 
-                          className="btn btn-outline-secondary" 
-                          type="button"
-                          onClick={() => setShowDurationPicker(true)}
-                        >
-                          <i className="fa fa-clock"></i>
-                        </button>
-                      </div>
-                    </div>
-
+                    
                     {formData.content_type === 'text' && (
                       <>
-                        <div className="col-md-12">
+                        <div className="mb-3">
                           <label className="form-label">Content Title</label>
                           <input 
                             type="text" 
-                            className="form-control" 
+                            className="form-control bg-white" 
                             placeholder="Enter content title"
-                            name="content_title"
-                            value={formData.content_title}
+                            name="content_title_en"
+                            value={formData.content_title_en}
                             onChange={handleInputChange}
                           />
                         </div>
-                        <div className="col-md-12">
+                        <div className="mb-0">
                           <label className="form-label">Text Content <span className="text-danger">*</span></label>
-                          <div className="editor-container">
+                          <div className="editor-container bg-white">
                             <ReactQuill
                               theme="snow"
-                              value={formData.text_content}
-                              onChange={(value) => setFormData(prev => ({ ...prev, text_content: value }))}
-                              placeholder="Enter text content for the lesson..."
+                              value={formData.text_content_en}
+                              onChange={(value) => setFormData(prev => ({ ...prev, text_content_en: value }))}
+                              placeholder="Enter text content..."
                               modules={{
                                 toolbar: [
                                   [{ 'header': [1, 2, 3, false] }],
-                                  ['bold', 'italic', 'underline', 'strike'],
+                                  ['bold', 'italic', 'underline'],
                                   [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                                  [{ 'color': [] }, { 'background': [] }],
-                                  ['link', 'image'],
-                                  ['clean']
+                                  ['link', 'clean']
                                 ]
                               }}
-                              style={{ minHeight: '200px' }}
+                              style={{ height: '200px', marginBottom: '45px' }}
                             />
                           </div>
                         </div>
                       </>
                     )}
+                  </div>
+                </div>
+              </div>
 
-                    <div className="col-md-6">
-                      <label className="form-label">Order Number</label>
+              {/* Spanish Column */}
+              <div className="col-md-4">
+                <div className="card h-100 shadow-none border" style={{ backgroundColor: '#f8f9fa' }}>
+                  <div className="card-header bg-white border-bottom-0 pt-3 text-center">
+                    <h6 className="fw-bold mb-0">Spanish</h6>
+                  </div>
+                  <div className="card-body pt-0">
+                    <div className="mb-3">
+                      <label className="form-label">Título de la lección</label>
                       <input 
-                        type="number" 
-                        className="form-control" 
-                        placeholder="1"
-                        name="order_number"
-                        value={formData.order_number}
+                        type="text" 
+                        className="form-control bg-white" 
+                        placeholder="Ingrese el título"
+                        name="title_es"
+                        value={formData.title_es}
                         onChange={handleInputChange}
-                        min="0"
                       />
                     </div>
-
-                    <div className="col-md-6">
-                      <label className="form-label">XP Points</label>
-                      <input 
-                        type="number" 
-                        className="form-control" 
-                        placeholder="0"
-                        name="xp_points"
-                        value={formData.xp_points}
+                    <div className="mb-3">
+                      <label className="form-label">Descripción</label>
+                      <textarea 
+                        className="form-control bg-white" 
+                        rows="4" 
+                        placeholder="Ingrese la descripción"
+                        name="description_es"
+                        value={formData.description_es}
                         onChange={handleInputChange}
-                        min="0"
-                      />
+                      ></textarea>
                     </div>
 
-                    <div className="col-md-6">
-                      <label className="form-label">Reward Points</label>
-                      <input 
-                        type="number" 
-                        className="form-control" 
-                        placeholder="0"
-                        name="reward_points"
-                        value={formData.reward_points}
-                        onChange={handleInputChange}
-                        min="0"
-                      />
-                    </div>
-
-                    <div className="col-md-6">
-                      <label className="form-label">Is Preview</label>
-                      <select 
-                        className="form-control"
-                        name="is_preview"
-                        value={formData.is_preview}
-                        onChange={handleInputChange}
-                      >
-                        <option value={false}>No</option>
-                        <option value={true}>Yes</option>
-                      </select>
-                    </div>
-
-                    <div className="col-md-3">
-                      <label className="form-label">Is Locked</label>
-                      <select 
-                        className="form-control"
-                        name="is_locked"
-                        value={formData.is_locked}
-                        onChange={handleInputChange}
-                      >
-                        <option value={false}>No</option>
-                        <option value={true}>Yes</option>
-                      </select>
-                    </div>
-
-                    <div className="col-md-3">
-                      <label className="form-label">Quiz Available</label>
-                      <select 
-                        className="form-control"
-                        name="quiz_available"
-                        value={formData.quiz_available}
-                        onChange={handleInputChange}
-                      >
-                        <option value={false}>No</option>
-                        <option value={true}>Yes</option>
-                      </select>
-                    </div>
-
-                    <div className="col-md-3">
-                      <label className="form-label">Is Downloadable</label>
-                      <select 
-                        className="form-control"
-                        name="is_downloadable"
-                        value={formData.is_downloadable}
-                        onChange={handleInputChange}
-                      >
-                        <option value={false}>No</option>
-                        <option value={true}>Yes</option>
-                      </select>
-                    </div>
-
-                    <div className="col-md-3">
-                      <label className="form-label">Status</label>
-                      <select 
-                        className="form-control"
-                        name="status"
-                        value={formData.status}
-                        onChange={handleInputChange}
-                      >
-                        <option value="active">Active</option>
-                        <option value="draft">Draft</option>
-                        <option value="archived">Archived</option>
-                      </select>
-                    </div>
-
-                    <div className="col-md-12">
-                      <label className="form-label">Thumbnail Image</label>
-                      <input 
-                        type="file" 
-                        className="form-control"
-                        onChange={handleThumbnailChange}
-                        accept="image/*"
-                      />
-                      {thumbnailPreview && (
-                        <div className="mt-2">
-                          <small className="text-muted">Selected: {thumbnailPreview}</small>
+                    {formData.content_type === 'text' && (
+                      <>
+                        <div className="mb-3">
+                          <label className="form-label">Título del contenido</label>
+                          <input 
+                            type="text" 
+                            className="form-control bg-white" 
+                            placeholder="Ingrese el título del contenido"
+                            name="content_title_es"
+                            value={formData.content_title_es}
+                            onChange={handleInputChange}
+                          />
                         </div>
-                      )}
+                        <div className="mb-0">
+                          <label className="form-label">Contenido de texto</label>
+                          <div className="editor-container bg-white">
+                            <ReactQuill
+                              theme="snow"
+                              value={formData.text_content_es}
+                              onChange={(value) => setFormData(prev => ({ ...prev, text_content_es: value }))}
+                              placeholder="Ingrese el contenido..."
+                              modules={{
+                                toolbar: [
+                                  [{ 'header': [1, 2, 3, false] }],
+                                  ['bold', 'italic', 'underline'],
+                                  [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                                  ['link', 'clean']
+                                ]
+                              }}
+                              style={{ height: '200px', marginBottom: '45px' }}
+                            />
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* French Column */}
+              <div className="col-md-4">
+                <div className="card h-100 shadow-none border" style={{ backgroundColor: '#f8f9fa' }}>
+                  <div className="card-header bg-white border-bottom-0 pt-3 text-center">
+                    <h6 className="fw-bold mb-0">French</h6>
+                  </div>
+                  <div className="card-body pt-0">
+                    <div className="mb-3">
+                      <label className="form-label">Titre de la leçon</label>
+                      <input 
+                        type="text" 
+                        className="form-control bg-white" 
+                        placeholder="Entrez le titre"
+                        name="title_fr"
+                        value={formData.title_fr}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    <div className="mb-3">
+                      <label className="form-label">Description</label>
+                      <textarea 
+                        className="form-control bg-white" 
+                        rows="4" 
+                        placeholder="Entrez la description"
+                        name="description_fr"
+                        value={formData.description_fr}
+                        onChange={handleInputChange}
+                      ></textarea>
                     </div>
 
-                    {['video', 'audio'].includes(formData.content_type) && (
+                    {formData.content_type === 'text' && (
+                      <>
+                        <div className="mb-3">
+                          <label className="form-label">Titre du contenu</label>
+                          <input 
+                            type="text" 
+                            className="form-control bg-white" 
+                            placeholder="Entrez le titre du contenu"
+                            name="content_title_fr"
+                            value={formData.content_title_fr}
+                            onChange={handleInputChange}
+                          />
+                        </div>
+                        <div className="mb-0">
+                          <label className="form-label">Contenu textuel</label>
+                          <div className="editor-container bg-white">
+                            <ReactQuill
+                              theme="snow"
+                              value={formData.text_content_fr}
+                              onChange={(value) => setFormData(prev => ({ ...prev, text_content_fr: value }))}
+                              placeholder="Entrez le contenu..."
+                              modules={{
+                                toolbar: [
+                                  [{ 'header': [1, 2, 3, false] }],
+                                  ['bold', 'italic', 'underline'],
+                                  [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                                  ['link', 'clean']
+                                ]
+                              }}
+                              style={{ height: '200px', marginBottom: '45px' }}
+                            />
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Common Information */}
+              <div className="col-md-12 mt-4">
+                <div className="card shadow-none border" style={{ backgroundColor: '#f8f9fa' }}>
+                  <div className="card-header bg-white border-bottom-0 pt-3">
+                    <h6 className="fw-bold mb-0">Common Information</h6>
+                  </div>
+                  <div className="card-body">
+                    <div className="row g-3">
+                      <div className="col-md-3">
+                        <label className="form-label">Lesson Number</label>
+                        <input 
+                          type="number" 
+                          className="form-control bg-white" 
+                          placeholder="0"
+                          name="lesson_number"
+                          value={formData.lesson_number}
+                          onChange={handleInputChange}
+                          min="0"
+                        />
+                      </div>
+
+                      <div className="col-md-3">
+                        <label className="form-label">Content Type <span className="text-danger">*</span></label>
+                        <select 
+                          className="form-control bg-white"
+                          name="content_type"
+                          value={formData.content_type}
+                          onChange={handleInputChange}
+                          required
+                        >
+                          {contentTypeOptions.map(option => (
+                            <option key={option} value={option}>
+                              {option.charAt(0).toUpperCase() + option.slice(1)}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="col-md-3">
+                        <label className="form-label">Duration</label>
+                        <div className="input-group">
+                          <input
+                            type="text"
+                            className="form-control bg-white"
+                            name="duration"
+                            value={formatDurationDisplay(formData.duration)}
+                            onChange={handleInputChange}
+                            placeholder="Click to select duration"
+                            readOnly
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => setShowDurationPicker(true)}
+                          />
+                          <button 
+                            className="btn btn-outline-secondary bg-white" 
+                            type="button"
+                            onClick={() => setShowDurationPicker(true)}
+                          >
+                            <i className="fa fa-clock"></i>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="col-md-3">
+                        <label className="form-label">Order Number</label>
+                        <input 
+                          type="number" 
+                          className="form-control bg-white" 
+                          placeholder="1"
+                          name="order_number"
+                          value={formData.order_number}
+                          onChange={handleInputChange}
+                          min="0"
+                        />
+                      </div>
+
+                      <div className="col-md-3">
+                        <label className="form-label">XP Points</label>
+                        <input 
+                          type="number" 
+                          className="form-control bg-white" 
+                          placeholder="0"
+                          name="xp_points"
+                          value={formData.xp_points}
+                          onChange={handleInputChange}
+                          min="0"
+                        />
+                      </div>
+
+                      <div className="col-md-3">
+                        <label className="form-label">Reward Points</label>
+                        <input 
+                          type="number" 
+                          className="form-control bg-white" 
+                          placeholder="0"
+                          name="reward_points"
+                          value={formData.reward_points}
+                          onChange={handleInputChange}
+                          min="0"
+                        />
+                      </div>
+
+                      <div className="col-md-3">
+                        <label className="form-label">Status</label>
+                        <select 
+                          className="form-control bg-white"
+                          name="status"
+                          value={formData.status}
+                          onChange={handleInputChange}
+                        >
+                          <option value="active">Active</option>
+                          <option value="draft">Draft</option>
+                          <option value="archived">Archived</option>
+                        </select>
+                      </div>
+
+                      <div className="col-md-3">
+                        <label className="form-label">Is Preview</label>
+                        <select 
+                          className="form-control bg-white"
+                          name="is_preview"
+                          value={formData.is_preview}
+                          onChange={handleInputChange}
+                        >
+                          <option value={false}>No</option>
+                          <option value={true}>Yes</option>
+                        </select>
+                      </div>
+
+                      <div className="col-md-3">
+                        <label className="form-label">Is Locked</label>
+                        <select 
+                          className="form-control bg-white"
+                          name="is_locked"
+                          value={formData.is_locked}
+                          onChange={handleInputChange}
+                        >
+                          <option value={false}>No</option>
+                          <option value={true}>Yes</option>
+                        </select>
+                      </div>
+
+                      <div className="col-md-3">
+                        <label className="form-label">Quiz Available</label>
+                        <select 
+                          className="form-control bg-white"
+                          name="quiz_available"
+                          value={formData.quiz_available}
+                          onChange={handleInputChange}
+                        >
+                          <option value={false}>No</option>
+                          <option value={true}>Yes</option>
+                        </select>
+                      </div>
+
+                      <div className="col-md-3">
+                        <label className="form-label">Is Downloadable</label>
+                        <select 
+                          className="form-control bg-white"
+                          name="is_downloadable"
+                          value={formData.is_downloadable}
+                          onChange={handleInputChange}
+                        >
+                          <option value={false}>No</option>
+                          <option value={true}>Yes</option>
+                        </select>
+                      </div>
+
                       <div className="col-md-12">
-                        <label className="form-label">
-                          Media File <span className="text-danger"> *</span>
-                        </label>
+                        <label className="form-label">Thumbnail Image</label>
                         <input 
                           type="file" 
-                          className="form-control"
-                          onChange={handleMediaChange}
-                          accept="video/*,audio/*"
-                          required
+                          className="form-control bg-white"
+                          onChange={handleThumbnailChange}
+                          accept="image/*"
                         />
-                        {formData.media && (
+                        {thumbnailPreview && (
                           <div className="mt-2">
-                            <small className="text-muted">Selected: {formData.media.name}</small>
+                            <small className="text-muted">Selected: {thumbnailPreview}</small>
                           </div>
                         )}
                       </div>
-                    )}
 
-                    <div className="col-md-12">
-                      <button 
-                        type="button" 
-                        className="btn btn-secondary"
-                        onClick={handleCancel}
-                        disabled={isLoading}
-                      >
-                        Cancel
-                      </button>
-                      <button 
-                        type="submit" 
-                        className="btn btn-primary ms-2"
-                        disabled={isLoading}
-                      >
-                        {isLoading ? 'Creating...' : 'Create Lesson'}
-                      </button>
+                      {['video', 'audio'].includes(formData.content_type) && (
+                        <div className="col-md-12">
+                          <label className="form-label">
+                            Media File <span className="text-danger"> *</span>
+                          </label>
+                          <input 
+                            type="file" 
+                            className="form-control bg-white"
+                            onChange={handleMediaChange}
+                            accept="video/*,audio/*"
+                            required
+                          />
+                          {formData.media && (
+                            <div className="mt-2">
+                              <small className="text-muted">Selected: {formData.media.name}</small>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
-                  </form>
+                  </div>
                 </div>
               </div>
+
+              <div className="col-md-12 text-end mt-4">
+                <button 
+                  type="button" 
+                  className="btn btn-secondary px-4"
+                  onClick={handleCancel}
+                  disabled={isLoading}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  className="btn btn-primary px-4 ms-2"
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Creating...' : 'Create Lesson'}
+                </button>
+              </div>
             </div>
-          </div>
+          </form>
         </div>
       </div>
       <Footer />

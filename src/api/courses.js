@@ -19,12 +19,22 @@ export const addCourse = async (courseData, token) => {
     formData.append('objectives_en', courseData.objectives_en);
     formData.append('objectives_fr', courseData.objectives_fr || '');
     formData.append('objectives_es', courseData.objectives_es || '');
+    formData.append('what_you_will_learn_en', courseData.what_you_will_learn_en || '');
+    formData.append('what_you_will_learn_fr', courseData.what_you_will_learn_fr || '');
+    formData.append('what_you_will_learn_es', courseData.what_you_will_learn_es || '');
     formData.append('requirements_en', courseData.requirements_en || '');
     formData.append('requirements_fr', courseData.requirements_fr || '');
     formData.append('requirements_es', courseData.requirements_es || '');
+    formData.append('target_audience_en', courseData.target_audience_en || '');
+    formData.append('target_audience_fr', courseData.target_audience_fr || '');
+    formData.append('target_audience_es', courseData.target_audience_es || '');
     formData.append('duration_in_minutes', courseData.duration_in_minutes);
-    formData.append('level', courseData.level);
-    formData.append('language', courseData.language || 'English');
+    formData.append('level_en', courseData.level_en || courseData.level || '');
+    formData.append('level_fr', courseData.level_fr || '');
+    formData.append('level_es', courseData.level_es || '');
+    formData.append('language_en', courseData.language_en || courseData.language || 'English');
+    formData.append('language_fr', courseData.language_fr || '');
+    formData.append('language_es', courseData.language_es || '');
     formData.append('price', courseData.price || 0);
     formData.append('is_free', courseData.is_free || false);
     formData.append('is_featured', courseData.is_featured || false);
@@ -161,12 +171,22 @@ export const updateCourse = async (courseId, courseData, token) => {
     formData.append('objectives_en', courseData.objectives_en);
     formData.append('objectives_fr', courseData.objectives_fr || '');
     formData.append('objectives_es', courseData.objectives_es || '');
+    formData.append('what_you_will_learn_en', courseData.what_you_will_learn_en || '');
+    formData.append('what_you_will_learn_fr', courseData.what_you_will_learn_fr || '');
+    formData.append('what_you_will_learn_es', courseData.what_you_will_learn_es || '');
     formData.append('requirements_en', courseData.requirements_en || '');
     formData.append('requirements_fr', courseData.requirements_fr || '');
     formData.append('requirements_es', courseData.requirements_es || '');
+    formData.append('target_audience_en', courseData.target_audience_en || '');
+    formData.append('target_audience_fr', courseData.target_audience_fr || '');
+    formData.append('target_audience_es', courseData.target_audience_es || '');
     formData.append('duration_in_minutes', courseData.duration_in_minutes);
-    formData.append('level', courseData.level);
-    formData.append('language', courseData.language || 'English');
+    formData.append('level_en', courseData.level_en || courseData.level || '');
+    formData.append('level_fr', courseData.level_fr || '');
+    formData.append('level_es', courseData.level_es || '');
+    formData.append('language_en', courseData.language_en || courseData.language || 'English');
+    formData.append('language_fr', courseData.language_fr || '');
+    formData.append('language_es', courseData.language_es || '');
     formData.append('price', courseData.price || 0);
     formData.append('is_free', String(courseData.is_free === true || courseData.is_free === 'true'));
     formData.append('is_featured', String(courseData.is_featured === true || courseData.is_featured === 'true'));
@@ -416,8 +436,12 @@ export const createChapter = async (categoryId, chapterData, token) => {
     const url = `${API_BASE_URL}/courses/admin/category/${categoryId}/chapter`;
 
     const formData = new FormData();
-    formData.append('title', chapterData.title);
-    formData.append('description', chapterData.description || '');
+    formData.append('title_en', chapterData.title_en);
+    formData.append('title_fr', chapterData.title_fr || '');
+    formData.append('title_es', chapterData.title_es || '');
+    formData.append('description_en', chapterData.description_en || '');
+    formData.append('description_fr', chapterData.description_fr || '');
+    formData.append('description_es', chapterData.description_es || '');
     formData.append('chapter_number', chapterData.chapter_number || 0);
     formData.append('duration', chapterData.duration || '');
     formData.append('total_duration', chapterData.total_duration || 0);
@@ -465,12 +489,20 @@ export const createCourseChapter = async (courseId, chapterData, token) => {
     const url = `${API_BASE_URL}/courses/admin/course/${courseId}/chapter`;
 
     const formData = new FormData();
-    formData.append('title', chapterData.title);
-    formData.append('category', chapterData.category);
-    formData.append('description', chapterData.description || '');
+    formData.append('title_en', chapterData.title_en);
+    formData.append('title_fr', chapterData.title_fr || '');
+    formData.append('title_es', chapterData.title_es || '');
+    formData.append('category', chapterData.category || '');
+    formData.append('category_id', chapterData.category_id || 0);
+    formData.append('description_en', chapterData.description_en || '');
+    formData.append('description_fr', chapterData.description_fr || '');
+    formData.append('description_es', chapterData.description_es || '');
     formData.append('chapter_number', chapterData.chapter_number || 0);
-    formData.append('duration', chapterData.duration || '');
+    formData.append('duration_en', chapterData.duration_en || chapterData.duration || '');
+    formData.append('duration_fr', chapterData.duration_fr || chapterData.duration || '');
+    formData.append('duration_es', chapterData.duration_es || chapterData.duration || '');
     formData.append('is_locked', chapterData.is_locked || false);
+    formData.append('order_number', chapterData.order_number || 0);
 
     const response = await fetch(url, {
       method: 'POST',
@@ -548,11 +580,18 @@ export const updateCourseChapter = async (chapterId, chapterData, token) => {
     const url = `${API_BASE_URL}/courses/admin/chapter/${chapterId}`;
 
     const formData = new FormData();
-    formData.append('title', chapterData.title);
-    formData.append('category', chapterData.category);
-    formData.append('description', chapterData.description || '');
+    formData.append('title_en', chapterData.title_en);
+    formData.append('title_fr', chapterData.title_fr || '');
+    formData.append('title_es', chapterData.title_es || '');
+    formData.append('category', chapterData.category || '');
+    formData.append('category_id', chapterData.category_id || 0);
+    formData.append('description_en', chapterData.description_en || '');
+    formData.append('description_fr', chapterData.description_fr || '');
+    formData.append('description_es', chapterData.description_es || '');
     formData.append('chapter_number', chapterData.chapter_number || 0);
-    formData.append('duration', chapterData.duration || '');
+    formData.append('duration_en', chapterData.duration_en || chapterData.duration || '');
+    formData.append('duration_fr', chapterData.duration_fr || chapterData.duration || '');
+    formData.append('duration_es', chapterData.duration_es || chapterData.duration || '');
     formData.append('is_locked', chapterData.is_locked || false);
     formData.append('order_number', chapterData.order_number || 0);
 
@@ -666,10 +705,13 @@ export const createAdminCategory = async (categoryData, token) => {
     const url = `${API_BASE_URL}/courses/admin/category`;
 
     const formData = new FormData();
-    formData.append('name', categoryData.name);
-    if (categoryData.description) {
-      formData.append('description', categoryData.description);
-    }
+    formData.append('name_en', categoryData.name_en || categoryData.name || '');
+    formData.append('name_fr', categoryData.name_fr || '');
+    formData.append('name_es', categoryData.name_es || '');
+    formData.append('description_en', categoryData.description_en || categoryData.description || '');
+    formData.append('description_fr', categoryData.description_fr || '');
+    formData.append('description_es', categoryData.description_es || '');
+    
     if (categoryData.order_number !== null && categoryData.order_number !== undefined) {
       formData.append('order_number', categoryData.order_number);
     }
@@ -750,10 +792,13 @@ export const updateAdminCategory = async (categoryId, categoryData, token) => {
     const url = `${API_BASE_URL}/courses/admin/category/${categoryId}`;
 
     const formData = new FormData();
-    formData.append('name', categoryData.name);
-    if (categoryData.description !== undefined) {
-      formData.append('description', categoryData.description);
-    }
+    formData.append('name_en', categoryData.name_en || categoryData.name || '');
+    formData.append('name_fr', categoryData.name_fr || '');
+    formData.append('name_es', categoryData.name_es || '');
+    formData.append('description_en', categoryData.description_en || categoryData.description || '');
+    formData.append('description_fr', categoryData.description_fr || '');
+    formData.append('description_es', categoryData.description_es || '');
+    
     if (categoryData.order_number !== null && categoryData.order_number !== undefined) {
       formData.append('order_number', categoryData.order_number);
     }

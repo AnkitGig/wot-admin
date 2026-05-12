@@ -15,13 +15,16 @@ export default function EditAdminCategory() {
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
+    name_en: '',
+    name_fr: '',
+    name_es: '',
+    description_en: '',
+    description_fr: '',
+    description_es: '',
     order_number: '',
     is_active: true,
     icon: null
   });
-  const [currentIcon, setCurrentIcon] = useState(null);
 
   useEffect(() => {
     fetchCategory();
@@ -34,14 +37,22 @@ export default function EditAdminCategory() {
     
     if (result.success) {
       const category = result.data;
+      const translations = category.translations || {};
+      const en = translations.en || {};
+      const es = translations.es || {};
+      const fr = translations.fr || {};
+
       setFormData({
-        name: category.name || '',
-        description: category.description || '',
+        name_en: en.name || category.name_en || category.name || '',
+        name_fr: fr.name || category.name_fr || '',
+        name_es: es.name || category.name_es || '',
+        description_en: en.description || category.description_en || category.description || '',
+        description_fr: fr.description || category.description_fr || '',
+        description_es: es.description || category.description_es || '',
         order_number: category.order_number?.toString() || '',
         is_active: category.is_active !== false,
         icon: null
       });
-      setCurrentIcon(category.icon);
     } else {
       Swal.fire({
         icon: 'error',
@@ -56,14 +67,9 @@ export default function EditAdminCategory() {
   };
 
   const handleInputChange = (e) => {
-    const { name, value, type, checked, files } = e.target;
+    const { name, value, type, checked } = e.target;
     
-    if (type === 'file') {
-      setFormData(prev => ({
-        ...prev,
-        [name]: files[0] || null
-      }));
-    } else if (type === 'checkbox') {
+    if (type === 'checkbox') {
       setFormData(prev => ({
         ...prev,
         [name]: checked
@@ -79,36 +85,26 @@ export default function EditAdminCategory() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.name.trim()) {
+    if (!formData.name_en.trim()) {
       Swal.fire({
         icon: 'error',
         title: 'Validation Error',
-        text: 'Category name is required',
+        text: 'English category name is required',
       });
       return;
     }
 
     setIsLoading(true);
 
-    const submissionData = {
-      name: formData.name.trim(),
-      description: formData.description.trim(),
-      order_number: formData.order_number ? parseInt(formData.order_number) : 0,
-      is_active: formData.is_active,
-    };
-
-    // Only include icon if a new file is selected
-    if (formData.icon instanceof File) {
-      submissionData.icon = formData.icon;
-    }
-
-    const result = await updateAdminCategory(categoryId, submissionData, token);
+    const result = await updateAdminCategory(categoryId, formData, token);
     
     if (result.success) {
       Swal.fire({
         icon: 'success',
         title: 'Category Updated',
         text: result.message || 'Category updated successfully',
+        timer: 1500,
+        showConfirmButton: false
       }).then(() => {
         navigate('/admin-categories');
       });
@@ -154,13 +150,13 @@ export default function EditAdminCategory() {
           <div className="page-header">
             <div className="content-page-header">
               <div>
-                <h5>Edit Category</h5>
+                <h5>Edit Admin Category</h5>
               </div>
               <div className="list-btn">
                 <ul className="filter-list">
                   <li>
                     <button 
-                      className="btn btn-outline-secondary"
+                      className="btn btn-primary"
                       onClick={handleCancel}
                       disabled={isLoading}
                     >
@@ -176,156 +172,80 @@ export default function EditAdminCategory() {
             <div className="col-sm-12">
               <div className="card">
                 <div className="card-body">
-                  {isLoading ? (
-                    <div className="d-flex justify-content-center align-items-center flex-column" style={{ minHeight: '300px' }}>
-                      <GlobalLoader visible={true} size="medium" />
-                      <p className="mt-3 text-muted">Updating Category...</p>
-                    </div>
-                  ) : (
-                    <form onSubmit={handleSubmit}>
-                      <div className="row">
-                      <div className="col-12">
+                  <form onSubmit={handleSubmit}>
+                    <div className="row g-4">
+                      {/* English Name */}
+                      <div className="col-md-4">
                         <div className="form-group">
-                          <label htmlFor="name" className="form-label">
-                            Category Name <span className="text-danger">*</span>
-                          </label>
+                          <label className="form-label fw-bold">Category Name (English) <span className="text-danger">*</span></label>
                           <input
                             type="text"
                             className="form-control"
-                            id="name"
-                            name="name"
-                            value={formData.name}
+                            placeholder="Enter English name"
+                            name="name_en"
+                            value={formData.name_en}
                             onChange={handleInputChange}
-                            placeholder="Enter category name"
                             required
                             disabled={isLoading}
                           />
                         </div>
                       </div>
-                      
-                      {/* <div className="col-12">
+
+                      {/* Spanish Name */}
+                      <div className="col-md-4">
                         <div className="form-group">
-                          <label htmlFor="description" className="form-label">
-                            Description
-                          </label>
-                          <textarea
+                          <label className="form-label fw-bold">Nombre de la categoría (Spanish)</label>
+                          <input
+                            type="text"
                             className="form-control"
-                            id="description"
-                            name="description"
-                            value={formData.description}
+                            placeholder="Ingrese el nombre en español"
+                            name="name_es"
+                            value={formData.name_es}
                             onChange={handleInputChange}
-                            placeholder="Enter category description"
-                            rows="4"
                             disabled={isLoading}
                           />
                         </div>
                       </div>
-                      
-                      <div className="col-md-6">
+
+                      {/* French Name */}
+                      <div className="col-md-4">
                         <div className="form-group">
-                          <label htmlFor="order_number" className="form-label">
-                            Order Number
-                          </label>
+                          <label className="form-label fw-bold">Nom de la catégorie (French)</label>
                           <input
-                            type="number"
+                            type="text"
                             className="form-control"
-                            id="order_number"
-                            name="order_number"
-                            value={formData.order_number}
+                            placeholder="Entrez le nom en français"
+                            name="name_fr"
+                            value={formData.name_fr}
                             onChange={handleInputChange}
-                            placeholder="Enter order number"
-                            min="0"
                             disabled={isLoading}
                           />
-                          <small className="form-text text-muted">
-                            Lower numbers appear first
-                          </small>
-                        </div>
-                      </div>
-                      
-                      <div className="col-md-6">
-                        <div className="form-group">
-                          <label htmlFor="icon" className="form-label">
-                            Category Icon
-                          </label>
-                          <input
-                            type="file"
-                            className="form-control"
-                            id="icon"
-                            name="icon"
-                            onChange={handleInputChange}
-                            accept="image/*"
-                            disabled={isLoading}
-                          />
-                          <small className="form-text text-muted">
-                            Upload new icon to replace current (optional)
-                          </small>
-                          {currentIcon && (
-                            <div className="mt-2">
-                              <small className="text-muted">Current icon:</small>
-                              <img 
-                                src={currentIcon} 
-                                alt="Current category icon"
-                                className="d-block mt-1"
-                                style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px' }}
-                              />
-                            </div>
-                          )}
-                        </div>
-                      </div> */}
-                      
-                      <div className="col-12">
-                        <div className="form-group">
-                          <div className="form-check">
-                            <input
-                              type="checkbox"
-                              className="form-check-input"
-                              id="is_active"
-                              name="is_active"
-                              checked={formData.is_active}
-                              onChange={handleInputChange}
-                              disabled={isLoading}
-                            />
-                            <label className="form-check-label" htmlFor="is_active">
-                              Active
-                            </label>
-                          </div>
                         </div>
                       </div>
                     </div>
                     
-                    <div className="form-group mt-4">
-                      <div className="d-flex gap-2">
-                        <button
-                          type="submit"
-                          className="btn btn-primary"
-                          disabled={isLoading}
-                        >
-                          {isLoading ? (
-                            <>
-                              <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                              Updating...
-                            </>
-                          ) : (
-                            <>
-                              <i className="fas fa-save me-2"></i>
-                              Update Category
-                            </>
-                          )}
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-outline-secondary"
-                          onClick={handleCancel}
-                          disabled={isLoading}
-                        >
-                          <i className="fas fa-times me-2"></i>
-                          Cancel
-                        </button>
-                      </div>
+                    <div className="text-end mt-5">
+                      <button
+                        type="button"
+                        className="btn btn-secondary px-4 me-2"
+                        onClick={handleCancel}
+                        disabled={isLoading}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="btn btn-primary px-4"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? (
+                          <><span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Updating...</>
+                        ) : (
+                          <><i className="fas fa-save me-2"></i>Update Category</>
+                        )}
+                      </button>
                     </div>
                   </form>
-                    )}
                 </div>
               </div>
             </div>

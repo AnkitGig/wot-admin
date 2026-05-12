@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { getCourseById, updateCourse } from '../api/courses';
 import { useAuth } from '../context/AuthContext';
@@ -16,18 +16,29 @@ export default function EditCourse() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    title: '',
-    slug: '',
-    description: '',
-    short_description: '',
-    objectives: '',
-    duration_in_minutes: '',
-    level: 'Beginner',
-    language: 'English',
-    price: 0,
+    title_en: "",
+    title_fr: "",
+    title_es: "",
+    slug: "",
+    description_en: "",
+    description_fr: "",
+    description_es: "",
+    short_description_en: "",
+    short_description_fr: "",
+    short_description_es: "",
+    objectives_en: "",
+    objectives_fr: "",
+    objectives_es: "",
+    requirements_en: "",
+    requirements_fr: "",
+    requirements_es: "",
+    duration_in_minutes: "",
+    level: "Beginner",
+    language: "English",
+    price: "",
     is_free: true,
     is_featured: false,
-    status: 'draft',
+    status: "draft",
     certificate_available: false,
     image: null,
     thumbnail: null,
@@ -36,6 +47,7 @@ export default function EditCourse() {
   const [imagePreview, setImagePreview] = useState(null);
   const [thumbnailPreview, setThumbnailPreview] = useState(null);
   const [videoPreview, setVideoPreview] = useState(null);
+  const [videoUrl, setVideoUrl] = useState(null);
   const [showDurationPicker, setShowDurationPicker] = useState(false);
 
   useEffect(() => {
@@ -48,19 +60,35 @@ export default function EditCourse() {
 
     if (result.success) {
       const course = result.data;
+      const translations = course.translations || {};
+      const en = translations.en || {};
+      const es = translations.es || {};
+      const fr = translations.fr || {};
+
       setFormData({
-        title: course.title || '',
-        slug: course.slug || '',
-        description: course.description || '',
-        short_description: course.short_description || '',
-        objectives: course.objectives || '',
-        duration_in_minutes: course.duration_in_minutes || '',
-        level: course.level || 'Beginner',
-        language: course.language || 'English',
-        price: course.price || 0,
+        title_en: en.title || course.title_en || course.title || "",
+        title_fr: fr.title || course.title_fr || "",
+        title_es: es.title || course.title_es || "",
+        slug: course.slug || "",
+        description_en: en.description || course.description_en || course.description || "",
+        description_fr: fr.description || course.description_fr || "",
+        description_es: es.description || course.description_es || "",
+        short_description_en: en.short_description || course.short_description_en || course.short_description || "",
+        short_description_fr: fr.short_description || course.short_description_fr || "",
+        short_description_es: es.short_description || course.short_description_es || "",
+        objectives_en: en.objectives || course.objectives_en || course.objectives || "",
+        objectives_fr: fr.objectives || course.objectives_fr || "",
+        objectives_es: es.objectives || course.objectives_es || "",
+        requirements_en: en.requirements || course.requirements_en || course.requirements || "",
+        requirements_fr: fr.requirements || course.requirements_fr || "",
+        requirements_es: es.requirements || course.requirements_es || "",
+        duration_in_minutes: course.duration_in_minutes || "",
+        level: course.level || "Beginner",
+        language: course.language || "English",
+        price: course.price || "",
         is_free: course.is_free !== undefined ? course.is_free : true,
         is_featured: course.is_featured !== undefined ? course.is_featured : false,
-        status: course.status || 'draft',
+        status: course.status || "draft",
         certificate_available: course.certificate_available !== undefined ? course.certificate_available : false,
         image: null,
         thumbnail: null,
@@ -68,6 +96,7 @@ export default function EditCourse() {
       });
       setImagePreview(course.image);
       setThumbnailPreview(course.thumbnail);
+      setVideoUrl(course.intro_video_url);
       setVideoPreview(course.intro_video_url ? course.intro_video_url.split('/').pop() : null);
     } else {
       Swal.fire({
@@ -138,6 +167,7 @@ export default function EditCourse() {
       }));
 
       setVideoPreview(file.name);
+      setVideoUrl(null); // Clear the existing video URL when a new file is chosen
     }
   };
 
@@ -161,47 +191,47 @@ export default function EditCourse() {
     e.preventDefault();
 
     // Validation
-    if (!formData.title.trim()) {
+    if (!formData.title_en.trim()) {
       Swal.fire({
-        icon: 'warning',
-        title: 'Validation Error',
-        text: 'Please enter course title',
+        icon: "warning",
+        title: "Validation Error",
+        text: "Please enter English course title",
       });
       return;
     }
 
     if (!formData.slug.trim()) {
       Swal.fire({
-        icon: 'warning',
-        title: 'Validation Error',
-        text: 'Please enter course slug',
+        icon: "warning",
+        title: "Validation Error",
+        text: "Please enter course slug",
       });
       return;
     }
 
-    if (!formData.description.trim()) {
+    if (!formData.description_en.trim()) {
       Swal.fire({
-        icon: 'warning',
-        title: 'Validation Error',
-        text: 'Please enter course description',
+        icon: "warning",
+        title: "Validation Error",
+        text: "Please enter English course description",
       });
       return;
     }
 
-    if (!formData.objectives.trim()) {
+    if (!formData.objectives_en.trim()) {
       Swal.fire({
-        icon: 'warning',
-        title: 'Validation Error',
-        text: 'Please enter course objectives',
+        icon: "warning",
+        title: "Validation Error",
+        text: "Please enter English course objectives",
       });
       return;
     }
 
     if (!formData.duration_in_minutes) {
       Swal.fire({
-        icon: 'warning',
-        title: 'Validation Error',
-        text: 'Please enter course duration in minutes',
+        icon: "warning",
+        title: "Validation Error",
+        text: "Please select course duration",
       });
       return;
     }
@@ -263,7 +293,7 @@ export default function EditCourse() {
               <div className="list-btn">
                 <ul className="filter-list">
                   <li>
-                    <a className="btn btn-primary" href="/courses"><i className="fa fa-arrow-left me-2"></i>Back</a>
+                    <Link className="btn btn-primary" to="/courses"><i className="fa fa-arrow-left me-2"></i>Back</Link>
                   </li>
                 </ul>
               </div>
@@ -274,264 +304,428 @@ export default function EditCourse() {
             <div className="col-sm-12">
               <div className="card">
                 <div className="card-body">
-                  <form onSubmit={handleSubmit} className="row g-3">
-                    <div className="col-md-8">
-                      <label className="form-label">Course Title <span className="text-danger">*</span></label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Enter course title"
-                        name="title"
-                        value={formData.title}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
+                  <form onSubmit={handleSubmit}>
+                    <div className="row g-4">
+                      {/* English Column */}
+                      <div className="col-md-4">
+                        <div className="card h-100 shadow-none border" style={{ backgroundColor: '#f8f9fa' }}>
+                          <div className="card-header bg-white border-bottom-0 pt-3 text-center">
+                            <h6 className="fw-bold mb-0">English</h6>
+                          </div>
+                          <div className="card-body pt-0">
+                            <div className="mb-3">
+                              <label className="form-label">Course Title</label>
+                              <input
+                                type="text"
+                                className="form-control bg-white"
+                                placeholder="Enter course title"
+                                name="title_en"
+                                value={formData.title_en}
+                                onChange={handleInputChange}
+                                required
+                              />
+                            </div>
+                            <div className="mb-3">
+                              <label className="form-label">Short Description</label>
+                              <textarea
+                                className="form-control bg-white"
+                                rows="2"
+                                placeholder="Enter short description"
+                                name="short_description_en"
+                                value={formData.short_description_en}
+                                onChange={handleInputChange}
+                              ></textarea>
+                            </div>
+                            <div className="mb-3">
+                              <label className="form-label">Course Description</label>
+                              <textarea
+                                className="form-control bg-white"
+                                rows="5"
+                                placeholder="Enter detailed description"
+                                name="description_en"
+                                value={formData.description_en}
+                                onChange={handleInputChange}
+                                required
+                              ></textarea>
+                            </div>
+                            <div className="mb-3">
+                              <label className="form-label">Course Objectives</label>
+                              <textarea
+                                className="form-control bg-white"
+                                rows="3"
+                                placeholder="Learning outcomes"
+                                name="objectives_en"
+                                value={formData.objectives_en}
+                                onChange={handleInputChange}
+                                required
+                              ></textarea>
+                            </div>
+                            <div className="mb-0">
+                              <label className="form-label">Course Requirements</label>
+                              <textarea
+                                className="form-control bg-white"
+                                rows="3"
+                                placeholder="Course requirements"
+                                name="requirements_en"
+                                value={formData.requirements_en}
+                                onChange={handleInputChange}
+                              ></textarea>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
 
-                    <div className="col-md-4">
-                      <label className="form-label">Slug <span className="text-danger">*</span></label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="course-slug"
-                        name="slug"
-                        value={formData.slug}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
+                      {/* Spanish Column */}
+                      <div className="col-md-4">
+                        <div className="card h-100 shadow-none border" style={{ backgroundColor: '#f8f9fa' }}>
+                          <div className="card-header bg-white border-bottom-0 pt-3 text-center">
+                            <h6 className="fw-bold mb-0">Spanish</h6>
+                          </div>
+                          <div className="card-body pt-0">
+                            <div className="mb-3">
+                              <label className="form-label">Título del curso</label>
+                              <input
+                                type="text"
+                                className="form-control bg-white"
+                                placeholder="Ingrese el título del curso"
+                                name="title_es"
+                                value={formData.title_es}
+                                onChange={handleInputChange}
+                              />
+                            </div>
+                            <div className="mb-3">
+                              <label className="form-label">Descripción breve</label>
+                              <textarea
+                                className="form-control bg-white"
+                                rows="2"
+                                placeholder="Ingrese una descripción breve"
+                                name="short_description_es"
+                                value={formData.short_description_es}
+                                onChange={handleInputChange}
+                              ></textarea>
+                            </div>
+                            <div className="mb-3">
+                              <label className="form-label">Descripción del curso</label>
+                              <textarea
+                                className="form-control bg-white"
+                                rows="5"
+                                placeholder="Ingrese la descripción detallada"
+                                name="description_es"
+                                value={formData.description_es}
+                                onChange={handleInputChange}
+                              ></textarea>
+                            </div>
+                            <div className="mb-3">
+                              <label className="form-label">Objetivos del curso</label>
+                              <textarea
+                                className="form-control bg-white"
+                                rows="3"
+                                placeholder="Resultados del aprendizaje"
+                                name="objectives_es"
+                                value={formData.objectives_es}
+                                onChange={handleInputChange}
+                              ></textarea>
+                            </div>
+                            <div className="mb-0">
+                              <label className="form-label">Requisitos del curso</label>
+                              <textarea
+                                className="form-control bg-white"
+                                rows="3"
+                                placeholder="Requisitos del curso"
+                                name="requirements_es"
+                                value={formData.requirements_es}
+                                onChange={handleInputChange}
+                              ></textarea>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
 
-                    <div className="col-md-4">
-                      <label className="form-label">Level <span className="text-danger">*</span></label>
-                      <select
-                        className="form-control"
-                        name="level"
-                        value={formData.level}
-                        onChange={handleInputChange}
-                        style={{ appearance: "auto" }}
-                      >
-                        <option value="Beginner">Beginner</option>
-                        <option value="Intermediate">Intermediate</option>
-                        <option value="Advanced">Advanced</option>
-                      </select>
-                    </div>
+                      {/* French Column */}
+                      <div className="col-md-4">
+                        <div className="card h-100 shadow-none border" style={{ backgroundColor: '#f8f9fa' }}>
+                          <div className="card-header bg-white border-bottom-0 pt-3 text-center">
+                            <h6 className="fw-bold mb-0">French</h6>
+                          </div>
+                          <div className="card-body pt-0">
+                            <div className="mb-3">
+                              <label className="form-label">Titre du cours</label>
+                              <input
+                                type="text"
+                                className="form-control bg-white"
+                                placeholder="Entrez le titre du cours"
+                                name="title_fr"
+                                value={formData.title_fr}
+                                onChange={handleInputChange}
+                              />
+                            </div>
+                            <div className="mb-3">
+                              <label className="form-label">Brève description</label>
+                              <textarea
+                                className="form-control bg-white"
+                                rows="2"
+                                placeholder="Entrez une brève description"
+                                name="short_description_fr"
+                                value={formData.short_description_fr}
+                                onChange={handleInputChange}
+                              ></textarea>
+                            </div>
+                            <div className="mb-3">
+                              <label className="form-label">Description du cours</label>
+                              <textarea
+                                className="form-control bg-white"
+                                rows="5"
+                                placeholder="Entrez la description détaillée"
+                                name="description_fr"
+                                value={formData.description_fr}
+                                onChange={handleInputChange}
+                              ></textarea>
+                            </div>
+                            <div className="mb-3">
+                              <label className="form-label">Objectifs du cours</label>
+                              <textarea
+                                className="form-control bg-white"
+                                rows="3"
+                                placeholder="Résultats d'apprentissage"
+                                name="objectives_fr"
+                                value={formData.objectives_fr}
+                                onChange={handleInputChange}
+                              ></textarea>
+                            </div>
+                            <div className="mb-0">
+                              <label className="form-label">Exigences du cours</label>
+                              <textarea
+                                className="form-control bg-white"
+                                rows="3"
+                                placeholder="Exigences du cours"
+                                name="requirements_fr"
+                                value={formData.requirements_fr}
+                                onChange={handleInputChange}
+                              ></textarea>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
 
-                    <div className="col-md-4">
-                      <label className="form-label">Duration <span className="text-danger">*</span></label>
-                      <div className="input-group">
-                        <input
-                          type="text"
-                          className="form-control"
-                          name="duration_in_minutes"
-                          value={formatDurationDisplay(formData.duration_in_minutes)}
-                          onChange={handleInputChange}
-                          placeholder="Click to select duration"
-                          readOnly
-                          style={{ cursor: 'pointer' }}
-                          onClick={() => setShowDurationPicker(true)}
-                        />
+                      {/* Common Section */}
+                      <div className="col-md-12 mt-4">
+                        <div className="card shadow-none border" style={{ backgroundColor: '#f8f9fa' }}>
+                          <div className="card-header bg-white border-bottom-0 pt-3">
+                            <h6 className="fw-bold mb-0">Common Information</h6>
+                          </div>
+                          <div className="card-body">
+                            <div className="row g-3">
+                              <div className="col-md-4">
+                                <label className="form-label">Slug</label>
+                                <input
+                                  type="text"
+                                  className="form-control bg-white"
+                                  placeholder="course-slug"
+                                  name="slug"
+                                  value={formData.slug}
+                                  onChange={handleInputChange}
+                                  required
+                                />
+                              </div>
+                              <div className="col-md-4">
+                                <label className="form-label">Level</label>
+                                <select
+                                  className="form-control bg-white"
+                                  name="level"
+                                  value={formData.level}
+                                  onChange={handleInputChange}
+                                  style={{ appearance: "auto" }}
+                                >
+                                  <option value="Beginner">Beginner</option>
+                                  <option value="Intermediate">Intermediate</option>
+                                  <option value="Advanced">Advanced</option>
+                                </select>
+                              </div>
+                              <div className="col-md-4">
+                                <label className="form-label">Duration</label>
+                                <div className="input-group">
+                                  <input
+                                    type="text"
+                                    className="form-control bg-white"
+                                    name="duration_in_minutes"
+                                    value={formatDurationDisplay(formData.duration_in_minutes)}
+                                    placeholder="Click to select duration"
+                                    readOnly
+                                    style={{ cursor: "pointer" }}
+                                    onClick={() => setShowDurationPicker(true)}
+                                  />
+                                  <button
+                                    className="btn btn-outline-secondary bg-white"
+                                    type="button"
+                                    onClick={() => setShowDurationPicker(true)}
+                                  >
+                                    <i className="fa fa-clock"></i>
+                                  </button>
+                                </div>
+                              </div>
+                              <div className="col-md-4">
+                                <label className="form-label">Default Language</label>
+                                <input
+                                  type="text"
+                                  className="form-control bg-white"
+                                  placeholder="e.g., English"
+                                  name="language"
+                                  value={formData.language}
+                                  onChange={handleInputChange}
+                                  required
+                                />
+                              </div>
+                              <div className="col-md-4">
+                                <label className="form-label">Status</label>
+                                <select
+                                  className="form-control bg-white"
+                                  name="status"
+                                  value={formData.status}
+                                  onChange={handleInputChange}
+                                  style={{ appearance: "auto" }}
+                                >
+                                  <option value="draft">Draft</option>
+                                  <option value="Published">Published</option>
+                                </select>
+                              </div>
+                              <div className="col-md-4">
+                                <label className="form-label">Price</label>
+                                <input
+                                  type="text"
+                                  className="form-control bg-white"
+                                  placeholder="0"
+                                  name="price"
+                                  value={formData.price}
+                                  onChange={(e) => {
+                                    const value = e.target.value;
+                                    if (/^\d*$/.test(value)) {
+                                      handleInputChange(e);
+                                    }
+                                  }}
+                                />
+                              </div>
+                              <div className="col-md-4">
+                                <label className="form-label">Is Free?</label>
+                                <select
+                                  className="form-control bg-white"
+                                  name="is_free"
+                                  value={String(formData.is_free)}
+                                  onChange={handleInputChange}
+                                  style={{ appearance: "auto" }}
+                                >
+                                  <option value="true">Yes</option>
+                                  <option value="false">No</option>
+                                </select>
+                              </div>
+                              <div className="col-md-4">
+                                <label className="form-label">Featured</label>
+                                <select
+                                  className="form-control bg-white"
+                                  name="is_featured"
+                                  value={String(formData.is_featured)}
+                                  onChange={handleInputChange}
+                                  style={{ appearance: "auto" }}
+                                >
+                                  <option value="false">No</option>
+                                  <option value="true">Yes</option>
+                                </select>
+                              </div>
+                              <div className="col-md-4">
+                                <label className="form-label">Certificate Available</label>
+                                <select
+                                  className="form-control bg-white"
+                                  name="certificate_available"
+                                  value={String(formData.certificate_available)}
+                                  onChange={handleInputChange}
+                                  style={{ appearance: "auto" }}
+                                >
+                                  <option value="false">No</option>
+                                  <option value="true">Yes</option>
+                                </select>
+                              </div>
+
+                              <div className="col-md-12 mt-4">
+                                <hr />
+                                <h6 className="fw-bold mb-3">Media & Assets</h6>
+                              </div>
+
+                              <div className="col-md-4">
+                                <label className="form-label">Course Image</label>
+                                <input
+                                  type="file"
+                                  className="form-control bg-white"
+                                  accept="image/*"
+                                  onChange={handleImageChange}
+                                />
+                                {imagePreview && (
+                                  <div className="mt-2">
+                                    <img src={imagePreview} alt="Preview" style={{ width: "100%", maxHeight: "150px", objectFit: "cover", borderRadius: "4px" }} />
+                                  </div>
+                                )}
+                              </div>
+
+                              <div className="col-md-4">
+                                <label className="form-label">Course Thumbnail</label>
+                                <input
+                                  type="file"
+                                  className="form-control bg-white"
+                                  accept="image/*"
+                                  onChange={handleThumbnailChange}
+                                />
+                                {thumbnailPreview && (
+                                  <div className="mt-2">
+                                    <img src={thumbnailPreview} alt="Preview" style={{ width: "100%", maxHeight: "150px", objectFit: "cover", borderRadius: "4px" }} />
+                                  </div>
+                                )}
+                              </div>
+
+                              <div className="col-md-4">
+                                <label className="form-label">Intro Video</label>
+                                <input
+                                  type="file"
+                                  className="form-control bg-white"
+                                  accept="video/*"
+                                  onChange={handleVideoChange}
+                                />
+                                {videoUrl && (
+                                  <div className="mt-2">
+                                    <video width="100%" height="150" controls style={{ borderRadius: "4px", backgroundColor: "#000" }}>
+                                      <source src={videoUrl} type="video/mp4" />
+                                      Your browser does not support the video tag.
+                                    </video>
+                                  </div>
+                                )}
+                                {videoPreview && !videoUrl && (
+                                  <div className="mt-2">
+                                    <p className="small text-muted mb-0">Selected: {videoPreview}</p>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="col-md-12 text-end mt-4">
                         <button
-                          className="btn btn-outline-secondary"
                           type="button"
-                          onClick={() => setShowDurationPicker(true)}
+                          className="btn btn-secondary px-4"
+                          onClick={handleCancel}
                         >
-                          <i className="fa fa-clock"></i>
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          className="btn btn-primary px-4 ms-2"
+                          disabled={isSubmitting}
+                        >
+                          {isSubmitting ? (
+                            <><span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Updating...</>
+                          ) : (
+                            <><i className="bi bi-check-circle me-2"></i>Update Course</>
+                          )}
                         </button>
                       </div>
-                    </div>
-
-                    <div className="col-md-4">
-                      <label className="form-label">Language <span className="text-danger">*</span></label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="e.g., English"
-                        name="language"
-                        value={formData.language}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-
-                    <div className="col-md-4">
-                      <label className="form-label">Status <span className="text-danger">*</span></label>
-                      <select
-                        className="form-control"
-                        name="status"
-                        value={formData.status}
-                        onChange={handleInputChange}
-                        style={{ appearance: "auto" }}
-                      >
-                        <option value="draft">Draft</option>
-                        <option value="published">Published</option>
-                      </select>
-                    </div>
-
-                    <div className="col-md-12">
-                      <label className="form-label">Course Description <span className="text-danger">*</span></label>
-                      <textarea
-                        className="form-control"
-                        rows="4"
-                        placeholder="Enter detailed course description"
-                        name="description"
-                        value={formData.description}
-                        onChange={handleInputChange}
-                        required
-                      ></textarea>
-                    </div>
-
-                    <div className="col-md-12">
-                      <label className="form-label">Short Description</label>
-                      <textarea
-                        className="form-control"
-                        rows="2"
-                        placeholder="Enter short course description"
-                        name="short_description"
-                        value={formData.short_description}
-                        onChange={handleInputChange}
-                      ></textarea>
-                    </div>
-
-                    <div className="col-md-12">
-                      <label className="form-label">Course Objectives <span className="text-danger">*</span></label>
-                      <textarea
-                        className="form-control"
-                        rows="3"
-                        placeholder="Enter course objectives/learning outcomes"
-                        name="objectives"
-                        value={formData.objectives}
-                        onChange={handleInputChange}
-                        required
-                      ></textarea>
-                    </div>
-
-                    <div className="col-md-6">
-                      <label className="form-label">Price</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="0"
-                        name="price"
-                        value={formData.price}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          if (/^\d*$/.test(value)) {
-                            handleInputChange(e);
-                          }
-                        }}
-                      />
-                    </div>
-
-                    <div className="col-md-6">
-                      <label className="form-label">Is Free?</label>
-                      <select
-                        className="form-control"
-                        name="is_free"
-                        value={formData.is_free}
-                        onChange={handleInputChange}
-                        style={{ appearance: "auto" }}
-                      >
-                        <option value={true}>Yes</option>
-                        <option value={false}>No</option>
-                      </select>
-                    </div>
-
-                    <div className="col-md-6">
-                      <label className="form-label">Featured</label>
-                      <select
-                        className="form-control"
-                        name="is_featured"
-                        value={formData.is_featured}
-                        onChange={handleInputChange}
-                        style={{ appearance: "auto" }}
-                      >
-                        <option value={false}>No</option>
-                        <option value={true}>Yes</option>
-                      </select>
-                    </div>
-
-                    <div className="col-md-6">
-                      <label className="form-label">Certificate Available</label>
-                      <select
-                        className="form-control"
-                        name="certificate_available"
-                        value={formData.certificate_available}
-                        onChange={handleInputChange}
-                        style={{ appearance: "auto" }}
-                      >
-                        <option value={false}>No</option>
-                        <option value={true}>Yes</option>
-                      </select>
-                    </div>
-
-                    <div className="col-md-12">
-                      <label className="form-label">Course Image</label>
-                      <input
-                        type="file"
-                        className="form-control"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                      />
-                      {imagePreview && (
-                        <div className="mt-3">
-                          <img
-                            src={imagePreview}
-                            alt="Image Preview"
-                            style={{ maxWidth: '200px', maxHeight: '200px', borderRadius: '4px' }}
-                          />
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="col-md-12">
-                      <label className="form-label">Course Thumbnail</label>
-                      <input
-                        type="file"
-                        className="form-control"
-                        accept="image/*"
-                        onChange={handleThumbnailChange}
-                      />
-                      {thumbnailPreview && (
-                        <div className="mt-3">
-                          <img
-                            src={thumbnailPreview}
-                            alt="Thumbnail Preview"
-                            style={{ maxWidth: '200px', maxHeight: '200px', borderRadius: '4px' }}
-                          />
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="col-md-12">
-                      <label className="form-label">Intro Video</label>
-                      <input
-                        type="file"
-                        className="form-control"
-                        accept="video/*"
-                        onChange={handleVideoChange}
-                      />
-                      {videoPreview && (
-                        <div className="mt-3">
-                          <p className="text-muted">Selected: {videoPreview}</p>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="col-md-12 text-end mt-3">
-                      <button
-                        type="button"
-                        className="btn btn-secondary"
-                        onClick={handleCancel}
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="submit"
-                        className="btn btn-primary ms-2"
-                        disabled={isSubmitting}
-                      >
-                        <i className="bi bi-check-circle"></i> {isSubmitting ? 'Updating...' : 'Update Course'}
-                      </button>
                     </div>
                   </form>
                 </div>
