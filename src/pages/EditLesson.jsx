@@ -8,7 +8,7 @@ import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
 
-const CONTENT_TYPES = ['text', 'video', 'audio', 'doc', 'pdf'];
+const CONTENT_TYPES = ['text', 'video', 'audio'];
 
 export default function EditLesson() {
   const { courseId, lessonId } = useParams();

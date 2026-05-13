@@ -173,7 +173,7 @@ export default function Courses() {
                           <th>Course Title</th>
                           <th>Level</th>
                           <th>Duration</th>
-                          <th>Chepter</th>
+                          <th>Chapter</th>
                           <th>Enrolled</th>
                           <th>Status</th>
                           <th>Action</th>
