@@ -414,23 +414,63 @@ export const createLesson = async (chapterId, lessonData, token) => {
 
 export const updateLessonAdmin = async (lessonId, lessonData, token) => {
   try {
-    console.log('[v0] Updating lesson:', lessonId);
+    console.log('[v0] Updating lesson with multilingual content:', lessonId);
     const url = `${API_BASE_URL}/courses/admin/lesson/${lessonId}`;
 
     const formData = new FormData();
-    formData.append('title', lessonData.title);
-    formData.append('description', lessonData.description);
+    
+    // Lesson Basic Info - Multilingual
+    formData.append('title_en', lessonData.title_en);
+    formData.append('title_fr', lessonData.title_fr || '');
+    formData.append('title_es', lessonData.title_es || '');
+    
+    formData.append('description_en', lessonData.description_en);
+    formData.append('description_fr', lessonData.description_fr || '');
+    formData.append('description_es', lessonData.description_es || '');
+    
+    formData.append('duration_en', lessonData.duration_en || '');
+    formData.append('duration_fr', lessonData.duration_fr || '');
+    formData.append('duration_es', lessonData.duration_es || '');
+
+    // Lesson Settings
     formData.append('lesson_number', lessonData.lesson_number || 0);
-    formData.append('duration', lessonData.duration || '');
     formData.append('xp_points', lessonData.xp_points || 0);
     formData.append('reward_points', lessonData.reward_points || 0);
-    formData.append('is_preview', lessonData.is_preview || false);
-    formData.append('is_locked', lessonData.is_locked || false);
+    formData.append('is_preview', lessonData.is_preview === true || lessonData.is_preview === 'true');
+    formData.append('is_locked', lessonData.is_locked === true || lessonData.is_locked === 'true');
+    formData.append('quiz_available', lessonData.quiz_available === true || lessonData.quiz_available === 'true');
+    
     if (lessonData.order_number !== null && lessonData.order_number !== undefined) {
       formData.append('order_number', lessonData.order_number);
     }
+    
     if (lessonData.thumbnail instanceof File) {
       formData.append('thumbnail', lessonData.thumbnail);
+    }
+
+    // Lesson Content Info - Multilingual
+    formData.append('content_title_en', lessonData.content_title_en || '');
+    formData.append('content_title_fr', lessonData.content_title_fr || '');
+    formData.append('content_title_es', lessonData.content_title_es || '');
+    
+    formData.append('content_type', lessonData.content_type || 'text');
+    
+    formData.append('text_content_en', lessonData.text_content_en || '');
+    formData.append('text_content_fr', lessonData.text_content_fr || '');
+    formData.append('text_content_es', lessonData.text_content_es || '');
+    
+    formData.append('content_duration_en', lessonData.content_duration_en || '');
+    formData.append('content_duration_fr', lessonData.content_duration_fr || '');
+    formData.append('content_duration_es', lessonData.content_duration_es || '');
+    
+    formData.append('file_size_en', lessonData.file_size_en || '');
+    formData.append('file_size_fr', lessonData.file_size_fr || '');
+    formData.append('file_size_es', lessonData.file_size_es || '');
+
+    formData.append('is_downloadable', lessonData.is_downloadable === true || lessonData.is_downloadable === 'true');
+
+    if (lessonData.media instanceof File) {
+      formData.append('media', lessonData.media);
     }
 
     const response = await fetch(url, {

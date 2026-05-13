@@ -256,3 +256,9 @@ body {
 .rounded-3 {
   border-radius: 0.75rem !important;
 }
+
+/* Breadcrumb Separator Fix - Removes rogue template URL */
+.breadcrumb-item + .breadcrumb-item::before {
+  content: "/" !important;
+  color: #878A99 !important;
+}
