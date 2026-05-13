@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { useAuth } from '../context/AuthContext';
-import { getLessonContent, createLessonContent, getLessonAdmin, updateLessonAdmin, deleteLessonPage } from '../api/lessons';
+import { getLessonContent, createLessonContent, getLessonAdmin, updateLessonAdmin, deleteLessonPage, generateLessonQuiz, getLessonQuiz, updateLessonQuiz, deleteLessonQuiz } from '../api/lessons';
 import GlobalLoader from '../components/GlobalLoader';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
@@ -23,6 +23,7 @@ export default function LessonContent() {
   const [lesson, setLesson] = useState(null);
   const [content, setContent] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [quiz, setQuiz] = useState(null);
   const [showContentModal, setShowContentModal] = useState(false);
   const [showLessonModal, setShowLessonModal] = useState(false);
 
@@ -72,6 +73,15 @@ export default function LessonContent() {
         text: result.message || 'An error occurred while loading lesson content',
       });
     }
+
+    // Fetch Quiz
+    const quizResult = await getLessonQuiz(lessonId, token);
+    if (quizResult.success && quizResult.quiz_available) {
+      setQuiz(quizResult.data);
+    } else {
+      setQuiz(null);
+    }
+
     setIsLoading(false);
   };
 
@@ -204,6 +214,237 @@ export default function LessonContent() {
     });
   };
 
+  const handleGenerateQuiz = async () => {
+    const { value: formValues } = await Swal.fire({
+      title: 'Generate Lesson Quiz',
+      html:
+        '<div class="mb-3 text-start">' +
+        '  <label class="form-label">Question Count</label>' +
+        '  <input id="swal-input-count" type="number" class="form-control" value="10" min="1" max="50">' +
+        '</div>' +
+        '<div class="mb-3 text-start">' +
+        '  <label class="form-label">Difficulty</label>' +
+        '  <select id="swal-input-difficulty" class="form-select">' +
+        '    <option value="easy">Easy</option>' +
+        '    <option value="medium" selected>Medium</option>' +
+        '    <option value="hard">Hard</option>' +
+        '  </select>' +
+        '</div>',
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Generate Now',
+      confirmButtonColor: '#6C63FF',
+      preConfirm: () => {
+        return {
+          question_count: document.getElementById('swal-input-count').value,
+          difficulty: document.getElementById('swal-input-difficulty').value
+        }
+      }
+    });
+
+    if (formValues) {
+      setIsLoading(true);
+      const result = await generateLessonQuiz(lessonId, formValues, token);
+      if (result.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Quiz Generated!',
+          text: result.message || 'The quiz has been successfully generated for this lesson.',
+          timer: 3000,
+          showConfirmButton: false
+        });
+        await fetchContent();
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Generation Failed',
+          text: result.message || 'An error occurred while generating the quiz.'
+        });
+      }
+      setIsLoading(false);
+    }
+  };
+
+  const handleEditQuiz = async (q) => {
+    const { value: formValues } = await Swal.fire({
+      title: 'Edit Quiz Question',
+      width: '80%',
+      html: `
+        <div class="container-fluid text-start">
+          <div class="row">
+            <div class="col-md-4 border-end">
+              <h6 class="fw-bold text-primary mb-3">English (EN)</h6>
+              <div class="mb-2">
+                <label class="small fw-bold">Question</label>
+                <textarea id="edit-q-en" class="form-control form-control-sm" rows="2">${q.translations?.en?.question || q.question}</textarea>
+              </div>
+              <div class="mb-2">
+                <label class="small fw-bold">Option A</label>
+                <input id="edit-oa-en" class="form-control form-control-sm" value="${q.translations?.en?.option_a || q.options.a}">
+              </div>
+              <div class="mb-2">
+                <label class="small fw-bold">Option B</label>
+                <input id="edit-ob-en" class="form-control form-control-sm" value="${q.translations?.en?.option_b || q.options.b}">
+              </div>
+              <div class="mb-2">
+                <label class="small fw-bold">Option C</label>
+                <input id="edit-oc-en" class="form-control form-control-sm" value="${q.translations?.en?.option_c || q.options.c}">
+              </div>
+              <div class="mb-2">
+                <label class="small fw-bold">Option D</label>
+                <input id="edit-od-en" class="form-control form-control-sm" value="${q.translations?.en?.option_d || q.options.d}">
+              </div>
+              <div class="mb-2">
+                <label class="small fw-bold">Explanation</label>
+                <textarea id="edit-ex-en" class="form-control form-control-sm" rows="2">${q.translations?.en?.explanation || q.explanation}</textarea>
+              </div>
+            </div>
+            <div class="col-md-4 border-end">
+              <h6 class="fw-bold text-info mb-3">French (FR)</h6>
+              <div class="mb-2">
+                <label class="small fw-bold">Question</label>
+                <textarea id="edit-q-fr" class="form-control form-control-sm" rows="2">${q.translations?.fr?.question || ''}</textarea>
+              </div>
+              <div class="mb-2">
+                <label class="small fw-bold">Option A</label>
+                <input id="edit-oa-fr" class="form-control form-control-sm" value="${q.translations?.fr?.option_a || ''}">
+              </div>
+              <div class="mb-2">
+                <label class="small fw-bold">Option B</label>
+                <input id="edit-ob-fr" class="form-control form-control-sm" value="${q.translations?.fr?.option_b || ''}">
+              </div>
+              <div class="mb-2">
+                <label class="small fw-bold">Option C</label>
+                <input id="edit-oc-fr" class="form-control form-control-sm" value="${q.translations?.fr?.option_c || ''}">
+              </div>
+              <div class="mb-2">
+                <label class="small fw-bold">Option D</label>
+                <input id="edit-od-fr" class="form-control form-control-sm" value="${q.translations?.fr?.option_d || ''}">
+              </div>
+              <div class="mb-2">
+                <label class="small fw-bold">Explanation</label>
+                <textarea id="edit-ex-fr" class="form-control form-control-sm" rows="2">${q.translations?.fr?.explanation || ''}</textarea>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <h6 class="fw-bold text-warning mb-3">Spanish (ES)</h6>
+              <div class="mb-2">
+                <label class="small fw-bold">Question</label>
+                <textarea id="edit-q-es" class="form-control form-control-sm" rows="2">${q.translations?.es?.question || ''}</textarea>
+              </div>
+              <div class="mb-2">
+                <label class="small fw-bold">Option A</label>
+                <input id="edit-oa-es" class="form-control form-control-sm" value="${q.translations?.es?.option_a || ''}">
+              </div>
+              <div class="mb-2">
+                <label class="small fw-bold">Option B</label>
+                <input id="edit-ob-es" class="form-control form-control-sm" value="${q.translations?.es?.option_b || ''}">
+              </div>
+              <div class="mb-2">
+                <label class="small fw-bold">Option C</label>
+                <input id="edit-oc-es" class="form-control form-control-sm" value="${q.translations?.es?.option_c || ''}">
+              </div>
+              <div class="mb-2">
+                <label class="small fw-bold">Option D</label>
+                <input id="edit-od-es" class="form-control form-control-sm" value="${q.translations?.es?.option_d || ''}">
+              </div>
+              <div class="mb-2">
+                <label class="small fw-bold">Explanation</label>
+                <textarea id="edit-ex-es" class="form-control form-control-sm" rows="2">${q.translations?.es?.explanation || ''}</textarea>
+              </div>
+            </div>
+          </div>
+          <hr/>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-2">
+                <label class="small fw-bold">Correct Answer</label>
+                <select id="edit-correct" class="form-select form-select-sm">
+                  <option value="a" ${q.correct_answer === 'a' ? 'selected' : ''}>Option A</option>
+                  <option value="b" ${q.correct_answer === 'b' ? 'selected' : ''}>Option B</option>
+                  <option value="c" ${q.correct_answer === 'c' ? 'selected' : ''}>Option C</option>
+                  <option value="d" ${q.correct_answer === 'd' ? 'selected' : ''}>Option D</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-2">
+                <label class="small fw-bold">Points</label>
+                <input id="edit-points" type="number" class="form-control form-control-sm" value="${q.points || 10}">
+              </div>
+            </div>
+          </div>
+        </div>
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Update Question',
+      confirmButtonColor: '#6C63FF',
+      preConfirm: () => {
+        return {
+          question_en: document.getElementById('edit-q-en').value,
+          option_a_en: document.getElementById('edit-oa-en').value,
+          option_b_en: document.getElementById('edit-ob-en').value,
+          option_c_en: document.getElementById('edit-oc-en').value,
+          option_d_en: document.getElementById('edit-od-en').value,
+          explanation_en: document.getElementById('edit-ex-en').value,
+          
+          question_fr: document.getElementById('edit-q-fr').value,
+          option_a_fr: document.getElementById('edit-oa-fr').value,
+          option_b_fr: document.getElementById('edit-ob-fr').value,
+          option_c_fr: document.getElementById('edit-oc-fr').value,
+          option_d_fr: document.getElementById('edit-od-fr').value,
+          explanation_fr: document.getElementById('edit-ex-fr').value,
+          
+          question_es: document.getElementById('edit-q-es').value,
+          option_a_es: document.getElementById('edit-oa-es').value,
+          option_b_es: document.getElementById('edit-ob-es').value,
+          option_c_es: document.getElementById('edit-oc-es').value,
+          option_d_es: document.getElementById('edit-od-es').value,
+          explanation_es: document.getElementById('edit-ex-es').value,
+          
+          correct_answer: document.getElementById('edit-correct').value,
+          points: document.getElementById('edit-points').value,
+        }
+      }
+    });
+
+    if (formValues) {
+      setIsLoading(true);
+      const result = await updateLessonQuiz(q.id, formValues, token);
+      if (result.success) {
+        Swal.fire({ icon: 'success', title: 'Updated!', text: 'Quiz question updated successfully.', timer: 2000, showConfirmButton: false });
+        await fetchContent();
+      } else {
+        Swal.fire({ icon: 'error', title: 'Update Failed', text: result.message });
+      }
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteQuiz = async (quizId) => {
+    Swal.fire({
+      title: 'Delete Question?',
+      text: 'Are you sure you want to delete this quiz question?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#EF4444',
+      confirmButtonText: 'Yes, delete it'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        setIsLoading(true);
+        const res = await deleteLessonQuiz(quizId, token);
+        if (res.success) {
+          Swal.fire({ icon: 'success', title: 'Deleted!', text: 'Question has been deleted.', timer: 2000, showConfirmButton: false });
+          await fetchContent();
+        } else {
+          Swal.fire({ icon: 'error', title: 'Error', text: res.message });
+        }
+        setIsLoading(false);
+      }
+    });
+  };
+
   const renderContent = () => {
     if (!content) return null;
     switch (content.content_type?.toLowerCase()) {
@@ -275,6 +516,11 @@ export default function LessonContent() {
                         <i className="fa fa-file-alt me-2"></i>Add More Content
                       </button>
                     )}
+                  </li>
+                  <li>
+                    <button className="btn btn-info text-white" onClick={handleGenerateQuiz}>
+                      <i className="fa fa-magic me-2"></i>Generate Quiz
+                    </button>
                   </li>
                   <li>
                     <button className="btn btn-primary" onClick={() => navigate(-1)}>
@@ -397,6 +643,103 @@ export default function LessonContent() {
                             </button>
                           </div>
                         )}
+                      </div>
+                    )}
+
+                    {quiz && quiz.length > 0 && (
+                      <div className="mt-5 pt-4 border-top">
+                        <div className="d-flex justify-content-between align-items-center mb-4">
+                          <h6 className="fw-bold mb-0 text-primary">
+                            <i className="fas fa-question-circle me-2"></i>Lesson Quiz ({quiz.length} Questions)
+                          </h6>
+                        </div>
+
+                        <div className="accordion accordion-flush custom-accordion" id="quizAccordion">
+                          {quiz.map((q, index) => (
+                            <div key={q.id} className="accordion-item border rounded-3 mb-3 overflow-hidden shadow-sm">
+                              <h2 className="accordion-header d-flex align-items-center">
+                                <button 
+                                  className="accordion-button collapsed px-4 py-3 fw-semibold flex-grow-1" 
+                                  type="button" 
+                                  data-bs-toggle="collapse" 
+                                  data-bs-target={`#collapse${q.id}`}
+                                >
+                                  <span className="me-3 text-muted">Q{index + 1}.</span>
+                                  {q.question}
+                                </button>
+                                <div className="px-3 d-flex gap-2">
+                                  <button 
+                                    className="btn btn-sm btn-outline-warning border-0" 
+                                    onClick={(e) => { e.stopPropagation(); handleEditQuiz(q); }}
+                                    title="Edit Question"
+                                  >
+                                    <i className="fas fa-edit"></i>
+                                  </button>
+                                  <button 
+                                    className="btn btn-sm btn-outline-danger border-0" 
+                                    onClick={(e) => { e.stopPropagation(); handleDeleteQuiz(q.id); }}
+                                    title="Delete Question"
+                                  >
+                                    <i className="fas fa-trash"></i>
+                                  </button>
+                                </div>
+                              </h2>
+                              <div id={`collapse${q.id}`} className="accordion-collapse collapse" data-bs-parent="#quizAccordion">
+                                <div className="accordion-body p-4 bg-light">
+                                  <div className="row">
+                                    <div className="col-md-7">
+                                      <h6 className="small fw-bold text-muted text-uppercase mb-3">Options</h6>
+                                      <div className="d-grid gap-2 mb-4">
+                                        {Object.entries(q.options).map(([key, val]) => (
+                                          <div key={key} className={`p-3 rounded-3 border ${q.correct_answer === key ? 'bg-success-subtle border-success text-success fw-bold' : 'bg-white border-light-subtle'}`}>
+                                            <span className="me-2 text-uppercase">{key}:</span> {val}
+                                            {q.correct_answer === key && <i className="fas fa-check-circle float-end mt-1"></i>}
+                                          </div>
+                                        ))}
+                                      </div>
+                                      
+                                      <h6 className="small fw-bold text-muted text-uppercase mb-2">Explanation</h6>
+                                      <div className="p-3 rounded-3 bg-white border border-light-subtle small italic">
+                                        {q.explanation || 'No explanation provided.'}
+                                      </div>
+                                    </div>
+                                    
+                                    <div className="col-md-5 border-start">
+                                      <h6 className="small fw-bold text-muted text-uppercase mb-3 ps-3">Translations</h6>
+                                      <div className="ps-3">
+                                        <ul className="nav nav-pills nav-pills-sm mb-3" id={`pills-tab-${q.id}`} role="tablist">
+                                          <li className="nav-item" role="presentation">
+                                            <button className="nav-link active py-1 px-3" data-bs-toggle="pill" data-bs-target={`#en-${q.id}`} type="button">EN</button>
+                                          </li>
+                                          <li className="nav-item" role="presentation">
+                                            <button className="nav-link py-1 px-3" data-bs-toggle="pill" data-bs-target={`#fr-${q.id}`} type="button">FR</button>
+                                          </li>
+                                          <li className="nav-item" role="presentation">
+                                            <button className="nav-link py-1 px-3" data-bs-toggle="pill" data-bs-target={`#es-${q.id}`} type="button">ES</button>
+                                          </li>
+                                        </ul>
+                                        <div className="tab-content small" id={`pills-tabContent-${q.id}`}>
+                                          {['en', 'fr', 'es'].map(lang => (
+                                            <div key={lang} className={`tab-content tab-pane fade ${lang === 'en' ? 'show active' : ''}`} id={`${lang}-${q.id}`}>
+                                              <p className="mb-2"><strong>Q:</strong> {q.translations?.[lang]?.question || 'N/A'}</p>
+                                              <p className="mb-2"><strong>Exp:</strong> {q.translations?.[lang]?.explanation || 'N/A'}</p>
+                                              <div className="mt-2 text-muted">
+                                                <div className="d-flex justify-content-between mb-1"><span>A: {q.translations?.[lang]?.option_a || 'N/A'}</span></div>
+                                                <div className="d-flex justify-content-between mb-1"><span>B: {q.translations?.[lang]?.option_b || 'N/A'}</span></div>
+                                                <div className="d-flex justify-content-between mb-1"><span>C: {q.translations?.[lang]?.option_c || 'N/A'}</span></div>
+                                                <div className="d-flex justify-content-between mb-1"><span>D: {q.translations?.[lang]?.option_d || 'N/A'}</span></div>
+                                              </div>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>

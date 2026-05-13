@@ -798,6 +798,153 @@ export const getLessonPageAdmin = async (lessonId, pageId, token) => {
   }
 };
 
+export const generateLessonQuiz = async (lessonId, config, token) => {
+  try {
+    const url = `${API_BASE_URL}/courses/admin/lesson/${lessonId}/generate-quiz`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'accept': 'application/json',
+      },
+      body: JSON.stringify({
+        question_count: config.question_count || 10,
+        difficulty: config.difficulty || 'medium',
+      }),
+    });
+
+    const data = await response.json();
+    if (data.status === 1) {
+      return {
+        success: true,
+        data: data.data,
+        message: data.message || 'Quiz generated successfully',
+      };
+    } else {
+      return {
+        success: false,
+        message: data.message || 'Failed to generate quiz',
+      };
+    }
+  } catch (error) {
+    console.error('Generate Quiz API Error:', error);
+    return {
+      success: false,
+      message: error.message || 'An error occurred while generating quiz',
+    };
+  }
+};
+
+export const getLessonQuiz = async (lessonId, token) => {
+  try {
+    const url = `${API_BASE_URL}/courses/admin/lesson/${lessonId}/quiz`;
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'accept': 'application/json',
+      },
+    });
+
+    const data = await response.json();
+    if (data.status === 1) {
+      return {
+        success: true,
+        data: data.data,
+        quiz_available: data.quiz_available,
+        total_questions: data.total_questions,
+        message: data.message,
+      };
+    } else {
+      return {
+        success: false,
+        message: data.message || 'Failed to fetch quiz details',
+      };
+    }
+  } catch (error) {
+    console.error('Get Quiz API Error:', error);
+    return {
+      success: false,
+      message: error.message || 'An error occurred while fetching quiz details',
+    };
+  }
+};
+
+export const updateLessonQuiz = async (quizId, quizData, token) => {
+  try {
+    const url = `${API_BASE_URL}/courses/admin/quiz/${quizId}`;
+    
+    // Using URLSearchParams for application/x-www-form-urlencoded as per screenshot
+    const body = new URLSearchParams();
+    Object.entries(quizData).forEach(([key, value]) => {
+      body.append(key, value);
+    });
+
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'accept': 'application/json',
+      },
+      body: body.toString(),
+    });
+
+    const data = await response.json();
+    if (data.status === 1) {
+      return {
+        success: true,
+        data: data.data,
+        message: data.message || 'Quiz updated successfully',
+      };
+    } else {
+      return {
+        success: false,
+        message: data.message || 'Failed to update quiz',
+      };
+    }
+  } catch (error) {
+    console.error('Update Quiz API Error:', error);
+    return {
+      success: false,
+      message: error.message || 'An error occurred while updating quiz',
+    };
+  }
+};
+
+export const deleteLessonQuiz = async (quizId, token) => {
+  try {
+    const url = `${API_BASE_URL}/courses/admin/quiz/${quizId}`;
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'accept': 'application/json',
+      },
+    });
+
+    const data = await response.json();
+    if (data.status === 1) {
+      return {
+        success: true,
+        message: data.message || 'Quiz deleted successfully',
+      };
+    } else {
+      return {
+        success: false,
+        message: data.message || 'Failed to delete quiz',
+      };
+    }
+  } catch (error) {
+    console.error('Delete Quiz API Error:', error);
+    return {
+      success: false,
+      message: error.message || 'An error occurred while deleting quiz',
+    };
+  }
+};
+
 export const updateLessonPage = async (lessonId, pageId, pageData, token) => {
   try {
     console.log('[v0] Updating lesson page:', pageId, 'for lesson:', lessonId);
