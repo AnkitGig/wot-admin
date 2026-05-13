@@ -15,6 +15,7 @@ export default function NewsShow() {
   const [newsData, setNewsData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [activeLang, setActiveLang] = useState('en');
 
   useEffect(() => {
     fetchNewsData();
@@ -37,6 +38,7 @@ export default function NewsShow() {
   };
 
   const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleString();
   };
 
@@ -57,7 +59,6 @@ export default function NewsShow() {
     });
 
     if (result.isConfirmed) {
-      // Import deleteNews here to avoid circular dependency
       const { deleteNews } = await import('../api');
       try {
         const response = await deleteNews(token, newsId);
@@ -109,12 +110,14 @@ export default function NewsShow() {
     );
   }
 
-  const article = newsData?.data?.payload?.article;
-  const meta = newsData?.data?.payload?.meta;
-  const image = newsData?.data?.payload?.image;
-  const sources = newsData?.data?.payload?.sources;
-
-  console.log('Full NewsData in render:', newsData); // Debug log
+  const payload = newsData?.data?.payload;
+  const translations = payload?.translations || {};
+  
+  // Use activeLang translation or fallback to main article
+  const currentArticle = translations[activeLang] || payload?.article || {};
+  const meta = payload?.meta;
+  const image = payload?.image;
+  const sources = payload?.sources;
 
   return (
     <div className="main-wrapper">
@@ -160,157 +163,207 @@ export default function NewsShow() {
             </div>
           </div>
 
-          {/* News Content */}
-          <div className="card">
-            <div className="card-body">
-             
-
-         {/* Article Header */}
-              <div className="mb-4">
-                <h2 className="mb-3">{article?.title || 'No Title'}</h2>
-                
-                {/* Article Meta */}
-                <div className="row mb-3">
-                  <div className="col-md-6">
-                    <div className="d-flex align-items-center text-muted small">
-                      <i className="fas fa-calendar me-2"></i>
-                      <span>Scheduled: {formatDate(newsData?.data?.payload?.scheduled_at)}</span>
+          <div className="row">
+            <div className="col-md-12">
+              {/* Language Selection Tabs */}
+              <div className="card mb-4 border-0 shadow-sm">
+                <div className="card-body p-3">
+                  <div className="d-flex align-items-center justify-content-between">
+                    <h6 className="mb-0 fw-bold"><i className="fas fa-language me-2 text-primary"></i>Language View</h6>
+                    <div className="btn-group btn-group-sm" role="group">
+                      <button 
+                        type="button" 
+                        className={`btn ${activeLang === 'en' ? 'btn-primary' : 'btn-outline-primary'}`}
+                        onClick={() => setActiveLang('en')}
+                      >
+                        English
+                      </button>
+                      <button 
+                        type="button" 
+                        className={`btn ${activeLang === 'es' ? 'btn-primary' : 'btn-outline-primary'}`}
+                        onClick={() => setActiveLang('es')}
+                      >
+                        Spanish
+                      </button>
+                      <button 
+                        type="button" 
+                        className={`btn ${activeLang === 'fr' ? 'btn-primary' : 'btn-outline-primary'}`}
+                        onClick={() => setActiveLang('fr')}
+                      >
+                        French
+                      </button>
                     </div>
-                    <div className="d-flex align-items-center text-muted small mt-1">
-                      <i className="fas fa-tag me-2"></i>
-                      <span>Category: {newsData?.data?.payload?.primary_category || 'N/A'}</span>
-                    </div>
-                    <div className="d-flex align-items-center text-muted small mt-1">
-                      <i className="fas fa-eye me-2"></i>
-                      <span>Views: {newsData?.views || 0}</span>
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="d-flex align-items-center text-muted small">
-                      <i className="fas fa-cog me-2"></i>
-                      <span>Run ID: {meta?.run_id || 'N/A'}</span>
-                    </div>
-                    <div className="d-flex align-items-center text-muted small mt-1">
-                      <i className="fas fa-clock me-2"></i>
-                      <span>Session: {meta?.session_label || 'N/A'}</span>
-                    </div>
-                    {/* <div className="d-flex align-items-center text-muted small mt-1">
-                      <i className="fas fa-info-circle me-2"></i>
-                      <span>Status: <span className="badge bg-success">{newsData?.data?.status}</span></span>
-                    </div> */}
                   </div>
                 </div>
-
-                {/* Tags */}
-                {newsData?.data?.payload?.tags && newsData.data.payload.tags.length > 0 && (
-                  <div className="mb-3">
-                    <div className="d-flex flex-wrap gap-2">
-                      {newsData.data.payload.tags.map((tag, index) => (
-                        <span key={index} className="badge bg-secondary">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
 
-              {/* Article Image */}
-              {image?.url && (
-                <div className="mb-4">
-                  <img 
-                    src={image.url} 
-                    alt={article?.title || 'News image'} 
-                    className="img-fluid rounded"
-                    style={{ maxHeight: '400px', width: '100%', objectFit: 'cover' }}
-                  />
-                  {image.source && (
-                    <small className="text-muted d-block mt-2">
-                      Image source: {image.source}
-                    </small>
-                  )}
-                </div>
-              )}
-
-              {/* Article Summary */}
-              {article?.summary && (
-                <div className="mb-4">
-                  <h5>Summary</h5>
-                  <div className="alert alert-info">
-                    {article.summary}
-                  </div>
-                </div>
-              )}
-
-              {/* Article Body */}
-              {article?.body && (
-                <div className="mb-4">
-                  <h5>Full Article</h5>
-                  <div className="card bg-light">
-                    <div className="card-body">
-                      <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
-                        {article.body}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Takeaways */}
-              {/* {article?.takeaways && article.takeaways.length > 0 && (
-                <div className="mb-4">
-                  <h5>Key Takeaways</h5>
-                  <ul className="list-group">
-                    {article.takeaways.map((takeaway, index) => (
-                      <li key={index} className="list-group-item">
-                        {takeaway}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )} */}
-
-              {/* Sources */}
-              {/* {sources && sources.length > 0 && (
-                <div className="mb-4">
-                  <h5>Sources</h5>
-                  <div className="list-group">
-                    {sources.map((source, index) => (
-                      <div key={index} className="list-group-item">
-                        <div className="d-flex justify-content-between align-items-center">
-                          <div>
-                            <strong>{source.name}</strong>
-                            {source.published_at && (
-                              <div className="small text-muted">
-                                Published: {formatDate(source.published_at)}
-                              </div>
-                            )}
-                            {source.snippet && (
-                              <div className="small text-muted mt-1">
-                                {source.snippet}
-                              </div>
-                            )}
-                          </div>
-                          {source.url && (
-                            <a 
-                              href={source.url} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="btn btn-sm btn-outline-primary"
-                            >
-                              <i className="fas fa-external-link-alt"></i>
-                            </a>
-                          )}
+              <div className="card border-0 shadow-sm">
+                <div className="card-body p-4">
+                  {/* Article Header */}
+                  <div className="mb-4">
+                    <h2 className="mb-3 fw-bold">{currentArticle.title || 'No Title'}</h2>
+                    
+                    {/* Article Meta */}
+                    <div className="row mb-4 bg-light p-3 rounded mx-0">
+                      <div className="col-md-6 border-end">
+                        <div className="d-flex align-items-center text-muted small mb-2">
+                          <i className="fas fa-calendar-alt me-2 text-primary"></i>
+                          <span><strong>Scheduled:</strong> {formatDate(payload?.scheduled_at)}</span>
+                        </div>
+                        <div className="d-flex align-items-center text-muted small mb-2">
+                          <i className="fas fa-folder-open me-2 text-primary"></i>
+                          <span><strong>Category:</strong> {payload?.primary_category || 'N/A'}</span>
+                        </div>
+                        <div className="d-flex align-items-center text-muted small">
+                          <i className="fas fa-eye me-2 text-primary"></i>
+                          <span><strong>Views:</strong> {newsData?.views || 0}</span>
                         </div>
                       </div>
-                    ))}
+                      <div className="col-md-6 ps-md-4">
+                        <div className="d-flex align-items-center text-muted small mb-2">
+                          <i className="fas fa-terminal me-2 text-primary"></i>
+                          <span><strong>Run ID:</strong> {meta?.run_id || 'N/A'}</span>
+                        </div>
+                        <div className="d-flex align-items-center text-muted small mb-2">
+                          <i className="fas fa-clock me-2 text-primary"></i>
+                          <span><strong>Session:</strong> {meta?.session_label || 'N/A'}</span>
+                        </div>
+                        <div className="d-flex align-items-center text-muted small">
+                          <i className="fas fa-check-circle me-2 text-success"></i>
+                          <span><strong>Status:</strong> <span className="badge bg-success">Published</span></span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Tags */}
+                    {payload?.tags && payload.tags.length > 0 && (
+                      <div className="mb-4">
+                        <div className="d-flex flex-wrap gap-2">
+                          {payload.tags.map((tag, index) => (
+                            <span key={index} className="badge rounded-pill bg-soft-primary text-primary border border-primary px-3 py-2">
+                              #{tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
+
+                  {/* Article Image */}
+                  {image?.url && (
+                    <div className="mb-5 text-center">
+                      <img 
+                        src={image.url} 
+                        alt={currentArticle.title || 'News image'} 
+                        className="img-fluid rounded shadow-sm"
+                        style={{ maxHeight: '500px', width: '100%', objectFit: 'cover', borderRadius: '15px' }}
+                      />
+                      {image.source && (
+                        <div className="mt-2">
+                           <span className="badge bg-light text-dark border"><i className="fas fa-camera me-1"></i> Source: {image.source}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Article Summary */}
+                  {currentArticle.summary && (
+                    <div className="mb-5">
+                      <h5 className="fw-bold mb-3"><i className="fas fa-align-left me-2 text-primary"></i>Executive Summary</h5>
+                      <div className="p-4 bg-light border-start border-primary border-4 rounded shadow-sm italic" style={{ fontSize: '1.1rem', backgroundColor: '#f0f7ff !important' }}>
+                        {currentArticle.summary}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Article Body */}
+                  {currentArticle.body && (
+                    <div className="mb-5">
+                      <h5 className="fw-bold mb-3"><i className="fas fa-newspaper me-2 text-primary"></i>Full Analysis</h5>
+                      <div className="p-4 bg-white border rounded shadow-sm" style={{ whiteSpace: 'pre-wrap', lineHeight: '1.8', fontSize: '1.05rem', color: '#2d3748' }}>
+                        {currentArticle.body}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Takeaways */}
+                  {currentArticle.takeaways && currentArticle.takeaways.length > 0 && (
+                    <div className="mb-5">
+                      <h5 className="fw-bold mb-3"><i className="fas fa-list-check me-2 text-success"></i>Key Strategic Takeaways</h5>
+                      <div className="row g-3">
+                        {currentArticle.takeaways.map((takeaway, index) => (
+                          <div key={index} className="col-md-6">
+                            <div className="d-flex align-items-center p-3 bg-white border rounded-3 shadow-sm h-100 transition-all hover-lift">
+                              <span className="badge bg-success-soft text-success me-3 rounded-circle" style={{ width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <i className="fas fa-check small"></i>
+                              </span>
+                              <span className="small fw-medium text-dark">{takeaway}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Sources */}
+                  {sources && sources.length > 0 && (
+                    <div className="mt-5 border-top pt-4">
+                      <h5 className="fw-bold mb-3"><i className="fas fa-link me-2 text-primary"></i>Verified Sources</h5>
+                      <div className="row g-3">
+                        {sources.map((source, index) => (
+                          <div key={index} className="col-lg-6">
+                            <div className="card h-100 border-0 bg-light rounded-4">
+                              <div className="card-body p-3">
+                                <div className="d-flex justify-content-between align-items-center">
+                                  <div className="flex-grow-1 me-3">
+                                    <div className="d-flex align-items-center mb-1">
+                                      <span className="badge bg-white text-primary border border-primary-light me-2 small px-2">Source {index + 1}</span>
+                                      <h6 className="mb-0 fw-bold text-dark">{source.name}</h6>
+                                    </div>
+                                    {source.published_at && (
+                                      <div className="text-muted" style={{ fontSize: '0.75rem' }}>
+                                        <i className="far fa-calendar me-1"></i> {formatDate(source.published_at)}
+                                      </div>
+                                    )}
+                                  </div>
+                                  {source.url && (
+                                    <a 
+                                      href={source.url} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      className="btn btn-sm btn-white shadow-sm rounded-pill px-3"
+                                      title="Open original article"
+                                    >
+                                      <i className="fas fa-external-link-alt text-primary"></i>
+                                    </a>
+                                  )}
+                                </div>
+                                {source.snippet && (
+                                  <div className="mt-2 text-muted small border-top pt-2" style={{ fontStyle: 'italic' }}>
+                                    "{source.snippet}"
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )} */}
+              </div>
             </div>
           </div>
         </div>
       </div>
+      
+      <style>{`
+        .bg-soft-primary { background-color: rgba(13, 110, 253, 0.08); }
+        .bg-success-soft { background-color: rgba(25, 135, 84, 0.1); }
+        .hover-lift:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important; }
+        .transition-all { transition: all 0.3s ease; }
+        .bg-white { background-color: #ffffff !important; }
+      `}</style>
 
       <Footer />
     </div>

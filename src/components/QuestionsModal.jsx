@@ -168,10 +168,10 @@ export default function QuestionsModal({ show, quizData, onClose, isLoading, onQ
       const clonedQuestions = JSON.parse(JSON.stringify(quizData?.questions || []));
       // Ensure translations structure exists for each question
       clonedQuestions.forEach(q => {
-        if (!q.translations) q.translations = { en: { question: q.question, options: [...(q.options || [])] } };
-        if (!q.translations.en) q.translations.en = { question: q.question, options: [...(q.options || [])] };
-        if (!q.translations.es) q.translations.es = { question: '', options: Array(q.options?.length || 4).fill('') };
-        if (!q.translations.fr) q.translations.fr = { question: '', options: Array(q.options?.length || 4).fill('') };
+        if (!q.translations) q.translations = { en: { question: q.question, explanation: q.explanation, options: [...(q.options || [])] } };
+        if (!q.translations.en) q.translations.en = { question: q.question, explanation: q.explanation, options: [...(q.options || [])] };
+        if (!q.translations.es) q.translations.es = { question: '', explanation: '', options: Array(q.options?.length || 4).fill('') };
+        if (!q.translations.fr) q.translations.fr = { question: '', explanation: '', options: Array(q.options?.length || 4).fill('') };
       });
       setEditingQuestions(clonedQuestions);
       document.body.style.overflow = 'hidden';
@@ -200,9 +200,14 @@ export default function QuestionsModal({ show, quizData, onClose, isLoading, onQ
 
     if (field === 'correct_answer') {
       q.correct_answer = parseInt(value);
+    } else if (field === 'points') {
+      q.points = parseInt(value) || 0;
     } else if (field === 'question') {
       if (lang === 'en') q.question = value;
       q.translations[lang].question = value;
+    } else if (field === 'explanation') {
+      if (lang === 'en') q.explanation = value;
+      q.translations[lang].explanation = value;
     } else if (field.startsWith('option_')) {
       const optIdx = parseInt(field.split('_')[1]);
       if (lang === 'en') q.options[optIdx] = value;
@@ -302,7 +307,7 @@ export default function QuestionsModal({ show, quizData, onClose, isLoading, onQ
 
                 {paginatedQuestions.map((question, index) => {
                   const questionIndex = startIndex + index;
-                  const displayData = question.translations?.[activeLang] || { question: question.question, options: question.options };
+                  const displayData = question.translations?.[activeLang] || { question: question.question, explanation: question.explanation, options: question.options };
                   
                   return (
                     <div key={question.id || question.question_id || questionIndex} className="card mb-4 border-0 shadow-sm"
@@ -319,14 +324,27 @@ export default function QuestionsModal({ show, quizData, onClose, isLoading, onQ
                             {isEditing ? (
                               <div>
                                 <label className="form-label small fw-bold text-muted mb-1">Question Text ({activeLang.toUpperCase()})</label>
-                                <textarea className="form-control" rows="2" placeholder={`Enter question in ${activeLang}`}
+                                <textarea className="form-control mb-2" rows="2" placeholder={`Enter question in ${activeLang}`}
                                   value={displayData.question || ''}
                                   onChange={e => handleQuestionChange(questionIndex, 'question', e.target.value, activeLang)} />
+                                  
+                                <label className="form-label small fw-bold text-muted mb-1 mt-2">Explanation ({activeLang.toUpperCase()})</label>
+                                <textarea className="form-control" rows="2" placeholder={`Enter explanation in ${activeLang}`}
+                                  value={displayData.explanation || ''}
+                                  onChange={e => handleQuestionChange(questionIndex, 'explanation', e.target.value, activeLang)} />
                               </div>
                             ) : (
-                              <h6 className="card-title mb-0 fw-bold" style={{ lineHeight: 1.5, color: '#2d3748' }}>
-                                {displayData.question || <span className="text-muted italic">No translation for {activeLang}</span>}
-                              </h6>
+                              <div>
+                                <h6 className="card-title mb-1 fw-bold" style={{ lineHeight: 1.5, color: '#2d3748' }}>
+                                  {displayData.question || <span className="text-muted italic">No translation for {activeLang}</span>}
+                                </h6>
+                                {displayData.explanation && (
+                                  <div className="p-2 mt-2 bg-light rounded text-muted small">
+                                    <i className="fas fa-lightbulb text-warning me-2"></i>
+                                    {displayData.explanation}
+                                  </div>
+                                )}
+                              </div>
                             )}
                           </div>
                         </div>
@@ -344,17 +362,30 @@ export default function QuestionsModal({ show, quizData, onClose, isLoading, onQ
                             <strong className="text-muted" style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                               {question.type === 'percentage' ? 'Options (Percentage Range)' : 'Options'}
                             </strong>
-                            {isEditing && (
-                              <div className="d-flex align-items-center gap-2">
-                                <small className="text-muted fw-bold">Correct Answer:</small>
-                                <select className="form-select form-select-sm" style={{ width: '80px', borderRadius: '6px' }}
-                                  value={question.correct_answer}
-                                  onChange={e => handleQuestionChange(questionIndex, 'correct_answer', e.target.value)}>
-                                  {question.options?.map((_, i) => (
-                                    <option key={i} value={i}>{String.fromCharCode(65 + i)}</option>
-                                  ))}
-                                </select>
+                            {isEditing ? (
+                              <div className="d-flex align-items-center gap-3">
+                                <div className="d-flex align-items-center gap-2">
+                                  <small className="text-muted fw-bold">Points:</small>
+                                  <input type="number" className="form-control form-control-sm" style={{ width: '60px', borderRadius: '6px' }}
+                                    value={question.points || 0}
+                                    min="0"
+                                    onChange={e => handleQuestionChange(questionIndex, 'points', e.target.value)} />
+                                </div>
+                                <div className="d-flex align-items-center gap-2">
+                                  <small className="text-muted fw-bold">Correct Answer:</small>
+                                  <select className="form-select form-select-sm" style={{ width: '80px', borderRadius: '6px' }}
+                                    value={question.correct_answer}
+                                    onChange={e => handleQuestionChange(questionIndex, 'correct_answer', e.target.value)}>
+                                    {question.options?.map((_, i) => (
+                                      <option key={i} value={i}>{String.fromCharCode(65 + i)}</option>
+                                    ))}
+                                  </select>
+                                </div>
                               </div>
+                            ) : (
+                              <span className="badge bg-primary rounded-pill">
+                                {question.points || 0} Points
+                              </span>
                             )}
                           </div>
 

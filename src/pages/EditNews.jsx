@@ -12,23 +12,28 @@ export default function EditNews() {
   const navigate = useNavigate();
   const { token } = useAuth();
   
-  const [newsData, setNewsData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [activeLang, setActiveLang] = useState('en');
+
+  // We'll store the original payload to preserve fields we don't edit (like metadata)
+  const [originalPayload, setOriginalPayload] = useState({});
 
   const [formData, setFormData] = useState({
-    title: '',
-    summary: '',
-    content: '',
     category: '',
     tags: [],
     source: '',
     source_url: '',
     image_url: '',
-    author: '',
+    author: 'Admin',
     is_published: false,
-    is_featured: false
+    is_featured: false,
+    translations: {
+      en: { title: '', summary: '', body: '', takeaways: [] },
+      es: { title: '', summary: '', body: '', takeaways: [] },
+      fr: { title: '', summary: '', body: '', takeaways: [] }
+    }
   });
 
   useEffect(() => {
@@ -39,37 +44,116 @@ export default function EditNews() {
     setLoading(true);
     try {
       const response = await getNewsById(token, newsId);
-      console.log('EditNews API Response:', response); // Debug log
       if (response.success) {
-        const data = response.data; // Data is directly here, not nested
-        console.log('EditNews Data:', data); // Debug log
-        setNewsData(data);
+        const fullData = response.data;
+        const newsItem = fullData?.data;
+        const payload = newsItem?.payload || {};
         
-        // Pre-fill form with existing data - properly extract from nested structure
-        const formData = {
-          title: data.data?.payload?.article?.title || '',
-          summary: data.data?.payload?.article?.summary || '',
-          content: data.data?.payload?.article?.body || '',
-          category: data.data?.payload?.primary_category || '',
-          tags: data.data?.payload?.tags || [],
-          source: data.data?.payload?.sources?.[0]?.name || '',
-          source_url: data.data?.payload?.sources?.[0]?.url || '',
-          image_url: data.data?.payload?.image?.url || '',
-          author: 'Admin',
-          is_published: data.data?.status === 'published',
-          is_featured: false
+        setOriginalPayload(payload);
+
+        const fetchedTranslations = payload.translations || {};
+        
+        // IMPORTANT: We only fallback to payload.article if the translation for that field is strictly undefined or null.
+        // This allows empty strings ("") to be preserved.
+        const translations = {
+          en: { 
+            title: fetchedTranslations.en?.title ?? payload.article?.title ?? '', 
+            summary: fetchedTranslations.en?.summary ?? payload.article?.summary ?? '', 
+            body: fetchedTranslations.en?.body ?? payload.article?.body ?? '',
+            takeaways: fetchedTranslations.en?.takeaways ?? payload.article?.takeaways ?? []
+          },
+          es: { 
+            title: fetchedTranslations.es?.title ?? '', 
+            summary: fetchedTranslations.es?.summary ?? '', 
+            body: fetchedTranslations.es?.body ?? '',
+            takeaways: fetchedTranslations.es?.takeaways ?? []
+          },
+          fr: { 
+            title: fetchedTranslations.fr?.title ?? '', 
+            summary: fetchedTranslations.fr?.summary ?? '', 
+            body: fetchedTranslations.fr?.body ?? '',
+            takeaways: fetchedTranslations.fr?.takeaways ?? []
+          }
         };
-        console.log('EditNews Form Data:', formData); // Debug log
-        setFormData(formData);
+
+        setFormData({
+          category: payload.primary_category || newsItem.category || '',
+          tags: payload.tags || newsItem.tags || [],
+          source: payload.sources?.[0]?.name || newsItem.source || '',
+          source_url: payload.sources?.[0]?.url || newsItem.source_url || '',
+          image_url: payload.image?.url || newsItem.image_url || '',
+          author: newsItem.author || 'Admin',
+          is_published: newsItem.is_published ?? (newsItem.status === 'published'),
+          is_featured: newsItem.is_featured || false,
+          translations
+        });
       } else {
         setError(response.message || 'Failed to fetch news data');
       }
     } catch (err) {
-      console.error('EditNews Fetch Error:', err); // Debug log
       setError('An error occurred while fetching news data');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleTranslationChange = (lang, field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      translations: {
+        ...prev.translations,
+        [lang]: {
+          ...prev.translations[lang],
+          [field]: value
+        }
+      }
+    }));
+  };
+
+  const handleTakeawayChange = (lang, index, value) => {
+    setFormData(prev => {
+      const newTakeaways = [...prev.translations[lang].takeaways];
+      newTakeaways[index] = value;
+      return {
+        ...prev,
+        translations: {
+          ...prev.translations,
+          [lang]: {
+            ...prev.translations[lang],
+            takeaways: newTakeaways
+          }
+        }
+      };
+    });
+  };
+
+  const addTakeaway = (lang) => {
+    setFormData(prev => ({
+      ...prev,
+      translations: {
+        ...prev.translations,
+        [lang]: {
+          ...prev.translations[lang],
+          takeaways: [...prev.translations[lang].takeaways, '']
+        }
+      }
+    }));
+  };
+
+  const removeTakeaway = (lang, index) => {
+    setFormData(prev => {
+      const newTakeaways = prev.translations[lang].takeaways.filter((_, i) => i !== index);
+      return {
+        ...prev,
+        translations: {
+          ...prev.translations,
+          [lang]: {
+            ...prev.translations[lang],
+            takeaways: newTakeaways
+          }
+        }
+      };
+    });
   };
 
   const handleChange = (e) => {
@@ -93,15 +177,49 @@ export default function EditNews() {
     e.preventDefault();
     setSaving(true);
 
+    // Get English data for the primary fields (which usually represent the default state)
+    const english = formData.translations.en;
+    
+    // Construct the payload to be as exhaustive as possible.
+    // We update the flat fields AND the nested payload object.
+    const requestPayload = {
+      // Flat Fields (matching your API documentation image)
+      title: english.title,
+      summary: english.summary,
+      content: english.body,
+      category: formData.category,
+      tags: formData.tags,
+      source: formData.source,
+      source_url: formData.source_url,
+      image_url: formData.image_url,
+      author: formData.author,
+      is_published: formData.is_published,
+      is_featured: formData.is_featured,
+      
+      // Nested Payload (this is where the 'View' page reads from)
+      // We manually build the article and translations objects to ensure they match our form.
+      payload: {
+        ...originalPayload,
+        primary_category: formData.category,
+        tags: formData.tags,
+        article: {
+          title: english.title,
+          summary: english.summary,
+          body: english.body,
+          takeaways: english.takeaways
+        },
+        translations: formData.translations
+      }
+    };
+
     try {
-      const response = await updateNews(token, newsId, formData);
+      const response = await updateNews(token, newsId, requestPayload);
       if (response.success) {
-        Swal.fire({
+        await Swal.fire({
           icon: 'success',
           title: 'Success!',
           text: 'News article updated successfully',
-          timer: 2000,
-          timerProgressBar: true,
+          timer: 1500,
           showConfirmButton: false
         });
         navigate('/news');
@@ -126,32 +244,10 @@ export default function EditNews() {
   if (loading) {
     return (
       <div className="main-wrapper">
-        <Header />
-        <Sidebar />
+        <Header /><Sidebar />
         <div className="page-wrapper">
           <div className="content container-fluid">
-            <div className="text-center py-5">
-              <div className="spinner-border" role="status">
-                <span className="visually-hidden">Loading...</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="main-wrapper">
-        <Header />
-        <Sidebar />
-        <div className="page-wrapper">
-          <div className="content container-fluid">
-            <div className="alert alert-danger" role="alert">
-              {error}
-            </div>
+            <div className="text-center py-5"><div className="spinner-border text-primary"></div></div>
           </div>
         </div>
         <Footer />
@@ -161,181 +257,136 @@ export default function EditNews() {
 
   return (
     <div className="main-wrapper">
-      <Header />
-      <Sidebar />
+      <Header /><Sidebar />
 
       <div className="page-wrapper">
         <div className="content container-fluid">
-          {/* Page Header */}
           <div className="page-header">
             <div className="row align-items-center">
-              <div className="col">
-                <h1 className="page-title">Edit News Article</h1>
-                <p className="text-muted">
-                  Update news article information
-                </p>
-              </div>
+              <div className="col"><h5 className="page-title">Edit News Article</h5></div>
               <div className="col-auto">
-                <button 
-                  className="btn btn-outline-secondary"
-                  onClick={() => navigate('/news')}
-                >
-                  <i className="fas fa-arrow-left me-2"></i>
-                  Back to News
+                <button className="btn btn-outline-secondary btn-sm" onClick={() => navigate('/news')}>
+                  <i className="fas fa-arrow-left me-2"></i>Back
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Edit Form */}
-          <div className="card">
-            <div className="card-body">
-              <form onSubmit={handleSubmit}>
-                <div className="row">
-                  <div className="col-md-8">
-                    <div className="mb-3">
-                      <label htmlFor="title" className="form-label">Title</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        id="title"
-                        name="title"
-                        value={formData.title}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-
-                    <div className="mb-3">
-                      <label htmlFor="summary" className="form-label">Summary</label>
-                      <textarea
-                        className="form-control"
-                        id="summary"
-                        name="summary"
-                        rows="3"
-                        value={formData.summary}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-
-                    <div className="mb-3">
-                      <label htmlFor="content" className="form-label">Content</label>
-                      <textarea
-                        className="form-control"
-                        id="content"
-                        name="content"
-                        rows="10"
-                        value={formData.content}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-
-                    <div className="mb-3">
-                      <label htmlFor="source" className="form-label">Source</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        id="source"
-                        name="source"
-                        value={formData.source}
-                        onChange={handleChange}
-                      />
-                    </div>
-
-                    <div className="mb-3">
-                      <label htmlFor="source_url" className="form-label">Source URL</label>
-                      <input
-                        type="url"
-                        className="form-control"
-                        id="source_url"
-                        name="source_url"
-                        value={formData.source_url}
-                        onChange={handleChange}
-                      />
-                    </div>
-
-                    <div className="mb-3">
-                      <label htmlFor="image_url" className="form-label">Image URL</label>
-                      <input
-                        type="url"
-                        className="form-control"
-                        id="image_url"
-                        name="image_url"
-                        value={formData.image_url}
-                        onChange={handleChange}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="col-md-4">
-                    <div className="mb-3">
-                      <label htmlFor="category" className="form-label">Category</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        id="category"
-                        name="category"
-                        value={formData.category}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-
-                    <div className="mb-3">
-                      <label htmlFor="tags" className="form-label">Tags (comma-separated)</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        id="tags"
-                        name="tags"
-                        value={formData.tags.join(', ')}
-                        onChange={handleTagsChange}
-                        placeholder="e.g., technology, AI, machine learning"
-                      />
-                    </div>
-
-                    <div className="mb-3">
-                      <label htmlFor="author" className="form-label">Author</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        id="author"
-                        name="author"
-                        value={formData.author}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-
-                    <div className="mb-3">
-                      <button 
-                        type="submit" 
-                        className="btn btn-primary w-100"
-                        disabled={saving}
-                      >
-                        {saving ? (
-                          <>
-                            <span className="spinner-border spinner-border-sm me-2" role="status"></span>
-                            Saving...
-                          </>
-                        ) : (
-                          <>
-                            <i className="fas fa-save me-2"></i>
-                            Update News
-                          </>
-                        )}
-                      </button>
-                    </div>
+          <div className="row">
+            <div className="col-lg-8">
+              {/* Language Selection */}
+              <div className="card mb-3 border-0 shadow-sm">
+                <div className="card-body p-0">
+                  <div className="nav nav-tabs nav-tabs-solid nav-justified mb-0">
+                    <button className={`nav-link ${activeLang === 'en' ? 'active' : ''}`} onClick={() => setActiveLang('en')}>English</button>
+                    <button className={`nav-link ${activeLang === 'es' ? 'active' : ''}`} onClick={() => setActiveLang('es')}>Spanish</button>
+                    <button className={`nav-link ${activeLang === 'fr' ? 'active' : ''}`} onClick={() => setActiveLang('fr')}>French</button>
                   </div>
                 </div>
-              </form>
+              </div>
+
+              {/* Translation Content */}
+              <div className="card border-0 shadow-sm mb-4">
+                <div className="card-header bg-white border-bottom">
+                  <h6 className="mb-0 fw-bold text-primary">Content: {activeLang.toUpperCase()}</h6>
+                </div>
+                <div className="card-body">
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold">Title</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={formData.translations[activeLang].title}
+                      onChange={(e) => handleTranslationChange(activeLang, 'title', e.target.value)}
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold">Summary</label>
+                    <textarea
+                      className="form-control"
+                      rows="4"
+                      value={formData.translations[activeLang].summary}
+                      onChange={(e) => handleTranslationChange(activeLang, 'summary', e.target.value)}
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold">Body Content</label>
+                    <textarea
+                      className="form-control"
+                      rows="12"
+                      value={formData.translations[activeLang].body}
+                      onChange={(e) => handleTranslationChange(activeLang, 'body', e.target.value)}
+                    />
+                  </div>
+
+                  <div className="mb-0">
+                    <label className="form-label fw-semibold d-flex justify-content-between">
+                      Takeaways
+                      <button type="button" className="btn btn-sm btn-outline-primary" onClick={() => addTakeaway(activeLang)}>
+                        <i className="fas fa-plus me-1"></i> Add
+                      </button>
+                    </label>
+                    {formData.translations[activeLang].takeaways.map((takeaway, index) => (
+                      <div key={index} className="input-group mb-2">
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={takeaway}
+                          onChange={(e) => handleTakeawayChange(activeLang, index, e.target.value)}
+                        />
+                        <button type="button" className="btn btn-outline-danger" onClick={() => removeTakeaway(activeLang, index)}>
+                          <i className="fas fa-times"></i>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="col-lg-4">
+              {/* Metadata Settings */}
+              <div className="card border-0 shadow-sm mb-4">
+                <div className="card-header bg-white border-bottom">
+                  <h6 className="mb-0 fw-bold text-primary">Article Settings</h6>
+                </div>
+                <div className="card-body">
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold">Category</label>
+                    <input type="text" className="form-control" name="category" value={formData.category} onChange={handleChange} />
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold">Tags</label>
+                    <input type="text" className="form-control" value={formData.tags.join(', ')} onChange={handleTagsChange} />
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold">Image URL</label>
+                    <input type="url" className="form-control" name="image_url" value={formData.image_url} onChange={handleChange} />
+                  </div>
+
+                  <div className="form-check form-switch mb-2">
+                    <input className="form-check-input" type="checkbox" name="is_published" checked={formData.is_published} onChange={handleChange} id="pbChk" />
+                    <label className="form-check-label" htmlFor="pbChk">Published</label>
+                  </div>
+
+                  <div className="form-check form-switch mb-4">
+                    <input className="form-check-input" type="checkbox" name="is_featured" checked={formData.is_featured} onChange={handleChange} id="ftChk" />
+                    <label className="form-check-label" htmlFor="ftChk">Featured</label>
+                  </div>
+
+                  <button className="btn btn-primary w-100 py-2 fw-bold" disabled={saving} onClick={handleSubmit}>
+                    {saving ? 'Updating...' : 'Update Article'}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-
       <Footer />
     </div>
   );
