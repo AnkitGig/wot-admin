@@ -19,6 +19,7 @@ export default function AddQuiz() {
   const [pdfFileName, setPdfFileName] = useState('');
   const [imagePreview, setImagePreview] = useState(null);
   const [coupons, setCoupons] = useState([]);
+  const [activeLang, setActiveLang] = useState('en');
 
   // Step 1: PDF Upload
   const [pdfFile, setPdfFile] = useState(null);
@@ -42,6 +43,10 @@ export default function AddQuiz() {
     is_sponsored: false,
     top10_coupon_id: '',
     image: null,
+    translations: {
+      es: { title: '', description: '' },
+      fr: { title: '', description: '' }
+    }
   });
 
   const handlePdfChange = (e) => {
@@ -49,59 +54,29 @@ export default function AddQuiz() {
     if (file && (file.type === 'application/pdf' || file.type === 'application/json' || file.name.endsWith('.json'))) {
       setPdfFile(file);
     } else {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Invalid File',
-        text: 'Please select a valid PDF or JSON file',
-      });
+      Swal.fire({ icon: 'warning', title: 'Invalid File', text: 'Please select a valid PDF or JSON file' });
       setPdfFile(null);
     }
   };
 
   const handlePdfUpload = async (e) => {
     e.preventDefault();
-
     if (!pdfFile) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Validation Error',
-        text: 'Please select a PDF or JSON file',
-      });
+      Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'Please select a PDF or JSON file' });
       return;
     }
-
     setIsLoading(true);
-
     try {
       const result = await uploadPdf(pdfFile);
-
       if (result.success) {
         setPdfId(result.data.pdf_id);
         setPdfFileName(pdfFile.name);
-        
-        Swal.fire({
-          icon: 'success',
-          title: 'PDF Uploaded',
-          text: 'PDF uploaded successfully! Now configure your quiz.',
-          timer: 1500,
-          timerProgressBar: true,
-          showConfirmButton: false,
-        }).then(() => {
-          setStep(2);
-        });
+        Swal.fire({ icon: 'success', title: 'File Uploaded', text: 'Now configure your quiz details.', timer: 1500, showConfirmButton: false }).then(() => setStep(2));
       } else {
-        Swal.fire({
-          icon: 'error',
-          title: 'Upload Failed',
-          text: result.error || 'Failed to upload PDF',
-        });
+        Swal.fire({ icon: 'error', title: 'Upload Failed', text: result.error || 'Failed to upload file' });
       }
     } catch (err) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Error uploading PDF: ' + err.message,
-      });
+      Swal.fire({ icon: 'error', title: 'Error', text: err.message });
     } finally {
       setIsLoading(false);
     }
@@ -110,15 +85,9 @@ export default function AddQuiz() {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData(prev => ({
-        ...prev,
-        image: file,
-      }));
-
+      setFormData(prev => ({ ...prev, image: file }));
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
+      reader.onloadend = () => setImagePreview(reader.result);
       reader.readAsDataURL(file);
     }
   };
@@ -135,79 +104,38 @@ export default function AddQuiz() {
       finalValue = value === 'true';
     }
 
-    setFormData(prev => ({
-      ...prev,
-      [name]: finalValue,
-    }));
+    if (activeLang !== 'en' && (name === 'title' || name === 'description')) {
+      setFormData(prev => ({
+        ...prev,
+        translations: {
+          ...prev.translations,
+          [activeLang]: { ...prev.translations[activeLang], [name]: value }
+        }
+      }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: finalValue }));
+    }
   };
 
   const handleCreateQuiz = async (e) => {
     e.preventDefault();
-
-    // Validation
     if (!formData.title.trim()) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Validation Error',
-        text: 'Please enter quiz title',
-      });
+      Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'Please enter quiz title in English' });
       return;
     }
-
-    if (formData.entry_type === 'PAID' && formData.entry_fee < 10) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Validation Error',
-        text: 'Minimum entry fee is 10 coins',
-      });
-      return;
-    }
-
-    // if (formData.entry_type === 'PAID' && formData.entry_fee > 250) {
-    //   Swal.fire({
-    //     icon: 'warning',
-    //     title: 'Validation Error',
-    //     text: 'Maximum entry fee is 250 coins',
-    //   });
-    //   return;
-    // }
-
- 
 
     setIsLoading(true);
-
     try {
-      const quizPayload = {
-        ...formData,
-        pdf_id: pdfId,
-      };
-
+      const quizPayload = { ...formData, pdf_id: pdfId };
       const result = await generateQuiz(quizPayload);
 
       if (result.success) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Quiz Created',
-          text: result.data?.message || 'Quiz created successfully!',
-          timer: 1500,
-          timerProgressBar: true,
-          showConfirmButton: false,
-        }).then(() => {
-          navigate('/quizes');
-        });
+        Swal.fire({ icon: 'success', title: 'Quiz Created', text: 'Quiz generated successfully!', timer: 1500, showConfirmButton: false }).then(() => navigate('/quizes'));
       } else {
-        Swal.fire({
-          icon: 'error',
-          title: 'Failed to create quiz',
-          text: result.error || 'An error occurred while creating the quiz',
-        });
+        Swal.fire({ icon: 'error', title: 'Failed to create quiz', text: result.error || 'An error occurred' });
       }
     } catch (err) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Error creating quiz: ' + err.message,
-      });
+      Swal.fire({ icon: 'error', title: 'Error', text: err.message });
     } finally {
       setIsLoading(false);
     }
@@ -218,48 +146,25 @@ export default function AddQuiz() {
     setPdfId('');
     setPdfFileName('');
     setFormData({
-      title: '',
-      description: '',
-      start_datetime: '',
-      end_datetime: '',
-      max_participants: 0,
-      entry_type: 'FREE',
-      entry_fee: 0,
-      prize_pool: 0,
-      prize_description: '',
-      top10_reward_percent: 100,
-      top25_reward_percent: 60,
-      participation_reward_percent: 10,
-      max_attempts: 2,
-      is_featured: false,
-      is_sponsored: false,
-      image: null,
+      title: '', description: '', start_datetime: '', end_datetime: '', max_participants: 0,
+      entry_type: 'FREE', entry_fee: 0, prize_pool: 0, prize_description: '',
+      top10_reward_percent: 100, top25_reward_percent: 60, participation_reward_percent: 10,
+      max_attempts: 2, is_featured: false, is_sponsored: false, top10_coupon_id: '', image: null,
+      translations: { es: { title: '', description: '' }, fr: { title: '', description: '' } }
     });
     setImagePreview(null);
   };
 
-  const handleCancel = () => {
-    navigate('/quizes');
-  };
-
   useEffect(() => {
-    // Simulate initial page load
-    const timer = setTimeout(() => {
-      setIsPageLoading(false);
-    }, 500);
-
-    // Fetch coupons
+    const timer = setTimeout(() => setIsPageLoading(false), 500);
     fetchCoupons();
-
     return () => clearTimeout(timer);
   }, []);
 
   const fetchCoupons = async () => {
     try {
       const response = await getAllCoupons(token);
-      if (response.success) {
-        setCoupons(response.data.coupons || []);
-      }
+      if (response.success) setCoupons(response.data.coupons || []);
     } catch (error) {
       console.error('Error fetching coupons:', error);
     }
@@ -277,7 +182,6 @@ export default function AddQuiz() {
             </div>
           </div>
         </div>
-        <Footer />
       </div>
     );
   }
@@ -291,363 +195,140 @@ export default function AddQuiz() {
           <div className="page-header">
             <div className="content-page-header">
               <div>
-                <h5>Add New Quiz</h5>
+                <h5>Create Advanced Quiz</h5>
+                <p className="text-muted">Generate interactive assessments from PDF or JSON</p>
               </div>
               <div className="list-btn">
-                <ul className="filter-list">
-                  <li>
-                    <Link className="btn btn-primary" to="/quizes"><i className="fa fa-plus-circle me-2"></i>View All</Link>
-                  </li>
-                </ul>
+                <Link className="btn btn-outline-primary" to="/quizes"><i className="fa fa-arrow-left me-2"></i>Back to Repository</Link>
               </div>
             </div>
           </div>
 
           <div className="row">
-            <div className="col-sm-12">
-              <div className="card">
-                <div className="card-body">
-                  {/* STEP 1: PDF Upload */}
-                  {step === 1 && (
-                    <>
-                      {isLoading ? (
-                        <div className="row">
-                          <div className="col-md-12">
-                            <h6 className="mb-4">Step 1: Upload File (PDF or JSON)</h6>
-                            <div className="d-flex justify-content-center align-items-center flex-column" style={{ minHeight: '300px' }}>
-                              <GlobalLoader visible={true} size="medium" />
-                              <p className="mt-3 text-muted">Uploading file...</p>
-                            </div>
-                          </div>
+            <div className="col-lg-12">
+              <div className="card shadow-sm border-0">
+                <div className="card-body p-4">
+                  
+                  {/* Progress Indicator */}
+                  <div className="d-flex justify-content-center mb-5">
+                    <div className="d-flex align-items-center">
+                      <div className={`rounded-circle d-flex align-items-center justify-content-center ${step >= 1 ? 'bg-primary text-white' : 'bg-light text-muted'}`} style={{ width: '40px', height: '40px', fontWeight: 'bold' }}>1</div>
+                      <div className={`mx-2 ${step >= 2 ? 'bg-primary' : 'bg-light'}`} style={{ width: '100px', height: '3px' }}></div>
+                      <div className={`rounded-circle d-flex align-items-center justify-content-center ${step >= 2 ? 'bg-primary text-white' : 'bg-light text-muted'}`} style={{ width: '40px', height: '40px', fontWeight: 'bold' }}>2</div>
+                    </div>
+                  </div>
+
+                  {step === 1 ? (
+                    <div className="row justify-content-center">
+                      <div className="col-md-6">
+                        <div className="text-center mb-4">
+                          <i className="fas fa-file-upload fa-4x text-primary mb-3"></i>
+                          <h6>Upload Resource File</h6>
+                          <p className="text-muted small">Select a PDF or JSON file to extract questions from.</p>
                         </div>
-                      ) : (
-                        <form onSubmit={handlePdfUpload} className="row g-3">
-                          <div className="col-md-12">
-                            <h6 className="mb-4">Step 1: Upload File (PDF or JSON)</h6>
+                        <form onSubmit={handlePdfUpload} className="bg-light p-4 rounded-3 border">
+                          <div className="mb-4">
+                            <label className="form-label fw-bold small">PDF or JSON Source</label>
+                            <input type="file" className="form-control" accept=".pdf,.json" onChange={handlePdfChange} required />
+                            {pdfFile && <div className="mt-2 text-success small"><i className="fa fa-check me-1"></i>{pdfFile.name} ready</div>}
                           </div>
-
-                          <div className="col-md-12">
-                            <label className="form-label">Select PDF or JSON File <span className="text-danger">*</span></label>
-                            <input
-                              type="file"
-                              className="form-control"
-                              accept=".pdf,.json"
-                              onChange={handlePdfChange}
-                              required
-                            />
-                            {pdfFile && (
-                              <div className="mt-3">
-                                <p className="text-muted mb-0">Selected: <strong>{pdfFile.name}</strong></p>
-                              </div>
-                            )}
-                          </div>
-
-                          <div className="col-md-12 text-end mt-3">
-                            <button
-                              type="button"
-                              className="btn btn-secondary"
-                              onClick={handleCancel}
-                            >
-                              Cancel
-                            </button>
-                            <button 
-                              type="submit" 
-                              className="btn btn-primary ms-2"
-                              disabled={isLoading || !pdfFile}
-                            >
-                              <i className="fa fa-upload"></i> Upload
+                          <div className="d-grid">
+                            <button type="submit" className="btn btn-primary" disabled={isLoading || !pdfFile}>
+                              {isLoading ? <><span className="spinner-border spinner-border-sm me-2" />Uploading...</> : <><i className="fa fa-arrow-right me-2"></i>Continue to Configuration</>}
                             </button>
                           </div>
                         </form>
-                      )}
-                    </>
-                  )}
+                      </div>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleCreateQuiz}>
+                      <div className="row g-4">
+                        <div className="col-lg-8">
+                          <div className="d-flex justify-content-between align-items-center mb-3">
+                            <h6 className="fw-bold mb-0">Step 2: Quiz Metadata</h6>
+                            <div className="btn-group btn-group-sm">
+                              <button type="button" className={`btn ${activeLang === 'en' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={() => setActiveLang('en')}>EN</button>
+                              <button type="button" className={`btn ${activeLang === 'es' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={() => setActiveLang('es')}>ES</button>
+                              <button type="button" className={`btn ${activeLang === 'fr' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={() => setActiveLang('fr')}>FR</button>
+                            </div>
+                          </div>
 
-                  {/* STEP 2: Quiz Configuration */}
-                  {step === 2 && (
-                    <>
-                      {isLoading ? (
-                        <div className="row">
-                          <div className="col-md-12">
-                            <h6 className="mb-4">Step 2: Configure Quiz</h6>
-                            <div className="d-flex justify-content-center align-items-center flex-column" style={{ minHeight: '300px' }}>
-                              <GlobalLoader visible={true} size="medium" />
-                              <p className="mt-3 text-muted">Generating Quiz...</p>
+                          <div className="mb-3">
+                            <label className="form-label small fw-bold">Quiz Title ({activeLang.toUpperCase()})</label>
+                            <input type="text" className="form-control" placeholder={`Enter ${activeLang} title`} name="title" value={activeLang === 'en' ? formData.title : formData.translations[activeLang].title} onChange={handleFormChange} required={activeLang === 'en'} />
+                          </div>
+
+                          <div className="mb-3">
+                            <label className="form-label small fw-bold">Description ({activeLang.toUpperCase()})</label>
+                            <textarea className="form-control" rows="4" placeholder={`Enter ${activeLang} description`} name="description" value={activeLang === 'en' ? formData.description : formData.translations[activeLang].description} onChange={handleFormChange}></textarea>
+                          </div>
+
+                          <div className="row g-3">
+                            <div className="col-md-6">
+                              <label className="form-label small fw-bold">Start Time</label>
+                              <input type="datetime-local" className="form-control" name="start_datetime" value={formData.start_datetime} onChange={handleFormChange} />
+                            </div>
+                            <div className="col-md-6">
+                              <label className="form-label small fw-bold">End Time</label>
+                              <input type="datetime-local" className="form-control" name="end_datetime" value={formData.end_datetime} onChange={handleFormChange} />
+                            </div>
+                            <div className="col-md-4">
+                              <label className="form-label small fw-bold">Entry Type</label>
+                              <select className="form-select" name="entry_type" value={formData.entry_type} onChange={handleFormChange}>
+                                <option value="FREE">Free</option>
+                                <option value="PAID">Paid</option>
+                              </select>
+                            </div>
+                            {formData.entry_type === 'PAID' && (
+                              <div className="col-md-4">
+                                <label className="form-label small fw-bold">Entry Fee</label>
+                                <input type="number" className="form-control" name="entry_fee" value={formData.entry_fee} onChange={handleFormChange} min="0" />
+                              </div>
+                            )}
+                            <div className="col-md-4">
+                              <label className="form-label small fw-bold">Max Attempts</label>
+                              <input type="number" className="form-control" name="max_attempts" value={formData.max_attempts} onChange={handleFormChange} min="1" />
                             </div>
                           </div>
                         </div>
-                      ) : (
-                        <form onSubmit={handleCreateQuiz} className="row g-3">
-                          <div className="col-md-12">
-                            <h6 className="mb-4">Step 2: Configure Quiz</h6>
+
+                        <div className="col-lg-4">
+                          <h6 className="fw-bold mb-3">Quiz Settings</h6>
+                          <div className="mb-3">
+                            <label className="form-label small fw-bold">Quiz Thumbnail</label>
+                            <div className="border rounded-3 p-2 text-center bg-light mb-2" style={{ minHeight: '120px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              {imagePreview ? <img src={imagePreview} className="img-fluid rounded" style={{ maxHeight: '110px' }} /> : <div className="text-muted small">No Preview</div>}
+                            </div>
+                            <input type="file" className="form-control form-control-sm" accept="image/*" onChange={handleImageChange} />
                           </div>
 
-                      <div className="col-md-6">
-                        <label className="form-label">Quiz Title <span className="text-danger">*</span></label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          placeholder="Enter quiz title"
-                          name="title"
-                          value={formData.title}
-                          onChange={handleFormChange}
-                          required
-                        />
-                      </div>
-
-                      <div className="col-md-6">
-                        <label className="form-label">Entry Type <span className="text-danger">*</span></label>
-                        <select
-                          className="form-control"
-                          name="entry_type"
-                          value={formData.entry_type}
-                          onChange={handleFormChange}
-                           style={{ appearance: "auto" }}
-                        >
-                          <option value="FREE">Free</option>
-                          <option value="PAID">Paid</option>
-                        </select>
-                      </div>
-
-                      <div className="col-md-6">
-                        <label className="form-label">Start Date & Time</label>
-                        <input
-                          type="datetime-local"
-                          className="form-control"
-                          name="start_datetime"
-                          value={formData.start_datetime}
-                          onChange={handleFormChange}
-                        />
-                      </div>
-
-                      <div className="col-md-6">
-                        <label className="form-label">End Date & Time</label>
-                          <input
-                          type="datetime-local"
-                          className="form-control"
-                          name="end_datetime"
-                          value={formData.end_datetime}
-                          onChange={handleFormChange}
-                        />
-                      </div>
-
-                      <div className="col-md-6">
-                        <label className="form-label">Max Participants</label>
-                        <input
-                          type="number"
-                          className="form-control"
-                          placeholder="0"
-                          name="max_participants"
-                          value={formData.max_participants}
-                          onChange={handleFormChange}
-                          min="0"
-                        />
-                      </div>
-
-                      <div className="col-md-6">
-                        <label className="form-label">Max Attempts</label>
-                        <input
-                          type="number"
-                          className="form-control"
-                          placeholder="2"
-                          name="max_attempts"
-                          value={formData.max_attempts}
-                          onChange={handleFormChange}
-                          min="1"
-                        />
-                      </div>
-
-                      {formData.entry_type === 'PAID' && (
-                      <div className="col-md-6">
-                        <label className="form-label">Entry Fee (for Paid) <span className="text-danger">*</span></label>
-                        <input
-                          type="number"
-                          className="form-control"
-                          placeholder="0"
-                          name="entry_fee"
-                          value={formData.entry_fee}
-                          onChange={handleFormChange}
-                        />
-                      </div>
-                      )}
-
-                      <div className="col-md-6">
-                        <label className="form-label">Prize Pool</label>
-                        <input
-                          type="number"
-                          className="form-control"
-                          placeholder="0"
-                          name="prize_pool"
-                          value={formData.prize_pool}
-                          onChange={handleFormChange}
-                          min="0"
-                        />
-                      </div>
-
-                      <div className="col-md-6">
-                        <label className="form-label">Top 10 Coupon Reward</label>
-                        <select
-                          className="form-control"
-                          name="top10_coupon_id"
-                          value={formData.top10_coupon_id}
-                          onChange={handleFormChange}
-                           style={{ appearance: "auto" }}
-                        >
-                          <option value="">Select a coupon (optional)</option>
-                          {coupons.map((coupon) => (
-                            <option key={coupon.coupon_id} value={coupon.coupon_id}>
-                              {coupon.title} - {coupon.code}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="col-md-12">
-                        <label className="form-label">Description</label>
-                        <textarea
-                          className="form-control"
-                          rows="3"
-                          placeholder="Enter quiz description and instructions"
-                          name="description"
-                          value={formData.description}
-                          onChange={handleFormChange}
-                        ></textarea>
-                      </div>
-
-                      <div className="col-md-12">
-                        <label className="form-label">Prize Description</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          placeholder="e.g. Prize up to 500 coins"
-                          name="prize_description"
-                          value={formData.prize_description}
-                          onChange={handleFormChange}
-                        />
-                      </div>
-
-                      <div className="col-md-12">
-                        <label className="form-label">Quiz Image</label>
-                        <input
-                          type="file"
-                          className="form-control"
-                          accept="image/*"
-                          onChange={handleImageChange}
-                        />
-                        {imagePreview && (
-                          <div className="mt-3">
-                            <img
-                              src={imagePreview}
-                              alt="Image Preview"
-                              style={{ maxWidth: '200px', maxHeight: '200px', borderRadius: '4px' }}
-                            />
+                          <div className="mb-3">
+                            <label className="form-label small fw-bold">Top 10% Reward Coupon</label>
+                            <select className="form-select form-select-sm" name="top10_coupon_id" value={formData.top10_coupon_id} onChange={handleFormChange}>
+                              <option value="">Select coupon</option>
+                              {coupons.map(c => <option key={c.coupon_id} value={c.coupon_id}>{c.title}</option>)}
+                            </select>
                           </div>
-                        )}
-                      </div>
 
-                      <div className="col-md-12">
-                        <h6 className="mb-3">Reward Distribution</h6>
-                      </div>
+                          <div className="bg-light p-3 rounded-3 border">
+                            <p className="small fw-bold mb-2">Reward Distribution</p>
+                            <div className="mb-2">
+                              <label className="small d-flex justify-content-between">Top 10% <span>{formData.top10_reward_percent}%</span></label>
+                              <input type="range" className="form-range" name="top10_reward_percent" value={formData.top10_reward_percent} onChange={handleFormChange} min="0" max="100" />
+                            </div>
+                            <div className="mb-2">
+                              <label className="small d-flex justify-content-between">Top 25% <span>{formData.top25_reward_percent}%</span></label>
+                              <input type="range" className="form-range" name="top25_reward_percent" value={formData.top25_reward_percent} onChange={handleFormChange} min="0" max="100" />
+                            </div>
+                          </div>
 
-                      <div className="col-md-4">
-                        <label className="form-label">Top 10% Reward %</label>
-                        <input
-                          type="number"
-                          className="form-control"
-                          placeholder="100"
-                          name="top10_reward_percent"
-                          value={formData.top10_reward_percent}
-                          onChange={handleFormChange}
-                          min="0"
-                          max="100"
-                        />
-                      </div>
-
-                      <div className="col-md-4">
-                        <label className="form-label">Top 25% Reward %</label>
-                        <input
-                          type="number"
-                          className="form-control"
-                          placeholder="60"
-                          name="top25_reward_percent"
-                          value={formData.top25_reward_percent}
-                          onChange={handleFormChange}
-                          min="0"
-                          max="100"
-                        />
-                      </div>
-
-                      <div className="col-md-4">
-                        <label className="form-label">Participation Reward %</label>
-                        <input
-                          type="number"
-                          className="form-control"
-                          placeholder="10"
-                          name="participation_reward_percent"
-                          value={formData.participation_reward_percent}
-                          onChange={handleFormChange}
-                          min="0"
-                          max="100"
-                        />
-                      </div>
-
-                      <div className="col-md-6">
-                        <label className="form-label">Featured Quiz</label>
-                        <select
-                          className="form-control"
-                          name="is_featured"
-                          value={formData.is_featured}
-                          onChange={handleFormChange}
-                          style={{ appearance: "auto" }}
-                        >
-                          <option value="false">No</option>
-                          <option value="true">Yes</option>
-                        </select>
-                      </div>
-
-                      <div className="col-md-6">
-                        <label className="form-label">Sponsored Quiz</label>
-                        <select
-                          className="form-control"
-                          name="is_sponsored"
-                          value={formData.is_sponsored}
-                          onChange={handleFormChange}
-                          style={{ appearance: "auto" }}
-                        >
-                          <option value="false">No</option>
-                          <option value="true">Yes</option>
-                        </select>
-                      </div>
-
-
-                      <div className="col-md-12 text-end mt-3">
-                        <button
-                          type="button"
-                          className="btn btn-secondary"
-                          onClick={handleBackToUpload}
-                          disabled={isLoading}
-                        >
-                          <i className="fa fa-arrow-left"></i> Back
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-secondary ms-2"
-                          onClick={handleCancel}
-                          disabled={isLoading}
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          type="submit"
-                          className="btn btn-primary ms-2"
-                          disabled={isLoading}
-                        >
-                          <i className="fa fa-check-circle"></i> {isLoading ? 'Creating...' : 'Create Quiz'}
-                        </button>
+                          <div className="mt-4 d-flex gap-2">
+                            <button type="button" className="btn btn-outline-secondary btn-sm flex-fill" onClick={handleBackToUpload}><i className="fa fa-arrow-left me-1"></i>Back</button>
+                            <button type="submit" className="btn btn-primary btn-sm flex-fill" disabled={isLoading}>{isLoading ? 'Creating...' : 'Create Quiz'}</button>
+                          </div>
+                        </div>
                       </div>
                     </form>
-                      )}
-                    </>
                   )}
                 </div>
               </div>
@@ -656,6 +337,12 @@ export default function AddQuiz() {
         </div>
       </div>
       <Footer />
+      <style>{`
+        .form-control:focus, .form-select:focus { border-color: #6c63ff; box-shadow: 0 0 0 0.25rem rgba(108, 99, 255, 0.1); }
+        .bg-primary { background-color: #6c63ff !important; }
+        .btn-primary { background-color: #6c63ff; border-color: #6c63ff; }
+        .text-primary { color: #6c63ff !important; }
+      `}</style>
     </div>
   );
 }
