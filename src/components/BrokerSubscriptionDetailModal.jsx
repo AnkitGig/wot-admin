@@ -5,7 +5,8 @@ import {
   approveSubscription,
   rejectSubscription,
   extendSubscription,
-  revokeSubscription
+  revokeSubscription,
+  getBrokerSubscriptionDetail
 } from "../api/brokerSubscriptionsApi";
 
 export default function BrokerSubscriptionDetailModal({
@@ -484,7 +485,7 @@ export default function BrokerSubscriptionDetailModal({
                         <div className="accordion" id="adminActionsAccordion">
                           
                            {/* Approve (Force Match) Section */}
-                          {(subStatus === "pending" || subStatus === "suspicious") && (
+                          {subStatus !== "matched" && (
                             <div className="accordion-item border-0 mb-2">
                               <h2 className="accordion-header" id="headingApprove">
                                 <button
@@ -526,8 +527,8 @@ export default function BrokerSubscriptionDetailModal({
                             </div>
                           )}
 
-                          {/* Reject (Force Reject) Section */}
-                          {(subStatus === "pending" || subStatus === "suspicious") && (
+                           {/* Reject (Force Reject) Section */}
+                          {subStatus !== "matched" && (
                             <div className="accordion-item border-0 mb-2">
                               <h2 className="accordion-header" id="headingReject">
                                 <button
@@ -668,12 +669,6 @@ export default function BrokerSubscriptionDetailModal({
                                   </form>
                                 </div>
                               </div>
-                            </div>
-                          )}
-
-                          {(subStatus === "rejected" || subStatus === "revoked") && (
-                            <div className="alert alert-secondary mb-0 py-2 border text-center">
-                              <i className="fas fa-ban me-2"></i> This subscription application has been {subStatus} and cannot be modified.
                             </div>
                           )}
                           
