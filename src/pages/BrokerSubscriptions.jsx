@@ -231,9 +231,9 @@ export default function BrokerSubscriptions() {
 
               <div className="table-responsive rounded-3 border">
                 <table className="table table-hover align-middle mb-0">
-                  <thead className="table-light">
+                   <thead className="table-light">
                     <tr>
-                      <th className="fw-semibold">Sub ID</th>
+                      <th className="fw-semibold">#</th>
                       <th className="fw-semibold">User Name</th>
                       <th className="fw-semibold">Email</th>
                       <th className="fw-semibold">Mobile</th>
@@ -265,13 +265,13 @@ export default function BrokerSubscriptions() {
                         </td>
                       </tr>
                     ) : (
-                      subscriptions.map((sub) => (
+                      subscriptions.map((sub, index) => (
                         <tr
                           key={sub.id}
                           className="cursor-pointer"
                           onClick={() => handleOpenDetails(sub.id)}
                         >
-                          <td className="font-monospace fw-bold small text-primary">{sub.id}</td>
+                          <td className="font-monospace fw-bold small text-primary">{(page - 1) * limit + index + 1}</td>
                           <td className="fw-semibold text-dark">{sub.user_name}</td>
                           <td>{sub.user_email || sub.email}</td>
                           <td className="text-nowrap">{sub.mobile || sub.account_number || "N/A"}</td>
