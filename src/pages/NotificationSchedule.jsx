@@ -261,13 +261,15 @@ export default function NotificationSchedule() {
                             </td>
                             <td className="text-center">
                               <button
-                                className={`btn btn-sm shadow-sm px-3 text-nowrap ${
-                                  notif.status === "failed" 
-                                    ? "btn-danger" 
-                                    : notif.status === "pending"
-                                    ? "btn-warning text-dark"
-                                    : "btn-outline-primary"
-                                }`}
+                                className="btn text-white shadow-sm border-0 transition-all text-nowrap"
+                                style={{
+                                  background: "linear-gradient(135deg, #8B5CF6 0%, #1E1B4B 100%)",
+                                  borderRadius: "30px",
+                                  padding: "5px 15px",
+                                  fontSize: "12px",
+                                  fontWeight: "600",
+                                  letterSpacing: "0.3px"
+                                }}
                                 onClick={() => handleResend(notif.id)}
                                 disabled={resendingIds[notif.id]}
                               >
