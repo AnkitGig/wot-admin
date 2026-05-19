@@ -503,7 +503,16 @@ export default function BrokerSubscriptionDetailModal({
                                           required
                                         />
                                       </div>
-                                      <button type="submit" className="btn btn-sm btn-success w-100 py-2 fw-semibold">
+                                      <button
+                                        type="submit"
+                                        className="btn w-100 py-2.5 fw-bold text-white shadow-sm border-0 transition-all"
+                                        style={{
+                                          background: "linear-gradient(135deg, #10B981 0%, #059669 100%)",
+                                          borderRadius: "30px",
+                                          fontSize: "14px",
+                                          letterSpacing: "0.5px"
+                                        }}
+                                      >
                                         Confirm & Activate Premium
                                       </button>
                                     </form>
@@ -530,7 +539,16 @@ export default function BrokerSubscriptionDetailModal({
                                           required
                                         />
                                       </div>
-                                      <button type="submit" className="btn btn-sm btn-danger w-100 py-2 fw-semibold">
+                                      <button
+                                        type="submit"
+                                        className="btn w-100 py-2.5 fw-bold text-white shadow-sm border-0 transition-all"
+                                        style={{
+                                          background: "linear-gradient(135deg, #EF4444 0%, #DC2626 100%)",
+                                          borderRadius: "30px",
+                                          fontSize: "14px",
+                                          letterSpacing: "0.5px"
+                                        }}
+                                      >
                                         Reject Application
                                       </button>
                                     </form>
@@ -576,7 +594,16 @@ export default function BrokerSubscriptionDetailModal({
                                           required
                                         />
                                       </div>
-                                      <button type="submit" className="btn btn-sm btn-primary w-100 py-2 fw-semibold">
+                                      <button
+                                        type="submit"
+                                        className="btn w-100 py-2.5 fw-bold text-white shadow-sm border-0 transition-all"
+                                        style={{
+                                          background: "linear-gradient(135deg, #8B5CF6 0%, #1E1B4B 100%)",
+                                          borderRadius: "30px",
+                                          fontSize: "14px",
+                                          letterSpacing: "0.5px"
+                                        }}
+                                      >
                                         Extend Expiry
                                       </button>
                                     </form>
@@ -603,7 +630,16 @@ export default function BrokerSubscriptionDetailModal({
                                           required
                                         />
                                       </div>
-                                      <button type="submit" className="btn btn-sm btn-danger w-100 py-2 fw-semibold">
+                                      <button
+                                        type="submit"
+                                        className="btn w-100 py-2.5 fw-bold text-white shadow-sm border-0 transition-all"
+                                        style={{
+                                          background: "linear-gradient(135deg, #EF4444 0%, #B91C1C 100%)",
+                                          borderRadius: "30px",
+                                          fontSize: "14px",
+                                          letterSpacing: "0.5px"
+                                        }}
+                                      >
                                         Revoke Access Immediately
                                       </button>
                                     </form>
