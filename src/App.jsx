@@ -61,6 +61,10 @@ import Broker from './pages/Broker.jsx'
 import AddBroker from './pages/AddBroker'
 import EditGlossary from './pages/EditGlossary.jsx'
 import ViewGlossary from './pages/ViewGlossary.jsx'
+import BrokerSubscriptions from './pages/BrokerSubscriptions'
+import ReconciliationRuns from './pages/ReconciliationRuns'
+import AuditLogs from './pages/AuditLogs'
+import NotificationSchedule from './pages/NotificationSchedule'
 
 export default function App() {
   return (
@@ -139,8 +143,11 @@ export default function App() {
         <Route path="/broker/add" element={<ProtectedRoute><AddBroker /></ProtectedRoute>} />
         <Route path="/broker/edit/:id" element={<ProtectedRoute><AddBroker /></ProtectedRoute>} />
         <Route path="/edit-email-template/:id" element={<ProtectedRoute><EditEmailTemplate /></ProtectedRoute>} />
+        <Route path="/admin/broker-subscriptions" element={<ProtectedRoute><BrokerSubscriptions /></ProtectedRoute>} />
+        <Route path="/admin/reconciliation-runs" element={<ProtectedRoute><ReconciliationRuns /></ProtectedRoute>} />
+        <Route path="/admin/audit-logs" element={<ProtectedRoute><AuditLogs /></ProtectedRoute>} />
+        <Route path="/admin/notification-schedule" element={<ProtectedRoute><NotificationSchedule /></ProtectedRoute>} />
       </Routes>
     </AuthProvider>
   )
 }
-

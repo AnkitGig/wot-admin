@@ -142,7 +142,24 @@ export default function Sidebar() {
             <li>
               <Link to="/Broker" className={isActive("/Broker")}>
                 <i className="fas fa-handshake me-2"></i>
-                <span>Broker</span>
+                <span>Broker Directory</span>
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                to="/admin/broker-subscriptions"
+                className={
+                  location.pathname.startsWith("/admin/broker-subscriptions") ||
+                  location.pathname.startsWith("/admin/reconciliation-runs") ||
+                  location.pathname.startsWith("/admin/audit-logs") ||
+                  location.pathname.startsWith("/admin/notification-schedule")
+                    ? "active"
+                    : ""
+                }
+              >
+                <i className="fas fa-users-cog me-2"></i>
+                <span>Broker Subscriptions</span>
               </Link>
             </li>
 
