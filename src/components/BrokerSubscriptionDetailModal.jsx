@@ -474,130 +474,87 @@ export default function BrokerSubscriptionDetailModal({
                       </h6>
                     </div>
                     <div className="card-body pt-0">
-                      {actionLoading && (
+                      {actionLoading ? (
                         <div className="text-center py-3">
                           <GlobalLoader visible={true} size="small" />
                           <span className="text-muted ms-2">Executing action...</span>
                         </div>
-                      )}
-
-                      {!actionLoading && (
-                        <div className="accordion" id="adminActionsAccordion">
-                          
-                           {/* Approve (Force Match) Section */}
+                      ) : (
+                        <div>
+                          {/* Approve & Reject Columns Side-by-Side */}
                           {subStatus !== "matched" && (
-                            <div className="accordion-item border-0 mb-2">
-                              <h2 className="accordion-header" id="headingApprove">
-                                <button
-                                  className="accordion-button collapsed btn btn-soft-primary w-100 text-start py-2 px-3 fw-bold rounded"
-                                  type="button"
-                                  data-bs-toggle="collapse"
-                                  data-bs-target="#collapseApprove"
-                                  aria-expanded="false"
-                                  aria-controls="collapseApprove"
-                                >
-                                  <i className="fas fa-check me-2 text-success"></i> Force Match & Approve Subscription
-                                </button>
-                              </h2>
-                              <div
-                                id="collapseApprove"
-                                className="accordion-collapse collapse"
-                                aria-labelledby="headingApprove"
-                                data-bs-parent="#adminActionsAccordion"
-                              >
-                                <div className="accordion-body bg-white border rounded p-3 mt-1">
-                                  <form onSubmit={handleApprove}>
-                                    <div className="mb-3">
-                                      <label className="form-label small fw-bold">Manual Match Justification Reason</label>
-                                      <textarea
-                                        className="form-control"
-                                        rows="2"
-                                        placeholder="e.g. Verified deposit record manually with broker partner..."
-                                        value={approveReason}
-                                        onChange={(e) => setApproveReason(e.target.value)}
-                                        required
-                                      />
-                                    </div>
-                                    <button type="submit" className="btn btn-success w-100">
-                                      Confirm & Activate Premium
-                                    </button>
-                                  </form>
+                            <div className="row g-3">
+                              {/* Force Match Form Column */}
+                              <div className="col-md-6">
+                                <div className="p-3 bg-light border rounded-3 h-100 d-flex flex-column justify-content-between">
+                                  <div>
+                                    <h6 className="fw-bold text-success mb-3">
+                                      <i className="fas fa-check-circle me-2"></i>Force Match & Approve
+                                    </h6>
+                                    <form onSubmit={handleApprove}>
+                                      <div className="mb-3">
+                                        <label className="form-label small fw-semibold text-secondary">Manual Match Justification Reason</label>
+                                        <textarea
+                                          className="form-control form-control-sm"
+                                          rows="3"
+                                          placeholder="e.g. Verified deposit record manually with broker partner..."
+                                          value={approveReason}
+                                          onChange={(e) => setApproveReason(e.target.value)}
+                                          required
+                                        />
+                                      </div>
+                                      <button type="submit" className="btn btn-sm btn-success w-100 py-2 fw-semibold">
+                                        Confirm & Activate Premium
+                                      </button>
+                                    </form>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Force Reject Form Column */}
+                              <div className="col-md-6">
+                                <div className="p-3 bg-light border rounded-3 h-100 d-flex flex-column justify-content-between">
+                                  <div>
+                                    <h6 className="fw-bold text-danger mb-3">
+                                      <i className="fas fa-times-circle me-2"></i>Force Reject Application
+                                    </h6>
+                                    <form onSubmit={handleReject}>
+                                      <div className="mb-3">
+                                        <label className="form-label small fw-semibold text-secondary">Rejection Reason</label>
+                                        <textarea
+                                          className="form-control form-control-sm"
+                                          rows="3"
+                                          placeholder="e.g. Account not registered under partner tag..."
+                                          value={rejectReason}
+                                          onChange={(e) => setRejectReason(e.target.value)}
+                                          required
+                                        />
+                                      </div>
+                                      <button type="submit" className="btn btn-sm btn-danger w-100 py-2 fw-semibold">
+                                        Reject Application
+                                      </button>
+                                    </form>
+                                  </div>
                                 </div>
                               </div>
                             </div>
                           )}
 
-                           {/* Reject (Force Reject) Section */}
-                          {subStatus !== "matched" && (
-                            <div className="accordion-item border-0 mb-2">
-                              <h2 className="accordion-header" id="headingReject">
-                                <button
-                                  className="accordion-button collapsed btn btn-soft-danger w-100 text-start py-2 px-3 fw-bold rounded"
-                                  type="button"
-                                  data-bs-toggle="collapse"
-                                  data-bs-target="#collapseReject"
-                                  aria-expanded="false"
-                                  aria-controls="collapseReject"
-                                >
-                                  <i className="fas fa-times me-2 text-danger"></i> Force Reject Application
-                                </button>
-                              </h2>
-                              <div
-                                id="collapseReject"
-                                className="accordion-collapse collapse"
-                                aria-labelledby="headingReject"
-                                data-bs-parent="#adminActionsAccordion"
-                              >
-                                <div className="accordion-body bg-white border rounded p-3 mt-1">
-                                  <form onSubmit={handleReject}>
-                                    <div className="mb-3">
-                                      <label className="form-label small fw-bold">Rejection Reason</label>
-                                      <textarea
-                                        className="form-control"
-                                        rows="2"
-                                        placeholder="e.g. Account not registered under wayoftrading partner tag..."
-                                        value={rejectReason}
-                                        onChange={(e) => setRejectReason(e.target.value)}
-                                        required
-                                      />
-                                    </div>
-                                    <button type="submit" className="btn btn-danger w-100">
-                                      Reject Application
-                                    </button>
-                                  </form>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Extend Access Section */}
+                          {/* Extend & Revoke Columns Side-by-Side */}
                           {subStatus === "matched" && (
-                            <div className="accordion-item border-0 mb-2">
-                              <h2 className="accordion-header" id="headingExtend">
-                                <button
-                                  className="accordion-button collapsed btn btn-soft-primary w-100 text-start py-2 px-3 fw-bold rounded"
-                                  type="button"
-                                  data-bs-toggle="collapse"
-                                  data-bs-target="#collapseExtend"
-                                  aria-expanded="false"
-                                  aria-controls="collapseExtend"
-                                >
-                                  <i className="fas fa-calendar-plus me-2 text-purple"></i> Extend Premium Expiry
-                                </button>
-                              </h2>
-                              <div
-                                id="collapseExtend"
-                                className="accordion-collapse collapse"
-                                aria-labelledby="headingExtend"
-                                data-bs-parent="#adminActionsAccordion"
-                              >
-                                <div className="accordion-body bg-white border rounded p-3 mt-1">
-                                  <form onSubmit={handleExtend}>
-                                    <div className="row g-2 mb-3">
-                                      <div className="col-sm-4">
-                                        <label className="form-label small fw-bold">Extension Period</label>
+                            <div className="row g-3">
+                              {/* Extend Expiry Form Column */}
+                              <div className="col-md-6">
+                                <div className="p-3 bg-light border rounded-3 h-100 d-flex flex-column justify-content-between">
+                                  <div>
+                                    <h6 className="fw-bold text-primary mb-3">
+                                      <i className="fas fa-calendar-plus me-2 text-purple"></i>Extend Premium Expiry
+                                    </h6>
+                                    <form onSubmit={handleExtend}>
+                                      <div className="mb-3">
+                                        <label className="form-label small fw-semibold text-secondary">Extension Period</label>
                                         <select
-                                          className="form-select"
+                                          className="form-select form-select-sm mb-2"
                                           value={extendDays}
                                           onChange={(e) => setExtendDays(Number(e.target.value))}
                                         >
@@ -608,70 +565,53 @@ export default function BrokerSubscriptionDetailModal({
                                           <option value={90}>90 Days</option>
                                         </select>
                                       </div>
-                                      <div className="col-sm-8">
-                                        <label className="form-label small fw-bold">Extension Reason / Ticket Code</label>
+                                      <div className="mb-3">
+                                        <label className="form-label small fw-semibold text-secondary">Extension Justification Reason</label>
                                         <input
                                           type="text"
-                                          className="form-control"
+                                          className="form-control form-control-sm"
                                           placeholder="e.g. Loyalty program bonus..."
                                           value={extendReason}
                                           onChange={(e) => setExtendReason(e.target.value)}
                                           required
                                         />
                                       </div>
-                                    </div>
-                                    <button type="submit" className="btn btn-primary w-100">
-                                      Extend Expiry
-                                    </button>
-                                  </form>
+                                      <button type="submit" className="btn btn-sm btn-primary w-100 py-2 fw-semibold">
+                                        Extend Expiry
+                                      </button>
+                                    </form>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          )}
 
-                          {/* Revoke Access Section */}
-                          {subStatus === "matched" && (
-                            <div className="accordion-item border-0 mb-2">
-                              <h2 className="accordion-header" id="headingRevoke">
-                                <button
-                                  className="accordion-button collapsed btn btn-soft-danger w-100 text-start py-2 px-3 fw-bold rounded"
-                                  type="button"
-                                  data-bs-toggle="collapse"
-                                  data-bs-target="#collapseRevoke"
-                                  aria-expanded="false"
-                                  aria-controls="collapseRevoke"
-                                >
-                                  <i className="fas fa-exclamation-triangle me-2 text-warning"></i> Revoke Premium Access
-                                </button>
-                              </h2>
-                              <div
-                                id="collapseRevoke"
-                                className="accordion-collapse collapse"
-                                aria-labelledby="headingRevoke"
-                                data-bs-parent="#adminActionsAccordion"
-                              >
-                                <div className="accordion-body bg-white border rounded p-3 mt-1">
-                                  <form onSubmit={handleRevoke}>
-                                    <div className="mb-3">
-                                      <label className="form-label small fw-bold">Revocation Justification / Audit Reason</label>
-                                      <textarea
-                                        className="form-control"
-                                        rows="2"
-                                        placeholder="e.g. Chargeback detected or user disconnected from partner tag..."
-                                        value={revokeReason}
-                                        onChange={(e) => setRevokeReason(e.target.value)}
-                                        required
-                                      />
-                                    </div>
-                                    <button type="submit" className="btn btn-danger w-100">
-                                      Revoke Access Immediately
-                                    </button>
-                                  </form>
+                              {/* Revoke Premium Access Column */}
+                              <div className="col-md-6">
+                                <div className="p-3 bg-light border rounded-3 h-100 d-flex flex-column justify-content-between">
+                                  <div>
+                                    <h6 className="fw-bold text-danger mb-3">
+                                      <i className="fas fa-exclamation-triangle me-2 text-warning"></i>Revoke Premium Access
+                                    </h6>
+                                    <form onSubmit={handleRevoke}>
+                                      <div className="mb-3">
+                                        <label className="form-label small fw-semibold text-secondary">Revocation Justification Reason</label>
+                                        <textarea
+                                          className="form-control form-control-sm"
+                                          rows="3"
+                                          placeholder="e.g. Chargeback detected or tagged out..."
+                                          value={revokeReason}
+                                          onChange={(e) => setRevokeReason(e.target.value)}
+                                          required
+                                        />
+                                      </div>
+                                      <button type="submit" className="btn btn-sm btn-danger w-100 py-2 fw-semibold">
+                                        Revoke Access Immediately
+                                      </button>
+                                    </form>
+                                  </div>
                                 </div>
                               </div>
                             </div>
                           )}
-                          
                         </div>
                       )}
                     </div>
