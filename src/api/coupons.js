@@ -96,6 +96,9 @@ export const getAllCouponCategories = async (token) => {
 
 export const createCouponCategory = async (token, categoryName) => {
   try {
+    // categoryName is expected to be an object like {"en": "Travel", "es": "Viajes", "fr": "Voyage"}
+    const nameValue = typeof categoryName === 'string' ? categoryName : JSON.stringify(categoryName);
+
     const response = await fetch('https://api.wayoftrading.com/aitredding/coupon/admin/category/create', {
       method: 'POST',
       headers: {
@@ -104,7 +107,7 @@ export const createCouponCategory = async (token, categoryName) => {
         'Authorization': `Bearer ${token}`,
       },
       body: new URLSearchParams({
-        name: categoryName,
+        name: nameValue,
       }),
     });
 
@@ -152,6 +155,9 @@ export const deleteCouponCategory = async (token, categoryId) => {
 
 export const updateCouponCategory = async (token, categoryId, categoryName) => {
   try {
+    // categoryName is expected to be an object like {"en": "Travel", "es": "Viajes", "fr": "Voyage"}
+    const nameValue = typeof categoryName === 'string' ? categoryName : JSON.stringify(categoryName);
+
     const response = await fetch(`https://api.wayoftrading.com/aitredding/coupon/admin/category/edit/${categoryId}`, {
       method: 'PATCH',
       headers: {
@@ -160,7 +166,7 @@ export const updateCouponCategory = async (token, categoryId, categoryName) => {
         'Authorization': `Bearer ${token}`,
       },
       body: new URLSearchParams({
-        name: categoryName,
+        name: nameValue,
       }),
     });
 

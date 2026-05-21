@@ -6,13 +6,57 @@ import Swal from 'sweetalert2';
 import { useAuth } from '../context/AuthContext';
 import GlobalLoader from '../components/GlobalLoader';
 
+// Helper to extract text from multilingual object or plain string
+const getLocalizedText = (field) => {
+  if (!field) return '';
+  if (typeof field === 'string') {
+    try {
+      const parsed = JSON.parse(field);
+      if (parsed && typeof parsed === 'object') {
+        return parsed.en || parsed.es || parsed.fr || Object.values(parsed)[0] || '';
+      }
+    } catch (e) {
+      // Not a JSON string, fallback
+    }
+    return field;
+  }
+  return field.en || field.es || field.fr || Object.values(field)[0] || '';
+};
+
+// Helper to parse translations safely
+const getTranslations = (field) => {
+  if (!field) return { en: '', es: '', fr: '' };
+  if (typeof field === 'string') {
+    try {
+      const parsed = JSON.parse(field);
+      if (parsed && typeof parsed === 'object') {
+        return {
+          en: parsed.en || '',
+          es: parsed.es || '',
+          fr: parsed.fr || ''
+        };
+      }
+    } catch (e) {}
+    return { en: field, es: '', fr: '' };
+  }
+  return {
+    en: field.en || '',
+    es: field.es || '',
+    fr: field.fr || ''
+  };
+};
+
 export default function FAQ() {
   const { token } = useAuth();
   const [faqs, setFaqs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [formData, setFormData] = useState({ question: '', answer: '' });
+  const [activeLang, setActiveLang] = useState('en');
+  const [formData, setFormData] = useState({
+    question: { en: '', es: '', fr: '' },
+    answer: { en: '', es: '', fr: '' }
+  });
 
   const fetchFAQs = async () => {
     setLoading(true);
@@ -37,12 +81,19 @@ export default function FAQ() {
   }, [token]);
 
   const handleOpenModal = (faq = null) => {
+    setActiveLang('en'); // Reset to English tab on open
     if (faq) {
       setEditingId(faq.id);
-      setFormData({ question: faq.question, answer: faq.answer });
+      setFormData({
+        question: getTranslations(faq.question),
+        answer: getTranslations(faq.answer)
+      });
     } else {
       setEditingId(null);
-      setFormData({ question: '', answer: '' });
+      setFormData({
+        question: { en: '', es: '', fr: '' },
+        answer: { en: '', es: '', fr: '' }
+      });
     }
     setShowModal(true);
   };
@@ -50,11 +101,25 @@ export default function FAQ() {
   const handleCloseModal = () => {
     setShowModal(false);
     setEditingId(null);
-    setFormData({ question: '', answer: '' });
+    setFormData({
+      question: { en: '', es: '', fr: '' },
+      answer: { en: '', es: '', fr: '' }
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // English validation is required as the primary baseline language
+    if (!formData.question.en.trim()) {
+      Swal.fire('Warning', 'Please enter the question in English', 'warning');
+      return;
+    }
+    if (!formData.answer.en.trim()) {
+      Swal.fire('Warning', 'Please enter the answer in English', 'warning');
+      return;
+    }
+
     try {
       if (editingId) {
         const response = await updateFAQ(editingId, formData, token);
@@ -154,8 +219,8 @@ export default function FAQ() {
                       faqs.map((faq, index) => (
                         <tr key={faq.id}>
                           <td>{index + 1}</td>
-                          <td>{faq.question}</td>
-                          <td>{faq.answer}</td>
+                          <td style={{ whiteSpace: 'pre-line' }}>{getLocalizedText(faq.question)}</td>
+                          <td style={{ whiteSpace: 'pre-line' }}>{getLocalizedText(faq.answer)}</td>
                           <td className="text-end">
                             <button
                               className="btn btn-sm btn-info me-2"
@@ -187,26 +252,78 @@ export default function FAQ() {
                     <h5 className="modal-title">{editingId ? 'Edit FAQ' : 'Add FAQ'}</h5>
                     <button type="button" className="btn-close" onClick={handleCloseModal}></button>
                   </div>
+                  
+                  {/* Solid Multilingual Tabs */}
+                  <ul className="nav nav-tabs nav-tabs-solid nav-justified mb-0">
+                    <li className="nav-item">
+                      <button 
+                        type="button"
+                        className={`nav-link ${activeLang === 'en' ? 'active' : ''}`} 
+                        onClick={() => setActiveLang('en')}
+                      >
+                        English
+                      </button>
+                    </li>
+                    <li className="nav-item">
+                      <button 
+                        type="button"
+                        className={`nav-link ${activeLang === 'es' ? 'active' : ''}`} 
+                        onClick={() => setActiveLang('es')}
+                      >
+                        Spanish
+                      </button>
+                    </li>
+                    <li className="nav-item">
+                      <button 
+                        type="button"
+                        className={`nav-link ${activeLang === 'fr' ? 'active' : ''}`} 
+                        onClick={() => setActiveLang('fr')}
+                      >
+                        French
+                      </button>
+                    </li>
+                  </ul>
+
                   <form onSubmit={handleSubmit}>
                     <div className="modal-body">
                       <div className="mb-3">
-                        <label className="form-label">Question</label>
+                        <label className="form-label fw-bold">
+                          Question ({activeLang.toUpperCase()}){' '}
+                          {activeLang === 'en' && <span className="text-danger">*</span>}
+                        </label>
                         <input
                           type="text"
                           className="form-control"
-                          value={formData.question}
-                          onChange={(e) => setFormData({ ...formData, question: e.target.value })}
-                          required
+                          value={formData.question[activeLang] || ''}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            question: {
+                              ...formData.question,
+                              [activeLang]: e.target.value
+                            }
+                          })}
+                          required={activeLang === 'en'}
+                          placeholder={`Enter question in ${activeLang === 'en' ? 'English' : activeLang === 'es' ? 'Spanish' : 'French'}`}
                         />
                       </div>
                       <div className="mb-3">
-                        <label className="form-label">Answer</label>
+                        <label className="form-label fw-bold">
+                          Answer ({activeLang.toUpperCase()}){' '}
+                          {activeLang === 'en' && <span className="text-danger">*</span>}
+                        </label>
                         <textarea
                           className="form-control"
-                          rows="4"
-                          value={formData.answer}
-                          onChange={(e) => setFormData({ ...formData, answer: e.target.value })}
-                          required
+                          rows="6"
+                          value={formData.answer[activeLang] || ''}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            answer: {
+                              ...formData.answer,
+                              [activeLang]: e.target.value
+                            }
+                          })}
+                          required={activeLang === 'en'}
+                          placeholder={`Enter answer in ${activeLang === 'en' ? 'English' : activeLang === 'es' ? 'Spanish' : 'French'}`}
                         />
                       </div>
                     </div>
@@ -225,6 +342,12 @@ export default function FAQ() {
           )}
         </div>
       </div>
+      <style>{`
+        .bg-soft-info { background-color: rgba(13, 202, 240, 0.1); }
+        .nav-tabs-solid .nav-link.active { background-color: #0d6efd; color: white; border-color: #0d6efd; }
+        .nav-tabs-solid .nav-link { border-radius: 0; color: #4b5563; }
+        .form-label { font-size: 0.875rem; color: #4b5563; }
+      `}</style>
     </div>
   );
 }

@@ -74,7 +74,7 @@ export default function BrokerSubscriptions() {
   const handleActionSuccess = (updatedSub) => {
     // 1. Instantly update the details inside the modal
     setSelectedSubscription(updatedSub);
-    
+
     // 2. Instantly update the item inside the parent table list
     setSubscriptions((prevSubs) =>
       prevSubs.map((sub) => (sub.id === updatedSub.id ? updatedSub : sub))
@@ -231,7 +231,7 @@ export default function BrokerSubscriptions() {
 
               <div className="table-responsive rounded-3 border">
                 <table className="table table-hover align-middle mb-0">
-                   <thead className="table-light">
+                  <thead className="table-light">
                     <tr>
                       <th className="fw-semibold">#</th>
                       <th className="fw-semibold">User Name</th>
@@ -291,23 +291,21 @@ export default function BrokerSubscriptions() {
                               </span>
                               <div className="progress" style={{ width: "40px", height: "6px" }}>
                                 <div
-                                  className={`progress-bar ${
-                                    (sub.match_confidence !== null && sub.match_confidence !== undefined
+                                  className={`progress-bar ${(sub.match_confidence !== null && sub.match_confidence !== undefined
                                       ? (sub.match_confidence <= 1 ? sub.match_confidence * 100 : sub.match_confidence)
                                       : 0) > 80
                                       ? "bg-success"
                                       : (sub.match_confidence !== null && sub.match_confidence !== undefined
-                                          ? (sub.match_confidence <= 1 ? sub.match_confidence * 100 : sub.match_confidence)
-                                          : 0) > 50
-                                      ? "bg-warning"
-                                      : "bg-danger"
-                                  }`}
+                                        ? (sub.match_confidence <= 1 ? sub.match_confidence * 100 : sub.match_confidence)
+                                        : 0) > 50
+                                        ? "bg-warning"
+                                        : "bg-danger"
+                                    }`}
                                   style={{
-                                    width: `${
-                                      sub.match_confidence !== null && sub.match_confidence !== undefined
+                                    width: `${sub.match_confidence !== null && sub.match_confidence !== undefined
                                         ? (sub.match_confidence <= 1 ? sub.match_confidence * 100 : sub.match_confidence)
                                         : 0
-                                    }%`,
+                                      }%`,
                                   }}
                                 ></div>
                               </div>

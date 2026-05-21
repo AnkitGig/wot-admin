@@ -20,6 +20,23 @@ export default function AddQuiz() {
   const [imagePreview, setImagePreview] = useState(null);
   const [coupons, setCoupons] = useState([]);
 
+  // Helper to extract text from multilingual object or plain string
+  const getLocalizedText = (field) => {
+    if (!field) return '';
+    if (typeof field === 'string') {
+      try {
+        const parsed = JSON.parse(field);
+        if (parsed && typeof parsed === 'object') {
+          return parsed.en || parsed.es || parsed.fr || Object.values(parsed)[0] || '';
+        }
+      } catch (e) {
+        // Not a JSON string, fallback
+      }
+      return field;
+    }
+    return field.en || field.es || field.fr || Object.values(field)[0] || '';
+  };
+
   // Step 1: PDF Upload
   const [pdfFile, setPdfFile] = useState(null);
 
@@ -144,7 +161,7 @@ export default function AddQuiz() {
   const handleCreateQuiz = async (e) => {
     e.preventDefault();
 
-    // Validation
+    // Validation — English title is required
     if (!formData.title.trim()) {
       Swal.fire({
         icon: 'warning',
@@ -162,17 +179,6 @@ export default function AddQuiz() {
       });
       return;
     }
-
-    // if (formData.entry_type === 'PAID' && formData.entry_fee > 250) {
-    //   Swal.fire({
-    //     icon: 'warning',
-    //     title: 'Validation Error',
-    //     text: 'Maximum entry fee is 250 coins',
-    //   });
-    //   return;
-    // }
-
- 
 
     setIsLoading(true);
 
@@ -233,6 +239,7 @@ export default function AddQuiz() {
       max_attempts: 2,
       is_featured: false,
       is_sponsored: false,
+      top10_coupon_id: '',
       image: null,
     });
     setImagePreview(null);
@@ -496,7 +503,7 @@ export default function AddQuiz() {
                           <option value="">Select a coupon (optional)</option>
                           {coupons.map((coupon) => (
                             <option key={coupon.coupon_id} value={coupon.coupon_id}>
-                              {coupon.title} - {coupon.code}
+                              {getLocalizedText(coupon.title)} - {coupon.code}
                             </option>
                           ))}
                         </select>
@@ -655,6 +662,11 @@ export default function AddQuiz() {
           </div>
         </div>
       </div>
+      <style>{`
+        .bg-soft-info { background-color: rgba(13, 202, 240, 0.1); }
+        .nav-tabs-solid .nav-link.active { background-color: #0d6efd; color: white; border-color: #0d6efd; }
+        .form-label { font-size: 0.875rem; color: #4b5563; }
+      `}</style>
       <Footer />
     </div>
   );

@@ -8,6 +8,23 @@ import QuestionsModal from '../components/QuestionsModal';
 import { getQuizById, updateQuiz } from '../api/quizzes';
 import { getAllCoupons } from '../api/coupons';
 
+// Helper to extract text from multilingual object or plain string
+const getLocalizedText = (field) => {
+  if (!field) return '';
+  if (typeof field === 'string') {
+    try {
+      const parsed = JSON.parse(field);
+      if (parsed && typeof parsed === 'object') {
+        return parsed.en || parsed.es || parsed.fr || Object.values(parsed)[0] || '';
+      }
+    } catch (e) {
+      // Not a JSON string, fallback
+    }
+    return field;
+  }
+  return field.en || field.es || field.fr || Object.values(field)[0] || '';
+};
+
 export default function EditQuiz() {
   const navigate = useNavigate();
   const { quizId } = useParams();
@@ -384,7 +401,7 @@ export default function EditQuiz() {
                       <label className="form-label fw-bold">Coupon Reward</label>
                       <select className="form-select" name="top10_coupon_id" value={formData.top10_coupon_id} onChange={handleFormChange}>
                         <option value="">No Coupon</option>
-                        {coupons.map(c => (<option key={c.coupon_id} value={c.coupon_id}>{c.title}</option>))}
+                        {coupons.map(c => (<option key={c.coupon_id} value={c.coupon_id}>{getLocalizedText(c.title)}</option>))}
                       </select>
                     </div>
                     <div className="col-md-12">

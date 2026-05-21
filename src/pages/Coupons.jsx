@@ -45,8 +45,18 @@ export default function Coupons() {
     })
   }
 
-  const getStatusBadge = (isActive) => {
-    return isActive
+  // Helper to extract English text from multilingual object or plain string
+  const getLocalizedText = (field) => {
+    if (!field) return '—'
+    if (typeof field === 'string') return field
+    return field.en || field.es || field.fr || Object.values(field)[0] || '—'
+  }
+
+  const getStatusBadge = (coupon) => {
+    if (coupon.status === 'expired') {
+      return <span className="badge bg-warning text-dark">Expired</span>
+    }
+    return coupon.is_active
       ? <span className="badge bg-success">Active</span>
       : <span className="badge bg-danger">Inactive</span>
   }
@@ -112,25 +122,27 @@ export default function Coupons() {
                 <table className="table table-hover">
                   <thead>
                     <tr>
+                      <th>Image</th>
                       <th>Code</th>
                       <th>Title</th>
                       <th>Description</th>
                       <th>Category</th>
                       <th>Expires At</th>
                       <th>Status</th>
+                      <th>Assigned / Used</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {loading ? (
                       <tr>
-                        <td colSpan="7" className="text-center py-4">
+                        <td colSpan="9" className="text-center py-4">
                           <GlobalLoader visible={loading} size="medium" />
                         </td>
                       </tr>
                     ) : coupons.length === 0 ? (
                       <tr>
-                        <td colSpan="7" className="text-center py-4">
+                        <td colSpan="9" className="text-center py-4">
                           No coupons found
                         </td>
                       </tr>
@@ -138,19 +150,35 @@ export default function Coupons() {
                       coupons.map((coupon) => (
                         <tr key={coupon.coupon_id}>
                           <td>
+                            {coupon.image_url ? (
+                              <img
+                                src={coupon.image_url}
+                                alt={getLocalizedText(coupon.title)}
+                                style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '8px' }}
+                              />
+                            ) : (
+                              <div style={{ width: '50px', height: '50px', borderRadius: '8px', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <i className="fas fa-image text-muted"></i>
+                              </div>
+                            )}
+                          </td>
+                          <td>
                             <strong>{coupon.code}</strong>
                           </td>
-                          <td>{coupon.title}</td>
+                          <td>{getLocalizedText(coupon.title)}</td>
                           <td>
                             <span className="text-truncate d-block" style={{ maxWidth: '200px' }}>
-                              {coupon.description}
+                              {getLocalizedText(coupon.description)}
                             </span>
                           </td>
                           <td>
-                            <span className="badge bg-info">{coupon.category}</span>
+                            <span className="badge bg-info">{getLocalizedText(coupon.category)}</span>
                           </td>
                           <td>{formatDate(coupon.expires_at)}</td>
-                          <td>{getStatusBadge(coupon.is_active)}</td>
+                          <td>{getStatusBadge(coupon)}</td>
+                          <td>
+                            <span>{coupon.total_assigned || 0} / {coupon.total_used || 0}</span>
+                          </td>
                           <td>
                             <div className="d-flex gap-2">
                               <button
