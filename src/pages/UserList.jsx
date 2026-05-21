@@ -209,6 +209,180 @@ export default function UserList() {
     );
   };
 
+  const getSubscriptionBadge = (subscription) => {
+    if (!subscription) return <span className="badge bg-secondary">None</span>;
+    
+    const { status, plan_type } = subscription;
+    let badgeClass = "bg-secondary";
+    if (status === "active") badgeClass = "bg-success";
+    else if (status === "expired") badgeClass = "bg-warning text-dark";
+    else if (status === "pending") badgeClass = "bg-info";
+
+    return (
+      <div className="d-flex flex-column align-items-start gap-1">
+        <span className={`badge ${badgeClass}`}>
+          {status.charAt(0).toUpperCase() + status.slice(1)}
+        </span>
+        {plan_type && (
+          <span className="small text-muted font-monospace" style={{ fontSize: "11px" }}>
+            {plan_type.toUpperCase()}
+          </span>
+        )}
+      </div>
+    );
+  };
+
+  const getBrokerSubscriptionBadge = (brokerSub) => {
+    if (!brokerSub) return <span className="badge bg-secondary">None</span>;
+    
+    const { status, broker_name, account_number } = brokerSub;
+    let badgeClass = "bg-secondary";
+    
+    switch (status) {
+      case "matched":
+      case "active":
+        badgeClass = "bg-success";
+        break;
+      case "pending":
+        badgeClass = "bg-warning text-dark";
+        break;
+      case "suspicious":
+        badgeClass = "bg-danger";
+        break;
+      case "rejected":
+        badgeClass = "bg-secondary";
+        break;
+      case "revoked":
+        badgeClass = "bg-dark";
+        break;
+      default:
+        badgeClass = "bg-light text-dark border";
+    }
+
+    return (
+      <div className="d-flex flex-column align-items-start gap-1">
+        <span className={`badge ${badgeClass}`}>
+          {status.charAt(0).toUpperCase() + status.slice(1)}
+        </span>
+        {(broker_name || account_number) && (
+          <span className="small text-muted" style={{ fontSize: "11px" }}>
+            {broker_name || "Account"}: {account_number || "N/A"}
+          </span>
+        )}
+      </div>
+    );
+  };
+
+  const formatDateTime = (dateString) => {
+    if (!dateString) return "N/A";
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return "N/A";
+      return `${date.toLocaleDateString("en-US", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      })} ${date.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })}`;
+    } catch {
+      return "N/A";
+    }
+  };
+
+  const handleViewSubscription = (subscription) => {
+    if (!subscription) return;
+    
+    const { status, plan_type, start_at, end_at } = subscription;
+    
+    Swal.fire({
+      title: '<h4 class="fw-bold text-primary mb-0"><i class="fas fa-gem me-2"></i>Subscription Details</h4>',
+      html: `
+        <div class="text-start mt-3">
+          <table class="table table-bordered table-striped small">
+            <tbody>
+              <tr>
+                <th class="w-40 py-2">Status</th>
+                <td class="py-2"><span class="badge bg-${status === 'active' ? 'success' : 'secondary'}">${status.toUpperCase()}</span></td>
+              </tr>
+              <tr>
+                <th class="py-2">Plan Type</th>
+                <td class="py-2"><span class="fw-semibold text-dark">${plan_type ? plan_type.toUpperCase() : 'N/A'}</span></td>
+              </tr>
+              <tr>
+                <th class="py-2">Start Date</th>
+                <td class="py-2 text-muted">${formatDateTime(start_at)}</td>
+              </tr>
+              <tr>
+                <th class="py-2">End Date</th>
+                <td class="py-2 text-muted">${formatDateTime(end_at)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      `,
+      confirmButtonText: "Close",
+      confirmButtonColor: "#3085d6",
+      customClass: {
+        popup: 'rounded-3 shadow'
+      }
+    });
+  };
+
+  const handleViewBrokerSubscription = (brokerSub) => {
+    if (!brokerSub) return;
+    
+    const { status, broker_id, broker_name, account_number, submitted_at, end_at } = brokerSub;
+    
+    Swal.fire({
+      title: '<h4 class="fw-bold text-primary mb-0"><i class="fas fa-handshake me-2"></i>Broker Subscription Details</h4>',
+      html: `
+        <div class="text-start mt-3">
+          <table class="table table-bordered table-striped small">
+            <tbody>
+              <tr>
+                <th class="w-40 py-2">Status</th>
+                <td class="py-2">
+                  <span class="badge bg-${
+                    status === 'matched' || status === 'active' ? 'success' : 
+                    status === 'pending' ? 'warning text-dark' : 
+                    status === 'suspicious' ? 'danger' : 'secondary'
+                  }">${status.toUpperCase()}</span>
+                </td>
+              </tr>
+              <tr>
+                <th class="py-2">Broker Name</th>
+                <td class="py-2"><span class="fw-semibold text-dark">${broker_name || 'N/A'}</span></td>
+              </tr>
+              <tr>
+                <th class="py-2">Account Number</th>
+                <td class="py-2"><span class="font-monospace text-dark">${account_number || 'N/A'}</span></td>
+              </tr>
+              <tr>
+                <th class="py-2">Broker ID</th>
+                <td class="py-2 text-muted text-break small">${broker_id || 'N/A'}</td>
+              </tr>
+              <tr>
+                <th class="py-2">Submitted At</th>
+                <td class="py-2 text-muted">${formatDateTime(submitted_at)}</td>
+              </tr>
+              <tr>
+                <th class="py-2">End At</th>
+                <td class="py-2 text-muted">${end_at ? formatDateTime(end_at) : 'N/A'}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      `,
+      confirmButtonText: "Close",
+      confirmButtonColor: "#3085d6",
+      customClass: {
+        popup: 'rounded-3 shadow'
+      }
+    });
+  };
+
   return (
     <div className="main-wrapper">
       <Header />
@@ -276,13 +450,16 @@ export default function UserList() {
                           <th>Coins</th>
                           <th>Status</th>
                           <th>Last Login Reward</th>
+                          <th>Date of Joining</th>
+                          <th>Subscription</th>
+                          <th>Broker Subscription</th>
                           {/* <th>Action</th> */}
                         </tr>
                       </thead>
                       <tbody>
                         {loading ? (
                           <tr>
-                            <td colSpan="7" className="text-center py-4">
+                            <td colSpan="9" className="text-center py-4">
                               <div className="d-flex justify-content-center align-items-center flex-column">
                                 <GlobalLoader visible={true} size="medium" />
                                 <p className="mt-2 text-muted">
@@ -293,13 +470,13 @@ export default function UserList() {
                           </tr>
                         ) : error ? (
                           <tr>
-                            <td colSpan="7" className="text-center text-danger">
+                            <td colSpan="9" className="text-center text-danger">
                               {error}
                             </td>
                           </tr>
                         ) : users.length === 0 ? (
                           <tr>
-                            <td colSpan="7" className="text-center">
+                            <td colSpan="9" className="text-center">
                               No users found
                             </td>
                           </tr>
@@ -362,6 +539,47 @@ export default function UserList() {
                                 {getStatusBadge(user.is_active, user.user_id)}
                               </td>
                               <td>{formatDate(user.last_login_reward)}</td>
+                              <td>{formatDate(user.created_at)}</td>
+                              <td>
+                                {!user.subscription ? (
+                                  <span className="text-muted small">None</span>
+                                ) : (
+                                  <div className="d-flex flex-column align-items-start gap-1">
+                                    {getSubscriptionBadge(user.subscription)}
+                                    <button
+                                      className="btn btn-sm btn-outline-primary mt-1"
+                                      onClick={() => handleViewSubscription(user.subscription)}
+                                      title="View Details"
+                                      style={{
+                                        padding: "2px 6px",
+                                        fontSize: "11px",
+                                      }}
+                                    >
+                                      <i className="fas fa-eye me-1"></i> View
+                                    </button>
+                                  </div>
+                                )}
+                              </td>
+                              <td>
+                                {!user.broker_subscription ? (
+                                  <span className="text-muted small">None</span>
+                                ) : (
+                                  <div className="d-flex flex-column align-items-start gap-1">
+                                    {getBrokerSubscriptionBadge(user.broker_subscription)}
+                                    <button
+                                      className="btn btn-sm btn-outline-primary mt-1"
+                                      onClick={() => handleViewBrokerSubscription(user.broker_subscription)}
+                                      title="View Details"
+                                      style={{
+                                        padding: "2px 6px",
+                                        fontSize: "11px",
+                                      }}
+                                    >
+                                      <i className="fas fa-eye me-1"></i> View
+                                    </button>
+                                  </div>
+                                )}
+                              </td>
                               {/* <td>
                                 <button className="btn btn-sm btn-outline-primary me-1" title="Edit">
                                   <i className="bi bi-pencil"></i>
