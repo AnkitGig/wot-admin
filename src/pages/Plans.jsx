@@ -69,12 +69,20 @@ export default function Plans() {
   }
 
   const getPlanTypeBadge = (planType) => {
+    const planTypeText = getTranslatedText(planType)
     const badges = {
+      'monthly': <span className="badge bg-success">Monthly</span>,
       'quarterly': <span className="badge bg-info">Quarterly</span>,
       'half_yearly': <span className="badge bg-primary">6 Months</span>,
       'annual': <span className="badge bg-warning">Annual</span>,
     }
-    return badges[planType] || <span className="badge bg-secondary">{planType}</span>
+    return badges[planTypeText] || <span className="badge bg-secondary">{planTypeText}</span>
+  }
+
+  const getTranslatedText = (value) => {
+    if (!value) return 'N/A'
+    if (typeof value === 'string') return value
+    return value.en || value.es || value.fr || Object.values(value).find(Boolean) || 'N/A'
   }
 
   return (
@@ -134,12 +142,12 @@ export default function Plans() {
                         ) : (
                           plans.map((plan) => (
                             <tr key={plan.id}>
-                              <td>{plan.name}</td>
+                              <td>{getTranslatedText(plan.name)}</td>
                               <td>{getPlanTypeBadge(plan.plan_type)}</td>
                               <td>${plan.price}</td>
-                              <td>{plan.quotas.coach_ai}</td>
-                              <td>{plan.quotas.chart_analyzer}</td>
-                              <td>{plan.quotas.trade_analyzer}</td>
+                              <td>{plan.quotas?.coach_ai ?? 0}</td>
+                              <td>{plan.quotas?.chart_analyzer ?? 0}</td>
+                              <td>{plan.quotas?.trade_analyzer ?? 0}</td>
                               <td>{getStatusBadge(plan.is_active)}</td>
                               <td>
                                 <button
@@ -150,7 +158,7 @@ export default function Plans() {
                                 </button>
                                 <button
                                   className="btn btn-sm btn-danger"
-                                  onClick={() => handleDelete(plan.id, plan.name)}
+                                  onClick={() => handleDelete(plan.id, getTranslatedText(plan.name))}
                                 >
                                   <i className="fas fa-trash"></i>
                                 </button>

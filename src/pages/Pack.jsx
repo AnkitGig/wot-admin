@@ -14,7 +14,11 @@ export default function Pack() {
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
-    label: '',
+    label: {
+      en: '',
+      es: '',
+      fr: ''
+    },
     coin_price: 0,
     paid_price: 0,
     currency: 'USD',
@@ -46,12 +50,38 @@ export default function Pack() {
     }
   }, [token]);
 
+  const getTranslatedText = (value) => {
+    if (!value) return 'N/A';
+    if (typeof value === 'string') return value;
+    return value.en || value.es || value.fr || Object.values(value).find(Boolean) || 'N/A';
+  };
+
+  const getTranslationObject = (value) => {
+    if (value && typeof value === 'object') {
+      return {
+        en: value.en || '',
+        es: value.es || '',
+        fr: value.fr || ''
+      };
+    }
+
+    return {
+      en: value || '',
+      es: '',
+      fr: ''
+    };
+  };
+
+  const getPackLabel = (pack) => {
+    return pack.label_translations || pack.label || pack.translations?.label;
+  };
+
   const handleOpenModal = (pack = null) => {
     if (pack) {
       setEditingId(pack.id);
       setFormData({
         name: pack.name || '',
-        label: pack.label || '',
+        label: getTranslationObject(getPackLabel(pack)),
         coin_price: pack.coin_price || 0,
         paid_price: pack.paid_price || 0,
         currency: pack.currency || 'USD',
@@ -64,7 +94,11 @@ export default function Pack() {
       setEditingId(null);
       setFormData({
         name: '',
-        label: '',
+        label: {
+          en: '',
+          es: '',
+          fr: ''
+        },
         coin_price: 0,
         paid_price: 0,
         currency: 'USD',
@@ -82,7 +116,11 @@ export default function Pack() {
     setEditingId(null);
     setFormData({
       name: '',
-      label: '',
+      label: {
+        en: '',
+        es: '',
+        fr: ''
+      },
       coin_price: 0,
       paid_price: 0,
       currency: 'USD',
@@ -95,6 +133,13 @@ export default function Pack() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const hasAllLabels = Object.values(formData.label).every(value => value.trim());
+    if (!hasAllLabels) {
+      Swal.fire('Error', 'Please fill in all label translations', 'error');
+      return;
+    }
+
     try {
       if (editingId) {
         const response = await updatePack(editingId, formData, token);
@@ -154,6 +199,16 @@ export default function Pack() {
     }));
   };
 
+  const handleTranslationChange = (field, lang, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: {
+        ...prev[field],
+        [lang]: value
+      }
+    }));
+  };
+
   return (
     <div className="main-wrapper">
       <Header />
@@ -207,7 +262,7 @@ export default function Pack() {
                         <tr key={pack.id}>
                           <td>{index + 1}</td>
                           <td>{pack.name}</td>
-                          <td>{pack.label}</td>
+                          <td>{getTranslatedText(getPackLabel(pack))}</td>
                           <td>{pack.coin_price}</td>
                           <td>${pack.paid_price}</td>
                           <td>
@@ -256,7 +311,7 @@ export default function Pack() {
                   <form onSubmit={handleSubmit}>
                     <div className="modal-body">
                       <div className="row">
-                        <div className="col-md-6 mb-3">
+                        <div className="col-md-12 mb-3">
                           <label className="form-label">Name</label>
                           <input
                             type="text"
@@ -267,14 +322,35 @@ export default function Pack() {
                             required
                           />
                         </div>
-                        <div className="col-md-6 mb-3">
-                          <label className="form-label">Label</label>
+                      </div>
+                      <div className="row">
+                        <div className="col-md-4 mb-3">
+                          <label className="form-label">Label English</label>
                           <input
                             type="text"
                             className="form-control"
-                            name="label"
-                            value={formData.label}
-                            onChange={handleInputChange}
+                            value={formData.label.en}
+                            onChange={(e) => handleTranslationChange('label', 'en', e.target.value)}
+                            required
+                          />
+                        </div>
+                        <div className="col-md-4 mb-3">
+                          <label className="form-label">Label Spanish</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={formData.label.es}
+                            onChange={(e) => handleTranslationChange('label', 'es', e.target.value)}
+                            required
+                          />
+                        </div>
+                        <div className="col-md-4 mb-3">
+                          <label className="form-label">Label French</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={formData.label.fr}
+                            onChange={(e) => handleTranslationChange('label', 'fr', e.target.value)}
                             required
                           />
                         </div>

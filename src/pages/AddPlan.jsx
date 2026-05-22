@@ -9,8 +9,16 @@ import { useNavigate } from 'react-router-dom'
 
 export default function AddPlan() {
   const [formData, setFormData] = useState({
-    name: '',
-    plan_type: '',
+    name: {
+      en: '',
+      es: '',
+      fr: ''
+    },
+    plan_type: {
+      en: '',
+      es: '',
+      fr: ''
+    },
     price: '',
     quota_coach_ai: '',
     quota_chart_analyzer: '',
@@ -31,10 +39,23 @@ export default function AddPlan() {
     }))
   }
 
+  const handleTranslationChange = (field, lang, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: {
+        ...prev[field],
+        [lang]: value
+      }
+    }))
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (!formData.name || !formData.plan_type || formData.price <= 0) {
+    const hasAllNames = Object.values(formData.name).every(value => value.trim())
+    const hasAllPlanTypes = Object.values(formData.plan_type).every(value => value.trim())
+
+    if (!hasAllNames || !hasAllPlanTypes || formData.price <= 0) {
       Swal.fire('Error', 'Please fill in all required fields', 'error')
       return
     }
@@ -87,31 +108,90 @@ export default function AddPlan() {
                 </div>
                 <div className="card-body">
                   <form onSubmit={handleSubmit} className="row g-3">
-                    <div className="col-md-6">
+                    <div className="col-12">
+                      <h5>Plan Name</h5>
+                    </div>
+                    <div className="col-md-4">
                       <div className="form-group">
-                        <label htmlFor="name">Plan Name *</label>
+                        <label htmlFor="name_en">English *</label>
                         <input
                           type="text"
                           className="form-control"
-                          id="name"
-                          name="name"
-                          value={formData.name}
-                          onChange={handleChange}
+                          id="name_en"
+                          value={formData.name.en}
+                          onChange={(e) => handleTranslationChange('name', 'en', e.target.value)}
                           required
                         />
                       </div>
                     </div>
-                                      <div className="col-md-6">
+                    <div className="col-md-4">
                       <div className="form-group">
-                        <label htmlFor="plan_type">Plan Type *</label>
+                        <label htmlFor="name_es">Spanish *</label>
                         <input
                           type="text"
                           className="form-control"
-                          id="plan_type"
-                          name="plan_type"
-                          value={formData.plan_type}
-                          onChange={handleChange}
-                          placeholder="e.g., Quarterly, Half Yearly, Annual"
+                          id="name_es"
+                          value={formData.name.es}
+                          onChange={(e) => handleTranslationChange('name', 'es', e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="col-md-4">
+                      <div className="form-group">
+                        <label htmlFor="name_fr">French *</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          id="name_fr"
+                          value={formData.name.fr}
+                          onChange={(e) => handleTranslationChange('name', 'fr', e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="col-12">
+                      <h5>Plan Type</h5>
+                    </div>
+                    <div className="col-md-4">
+                      <div className="form-group">
+                        <label htmlFor="plan_type_en">English *</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          id="plan_type_en"
+                          value={formData.plan_type.en}
+                          onChange={(e) => handleTranslationChange('plan_type', 'en', e.target.value)}
+                          placeholder="e.g., Semi-Annual"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="col-md-4">
+                      <div className="form-group">
+                        <label htmlFor="plan_type_es">Spanish *</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          id="plan_type_es"
+                          value={formData.plan_type.es}
+                          onChange={(e) => handleTranslationChange('plan_type', 'es', e.target.value)}
+                          placeholder="e.g., Semestral"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="col-md-4">
+                      <div className="form-group">
+                        <label htmlFor="plan_type_fr">French *</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          id="plan_type_fr"
+                          value={formData.plan_type.fr}
+                          onChange={(e) => handleTranslationChange('plan_type', 'fr', e.target.value)}
+                          placeholder="e.g., Semi-Annuel"
                           required
                         />
                       </div>
