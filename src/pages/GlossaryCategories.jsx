@@ -8,6 +8,23 @@ import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
 
+// Helper to extract text from multilingual object or plain string
+const getLocalizedText = (field) => {
+  if (!field) return '';
+  if (typeof field === 'string') {
+    try {
+      const parsed = JSON.parse(field);
+      if (parsed && typeof parsed === 'object') {
+        return parsed.en || parsed.es || parsed.fr || Object.values(parsed)[0] || '';
+      }
+    } catch (e) {
+      // Not a JSON string, fallback
+    }
+    return field;
+  }
+  return field.en || field.es || field.fr || Object.values(field)[0] || '';
+};
+
 export default function GlossaryCategories() {
   const { token } = useAuth();
   const [categories, setCategories] = useState([]);
@@ -79,9 +96,9 @@ console.log('result',result)
       setEditingCategory(categoryData);
 
       setEditFormData({
-        name_en: categoryData.name?.en || "",
-        name_fr: categoryData.name?.fr || "",
-        name_es: categoryData.name?.es || "",
+        name_en: (typeof categoryData.name === 'object' ? categoryData.name?.en : categoryData.name) || "",
+        name_fr: (typeof categoryData.name === 'object' ? categoryData.name?.fr : "") || "",
+        name_es: (typeof categoryData.name === 'object' ? categoryData.name?.es : "") || "",
         description: categoryData.description || "",
         color: categoryData.color || "#941efd",
       });
@@ -275,7 +292,7 @@ console.log('updateResult',updateResult)
                           categories.map((category) => (
                             <tr key={category.id}>
                               <td>
-                                <strong>{category.name}</strong>
+                                <strong>{getLocalizedText(category.name)}</strong>
                               </td>
                               <td>
                                 {category.color ? (
@@ -306,7 +323,7 @@ console.log('updateResult',updateResult)
                                   </button>
                                   <button 
                                     className="btn btn-sm btn-outline-danger"
-                                    onClick={() => handleDeleteCategory(category.id, category.name)}
+                                    onClick={() => handleDeleteCategory(category.id, getLocalizedText(category.name))}
                                     title="Delete Category"
                                   >
                                     <i className="fas fa-trash"></i>
