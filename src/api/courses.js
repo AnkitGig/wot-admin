@@ -9,46 +9,21 @@ export const addCourse = async (courseData, token) => {
     formData.append('title_en', courseData.title_en);
     formData.append('title_fr', courseData.title_fr || '');
     formData.append('title_es', courseData.title_es || '');
-    formData.append('slug', courseData.slug);
     formData.append('description_en', courseData.description_en);
     formData.append('description_fr', courseData.description_fr || '');
     formData.append('description_es', courseData.description_es || '');
-    formData.append('short_description_en', courseData.short_description_en || '');
-    formData.append('short_description_fr', courseData.short_description_fr || '');
-    formData.append('short_description_es', courseData.short_description_es || '');
     formData.append('objectives_en', courseData.objectives_en);
     formData.append('objectives_fr', courseData.objectives_fr || '');
     formData.append('objectives_es', courseData.objectives_es || '');
-    formData.append('what_you_will_learn_en', courseData.what_you_will_learn_en || '');
-    formData.append('what_you_will_learn_fr', courseData.what_you_will_learn_fr || '');
-    formData.append('what_you_will_learn_es', courseData.what_you_will_learn_es || '');
-    formData.append('requirements_en', courseData.requirements_en || '');
-    formData.append('requirements_fr', courseData.requirements_fr || '');
-    formData.append('requirements_es', courseData.requirements_es || '');
-    formData.append('target_audience_en', courseData.target_audience_en || '');
-    formData.append('target_audience_fr', courseData.target_audience_fr || '');
-    formData.append('target_audience_es', courseData.target_audience_es || '');
     formData.append('duration_in_minutes', courseData.duration_in_minutes);
-    formData.append('level_en', courseData.level_en || courseData.level || '');
-    formData.append('level_fr', courseData.level_fr || '');
-    formData.append('level_es', courseData.level_es || '');
-    formData.append('language_en', courseData.language_en || courseData.language || 'English');
-    formData.append('language_fr', courseData.language_fr || '');
-    formData.append('language_es', courseData.language_es || '');
-    formData.append('price', courseData.price || 0);
-    formData.append('is_free', courseData.is_free || false);
     formData.append('is_featured', courseData.is_featured || false);
     formData.append('status', courseData.status || 'draft');
-    formData.append('certificate_available', courseData.certificate_available || false);
 
     if (courseData.image instanceof File) {
       formData.append('image', courseData.image);
     }
     if (courseData.thumbnail instanceof File) {
       formData.append('thumbnail', courseData.thumbnail);
-    }
-    if (courseData.intro_video instanceof File) {
-      formData.append('intro_video', courseData.intro_video);
     }
 
     const response = await fetch(url, {
@@ -161,46 +136,21 @@ export const updateCourse = async (courseId, courseData, token) => {
     formData.append('title_en', courseData.title_en);
     formData.append('title_fr', courseData.title_fr || '');
     formData.append('title_es', courseData.title_es || '');
-    formData.append('slug', courseData.slug);
     formData.append('description_en', courseData.description_en);
     formData.append('description_fr', courseData.description_fr || '');
     formData.append('description_es', courseData.description_es || '');
-    formData.append('short_description_en', courseData.short_description_en || '');
-    formData.append('short_description_fr', courseData.short_description_fr || '');
-    formData.append('short_description_es', courseData.short_description_es || '');
     formData.append('objectives_en', courseData.objectives_en);
     formData.append('objectives_fr', courseData.objectives_fr || '');
     formData.append('objectives_es', courseData.objectives_es || '');
-    formData.append('what_you_will_learn_en', courseData.what_you_will_learn_en || '');
-    formData.append('what_you_will_learn_fr', courseData.what_you_will_learn_fr || '');
-    formData.append('what_you_will_learn_es', courseData.what_you_will_learn_es || '');
-    formData.append('requirements_en', courseData.requirements_en || '');
-    formData.append('requirements_fr', courseData.requirements_fr || '');
-    formData.append('requirements_es', courseData.requirements_es || '');
-    formData.append('target_audience_en', courseData.target_audience_en || '');
-    formData.append('target_audience_fr', courseData.target_audience_fr || '');
-    formData.append('target_audience_es', courseData.target_audience_es || '');
     formData.append('duration_in_minutes', courseData.duration_in_minutes);
-    formData.append('level_en', courseData.level_en || courseData.level || '');
-    formData.append('level_fr', courseData.level_fr || '');
-    formData.append('level_es', courseData.level_es || '');
-    formData.append('language_en', courseData.language_en || courseData.language || 'English');
-    formData.append('language_fr', courseData.language_fr || '');
-    formData.append('language_es', courseData.language_es || '');
-    formData.append('price', courseData.price || 0);
-    formData.append('is_free', String(courseData.is_free === true || courseData.is_free === 'true'));
     formData.append('is_featured', String(courseData.is_featured === true || courseData.is_featured === 'true'));
     formData.append('status', courseData.status || 'draft');
-    formData.append('certificate_available', String(courseData.certificate_available === true || courseData.certificate_available === 'true'));
 
     if (courseData.image instanceof File) {
       formData.append('image', courseData.image);
     }
     if (courseData.thumbnail instanceof File) {
       formData.append('thumbnail', courseData.thumbnail);
-    }
-    if (courseData.intro_video instanceof File) {
-      formData.append('intro_video', courseData.intro_video);
     }
 
     const response = await fetch(url, {
