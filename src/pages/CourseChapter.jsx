@@ -13,22 +13,22 @@ export default function CourseChapter() {
   const { courseId } = useParams();
   const { token } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [showDurationPicker, setShowDurationPicker] = useState(false);
   const [categories, setCategories] = useState([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [formData, setFormData] = useState({
     title_en: '',
     title_fr: '',
     title_es: '',
-    category: '',
     category_id: '',
     description_en: '',
     description_fr: '',
     description_es: '',
+    duration_en: '',
+    duration_fr: '',
+    duration_es: '',
     chapter_number: '',
-    duration: '',
     is_locked: false,
-    order_number: 0,
+    order_number: '',
   });
 
   useEffect(() => {
@@ -37,12 +37,10 @@ export default function CourseChapter() {
 
   const fetchCategories = async () => {
     setCategoriesLoading(true);
-    // Try to get all admin categories first, then filter by course if needed
     const allCategoriesResult = await getAllAdminCategories(token);
     if (allCategoriesResult.success) {
       setCategories(allCategoriesResult.data || []);
     } else {
-      // Fallback to course-specific categories
       const courseCategoriesResult = await getCategoriesByCourse(courseId, token);
       if (courseCategoriesResult.success) {
         setCategories(courseCategoriesResult.data || []);
@@ -55,62 +53,46 @@ export default function CourseChapter() {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    
-    if (name === 'category') {
-      const selectedCategory = categories.find(cat => cat.name === value);
-      setFormData(prev => ({
-        ...prev,
-        category: value,
-        category_id: selectedCategory ? selectedCategory.id : ''
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: type === 'checkbox' ? checked : value,
-      }));
-    }
-  };
-
-  const handleDurationChange = (duration) => {
     setFormData(prev => ({
       ...prev,
-      duration: duration,
+      [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
   const handleCancel = () => {
-    navigate('/courses');
+    navigate(`/courses/admin/course/${courseId}/chapters`);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!formData.title_en.trim()) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Validation Error',
-        text: 'Please enter English chapter title',
-      });
+      Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'English title is required' });
       return;
     }
-
+    if (!formData.title_fr.trim()) {
+      Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'French title is required' });
+      return;
+    }
+    if (!formData.title_es.trim()) {
+      Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'Spanish title is required' });
+      return;
+    }
     if (!formData.category_id) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Validation Error',
-        text: 'Please select a chapter category',
-      });
+      Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'Please select a chapter category' });
+      return;
+    }
+    if (formData.order_number === '' || formData.order_number === null) {
+      Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'Order number is required' });
       return;
     }
 
     setIsLoading(true);
     
-    // Map the single duration to localized duration fields for the API
     const apiPayload = {
       ...formData,
-      duration_en: formData.duration,
-      duration_fr: formData.duration,
-      duration_es: formData.duration,
+      chapter_number: parseInt(formData.chapter_number) || 0,
+      order_number: parseInt(formData.order_number) || 0,
     };
 
     const result = await createCourseChapter(courseId, apiPayload, token);
@@ -121,7 +103,7 @@ export default function CourseChapter() {
         title: 'Chapter Created',
         text: 'Chapter has been created successfully',
       });
-      navigate('/courses');
+      navigate(`/courses/admin/course/${courseId}/chapters`);
     } else {
       Swal.fire({
         icon: 'error',
@@ -168,11 +150,11 @@ export default function CourseChapter() {
                       <div className="col-md-4">
                         <div className="card h-100 shadow-none border" style={{ backgroundColor: '#f8f9fa' }}>
                           <div className="card-header bg-white border-bottom-0 pt-3 text-center">
-                            <h6 className="fw-bold mb-0">English</h6>
+                            <h6 className="fw-bold mb-0 text-primary">🇺🇸 English Details</h6>
                           </div>
                           <div className="card-body pt-0">
                             <div className="mb-3">
-                              <label className="form-label">Chapter Title</label>
+                              <label className="form-label">Chapter Title <span className="text-danger">*</span></label>
                               <input
                                 type="text"
                                 className="form-control bg-white"
@@ -187,7 +169,7 @@ export default function CourseChapter() {
                               <label className="form-label">Description</label>
                               <textarea
                                 className="form-control bg-white"
-                                rows="5"
+                                rows="3"
                                 placeholder="Enter chapter description"
                                 name="description_en"
                                 value={formData.description_en}
@@ -195,27 +177,15 @@ export default function CourseChapter() {
                               ></textarea>
                             </div>
                             <div className="mb-0">
-                              <label className="form-label">Category <span className="text-danger">*</span></label>
-                              <select
+                              <label className="form-label">Duration</label>
+                              <input
+                                type="text"
                                 className="form-control bg-white"
-                                name="category"
-                                value={formData.category}
+                                placeholder="e.g. 10 mins"
+                                name="duration_en"
+                                value={formData.duration_en}
                                 onChange={handleInputChange}
-                                required
-                                disabled={categoriesLoading}
-                                style={{ appearance: "auto" }}
-                              >
-                                <option value="">Select a category</option>
-                                {categories.map((category) => {
-                                  const translations = category.translations || {};
-                                  const name = translations.en?.name || category.name_en || category.name;
-                                  return (
-                                    <option key={category.id} value={category.name}>
-                                      {name}
-                                    </option>
-                                  );
-                                })}
-                              </select>
+                              />
                             </div>
                           </div>
                         </div>
@@ -225,11 +195,11 @@ export default function CourseChapter() {
                       <div className="col-md-4">
                         <div className="card h-100 shadow-none border" style={{ backgroundColor: '#f8f9fa' }}>
                           <div className="card-header bg-white border-bottom-0 pt-3 text-center">
-                            <h6 className="fw-bold mb-0">Spanish</h6>
+                            <h6 className="fw-bold mb-0 text-success">🇪🇸 Spanish Details</h6>
                           </div>
                           <div className="card-body pt-0">
                             <div className="mb-3">
-                              <label className="form-label">Título del capítulo</label>
+                              <label className="form-label">Título del capítulo <span className="text-danger">*</span></label>
                               <input
                                 type="text"
                                 className="form-control bg-white"
@@ -237,13 +207,14 @@ export default function CourseChapter() {
                                 name="title_es"
                                 value={formData.title_es}
                                 onChange={handleInputChange}
+                                required
                               />
                             </div>
                             <div className="mb-3">
                               <label className="form-label">Descripción</label>
                               <textarea
                                 className="form-control bg-white"
-                                rows="5"
+                                rows="3"
                                 placeholder="Ingrese la descripción del capítulo"
                                 name="description_es"
                                 value={formData.description_es}
@@ -251,26 +222,15 @@ export default function CourseChapter() {
                               ></textarea>
                             </div>
                             <div className="mb-0">
-                              <label className="form-label">Categoría</label>
-                              <select
+                              <label className="form-label">Duración</label>
+                              <input
+                                type="text"
                                 className="form-control bg-white"
-                                name="category"
-                                value={formData.category}
+                                placeholder="ej. 10 minutos"
+                                name="duration_es"
+                                value={formData.duration_es}
                                 onChange={handleInputChange}
-                                disabled={categoriesLoading}
-                                style={{ appearance: "auto" }}
-                              >
-                                <option value="">Seleccione una categoría</option>
-                                {categories.map((category) => {
-                                  const translations = category.translations || {};
-                                  const name = translations.es?.name || category.name_es || '';
-                                  return (
-                                    <option key={category.id} value={category.name}>
-                                      {name}
-                                    </option>
-                                  );
-                                })}
-                              </select>
+                              />
                             </div>
                           </div>
                         </div>
@@ -280,11 +240,11 @@ export default function CourseChapter() {
                       <div className="col-md-4">
                         <div className="card h-100 shadow-none border" style={{ backgroundColor: '#f8f9fa' }}>
                           <div className="card-header bg-white border-bottom-0 pt-3 text-center">
-                            <h6 className="fw-bold mb-0">French</h6>
+                            <h6 className="fw-bold mb-0 text-warning">🇫🇷 French Details</h6>
                           </div>
                           <div className="card-body pt-0">
                             <div className="mb-3">
-                              <label className="form-label">Titre du chapitre</label>
+                              <label className="form-label">Titre du chapitre <span className="text-danger">*</span></label>
                               <input
                                 type="text"
                                 className="form-control bg-white"
@@ -292,13 +252,14 @@ export default function CourseChapter() {
                                 name="title_fr"
                                 value={formData.title_fr}
                                 onChange={handleInputChange}
+                                required
                               />
                             </div>
                             <div className="mb-3">
                               <label className="form-label">Description</label>
                               <textarea
                                 className="form-control bg-white"
-                                rows="5"
+                                rows="3"
                                 placeholder="Entrez la description du chapitre"
                                 name="description_fr"
                                 value={formData.description_fr}
@@ -306,26 +267,15 @@ export default function CourseChapter() {
                               ></textarea>
                             </div>
                             <div className="mb-0">
-                              <label className="form-label">Catégorie</label>
-                              <select
+                              <label className="form-label">Durée</label>
+                              <input
+                                type="text"
                                 className="form-control bg-white"
-                                name="category"
-                                value={formData.category}
+                                placeholder="ex. 10 minutes"
+                                name="duration_fr"
+                                value={formData.duration_fr}
                                 onChange={handleInputChange}
-                                disabled={categoriesLoading}
-                                style={{ appearance: "auto" }}
-                              >
-                                <option value="">Choisissez une catégorie</option>
-                                {categories.map((category) => {
-                                  const translations = category.translations || {};
-                                  const name = translations.fr?.name || category.name_fr || '';
-                                  return (
-                                    <option key={category.id} value={category.name}>
-                                      {name}
-                                    </option>
-                                  );
-                                })}
-                              </select>
+                              />
                             </div>
                           </div>
                         </div>
@@ -335,12 +285,50 @@ export default function CourseChapter() {
                       <div className="col-md-12 mt-4">
                         <div className="card shadow-none border" style={{ backgroundColor: '#f8f9fa' }}>
                           <div className="card-header bg-white border-bottom-0 pt-3">
-                            <h6 className="fw-bold mb-0">Common Information</h6>
+                            <h6 className="fw-bold mb-0"><i className="fas fa-cog me-2"></i>Global Chapter Settings</h6>
                           </div>
                           <div className="card-body">
-                            <div className="row g-3">
-                              <div className="col-md-6">
-                                <label className="form-label">Chapter Number</label>
+                            <div className="row g-3 align-items-center">
+                              <div className="col-md-4">
+                                <label className="form-label fw-bold">Category <span className="text-danger">*</span></label>
+                                <select
+                                  className="form-control bg-white"
+                                  name="category_id"
+                                  value={formData.category_id}
+                                  onChange={handleInputChange}
+                                  required
+                                  disabled={categoriesLoading}
+                                  style={{ appearance: "auto" }}
+                                >
+                                  <option value="">Select a category</option>
+                                  {categories.map((category) => {
+                                    const translations = category.translations || {};
+                                    const name = translations.en?.name || category.name_en || category.name;
+                                    return (
+                                      <option key={category.id} value={category.id}>
+                                        {name}
+                                      </option>
+                                    );
+                                  })}
+                                </select>
+                              </div>
+
+                              <div className="col-md-4">
+                                <label className="form-label fw-bold">Order Number <span className="text-danger">*</span></label>
+                                <input
+                                  type="number"
+                                  className="form-control bg-white"
+                                  name="order_number"
+                                  value={formData.order_number}
+                                  onChange={handleInputChange}
+                                  placeholder="Enter order number"
+                                  required
+                                  min="0"
+                                />
+                              </div>
+
+                              <div className="col-md-4">
+                                <label className="form-label fw-bold">Chapter Number</label>
                                 <input
                                   type="number"
                                   className="form-control bg-white"
@@ -352,27 +340,19 @@ export default function CourseChapter() {
                                 />
                               </div>
 
-                              <div className="col-md-6">
-                                <label className="form-label">Duration</label>
-                                <div className="input-group">
+                              <div className="col-md-4">
+                                <div className="form-check form-switch mt-4">
                                   <input
-                                    type="text"
-                                    className="form-control bg-white"
-                                    name="duration"
-                                    value={formData.duration}
+                                    className="form-check-input"
+                                    type="checkbox"
+                                    id="is_locked"
+                                    name="is_locked"
+                                    checked={formData.is_locked}
                                     onChange={handleInputChange}
-                                    placeholder="Click to select duration"
-                                    readOnly
-                                    style={{ cursor: 'pointer' }}
-                                    onClick={() => setShowDurationPicker(true)}
                                   />
-                                  <button 
-                                    className="btn btn-outline-secondary bg-white" 
-                                    type="button"
-                                    onClick={() => setShowDurationPicker(true)}
-                                  >
-                                    <i className="fa fa-clock"></i>
-                                  </button>
+                                  <label className="form-check-label fw-bold ms-2" htmlFor="is_locked">
+                                    Is Chapter Locked
+                                  </label>
                                 </div>
                               </div>
                             </div>
@@ -406,14 +386,6 @@ export default function CourseChapter() {
         </div>
       </div>
       <Footer />
-      
-      {showDurationPicker && (
-        <DurationPicker
-          value={formData.duration}
-          onChange={handleDurationChange}
-          onClose={() => setShowDurationPicker(false)}
-        />
-      )}
     </div>
   );
 }

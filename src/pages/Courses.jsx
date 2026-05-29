@@ -170,31 +170,35 @@ export default function Courses() {
                     <table className="table table-striped">
                       <thead>
                         <tr>
+                          <th>ID</th>
                           <th>Course Title</th>
-                          <th>Level</th>
                           <th>Duration</th>
-                          <th>Chapter</th>
-                          <th>Enrolled</th>
+                          <th>Chapters</th>
+                          <th>Lessons</th>
+                          <th>Rating</th>
                           <th>Status</th>
+                          <th>Featured</th>
+                          <th>Created At</th>
                           <th>Action</th>
                         </tr>
                       </thead>
                       <tbody>
                         {isLoading ? (
                           <tr>
-                            <td colSpan="7" className="text-center py-5">
+                            <td colSpan="10" className="text-center py-5">
                               <GlobalLoader visible={true} size="medium" />
                             </td>
                           </tr>
                         ) : courses.length === 0 ? (
                           <tr>
-                            <td colSpan="7" className="text-center py-5">
+                            <td colSpan="10" className="text-center py-5">
                               <p className="text-muted">No courses found</p>
                             </td>
                           </tr>
                         ) : (
                           courses.map((course) => (
                             <tr key={course.id}>
+                              <td>{course.id}</td>
                               <td>
                                 <div className="d-flex align-items-center">
                                   <img
@@ -211,31 +215,41 @@ export default function Courses() {
                                   />
                                   <div>
                                     <span>{course.title}</span>
-                                    <br />
-                                    <small className="text-muted">{course.slug}</small>
                                   </div>
                                 </div>
                               </td>
-                              <td>
-                                <span className={`badge ${getLevelBadge(course.level)}`}>
-                                  {course.level}
-                                </span>
-                              </td>
-                              <td>{course.duration_in_minutes}</td>
+                              <td>{course.duration_in_minutes} min</td>
                               <td>
                                 <button
                                   className="btn btn-sm btn-outline-primary"
                                   onClick={() => navigate(`/courses/admin/course/${course.id}/chapters`)}
                                   title="View Chapters"
                                 >
-                                  View
+                                  {course.chapter_count || 0} Chapters
                                 </button>
                               </td>
-                              <td>{course.enrolled_count || 0}</td>
+                              <td>{course.lesson_count || 0}</td>
+                              <td>
+                                {course.rating_count > 0 ? (
+                                  <span>★ {course.rating_avg} ({course.rating_count})</span>
+                                ) : (
+                                  <span className="text-muted">-</span>
+                                )}
+                              </td>
                               <td>
                                 <span className={`badge ${getStatusBadge(course.status)}`}>
                                   {course.status}
                                 </span>
+                              </td>
+                              <td>
+                                {course.is_featured ? (
+                                  <span className="badge bg-warning text-dark"><i className="fas fa-star me-1"></i>Yes</span>
+                                ) : (
+                                  <span className="badge bg-secondary">No</span>
+                                )}
+                              </td>
+                              <td>
+                                {course.created_at ? new Date(course.created_at).toLocaleDateString() : '-'}
                               </td>
                               <td>
                                 <div className="d-flex gap-2">

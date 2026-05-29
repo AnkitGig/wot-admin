@@ -115,23 +115,13 @@ export default function AddContentPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.title_en.trim()) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Validation Error',
-        text: 'Please enter English title',
-      });
-      return;
-    }
+    if (!formData.title_en.trim()) { Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'English Title is required' }); return; }
+    if (!formData.title_fr.trim()) { Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'French Title is required' }); return; }
+    if (!formData.title_es.trim()) { Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'Spanish Title is required' }); return; }
 
-    if (!formData.html_content_en.trim()) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Validation Error',
-        text: 'Please enter English content',
-      });
-      return;
-    }
+    if (!formData.html_content_en.trim() || formData.html_content_en === '<p><br></p>') { Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'English Content is required' }); return; }
+    if (!formData.html_content_fr.trim() || formData.html_content_fr === '<p><br></p>') { Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'French Content is required' }); return; }
+    if (!formData.html_content_es.trim() || formData.html_content_es === '<p><br></p>') { Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'Spanish Content is required' }); return; }
 
     setIsSubmitting(true);
     const result = await createLessonPage(lessonId, formData, token);
@@ -307,7 +297,7 @@ export default function AddContentPage() {
                             </div>
                             <div className="card-body pt-0">
                               <div className="mb-3">
-                                <label className="form-label">Título</label>
+                                <label className="form-label">Título <span className="text-danger">*</span></label>
                                 <input
                                   type="text"
                                   className="form-control bg-white"
@@ -315,10 +305,11 @@ export default function AddContentPage() {
                                   value={formData.title_es}
                                   onChange={handleInputChange}
                                   placeholder="Ingrese el título"
+                                  required
                                 />
                               </div>
                               <div className="mb-3">
-                                <label className="form-label">Contenido</label>
+                                <label className="form-label">Contenido <span className="text-danger">*</span></label>
                                 <div className="quill-editor bg-white">
                                   <ReactQuill
                                     theme="snow"
@@ -343,7 +334,7 @@ export default function AddContentPage() {
                             </div>
                             <div className="card-body pt-0">
                               <div className="mb-3">
-                                <label className="form-label">Titre</label>
+                                <label className="form-label">Titre <span className="text-danger">*</span></label>
                                 <input
                                   type="text"
                                   className="form-control bg-white"
@@ -351,10 +342,11 @@ export default function AddContentPage() {
                                   value={formData.title_fr}
                                   onChange={handleInputChange}
                                   placeholder="Entrez le titre"
+                                  required
                                 />
                               </div>
                               <div className="mb-3">
-                                <label className="form-label">Contenu</label>
+                                <label className="form-label">Contenu <span className="text-danger">*</span></label>
                                 <div className="quill-editor bg-white">
                                   <ReactQuill
                                     theme="snow"

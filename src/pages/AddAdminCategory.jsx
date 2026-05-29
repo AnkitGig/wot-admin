@@ -60,11 +60,19 @@ export default function AddAdminCategory() {
     e.preventDefault();
     
     if (!formData.name_en.trim()) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Validation Error',
-        text: 'English category name is required',
-      });
+      Swal.fire({ icon: 'error', title: 'Validation Error', text: 'English category name is required' });
+      return;
+    }
+    if (!formData.name_fr.trim()) {
+      Swal.fire({ icon: 'error', title: 'Validation Error', text: 'French category name is required' });
+      return;
+    }
+    if (!formData.name_es.trim()) {
+      Swal.fire({ icon: 'error', title: 'Validation Error', text: 'Spanish category name is required' });
+      return;
+    }
+    if (formData.order_number === '' || formData.order_number === null) {
+      Swal.fire({ icon: 'error', title: 'Validation Error', text: 'Order number is required' });
       return;
     }
 
@@ -130,52 +138,177 @@ export default function AddAdminCategory() {
                 <div className="card-body">
                   <form onSubmit={handleSubmit}>
                     <div className="row g-4">
-                      {/* English Name */}
+                      {/* English Card */}
                       <div className="col-md-4">
-                        <div className="form-group">
-                          <label className="form-label fw-bold">Category Name (English) <span className="text-danger">*</span></label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Enter English name"
-                            name="name_en"
-                            value={formData.name_en}
-                            onChange={handleInputChange}
-                            required
-                            disabled={isLoading}
-                          />
+                        <div className="card h-100 shadow-none border" style={{ backgroundColor: '#f8f9fa' }}>
+                          <div className="card-header bg-white border-bottom-0 pt-3 text-center">
+                            <h6 className="fw-bold mb-0 text-primary">🇺🇸 English Details</h6>
+                          </div>
+                          <div className="card-body pt-0">
+                            <div className="mb-3">
+                              <label className="form-label">Category Name <span className="text-danger">*</span></label>
+                              <input
+                                type="text"
+                                className="form-control bg-white"
+                                placeholder="Enter English name"
+                                name="name_en"
+                                value={formData.name_en}
+                                onChange={handleInputChange}
+                                required
+                                disabled={isLoading}
+                              />
+                            </div>
+                            <div className="mb-0">
+                              <label className="form-label">Description</label>
+                              <textarea
+                                className="form-control bg-white"
+                                placeholder="Enter English description"
+                                name="description_en"
+                                value={formData.description_en}
+                                onChange={handleInputChange}
+                                rows="4"
+                                disabled={isLoading}
+                              ></textarea>
+                            </div>
+                          </div>
                         </div>
                       </div>
 
-                      {/* Spanish Name */}
+                      {/* Spanish Card */}
                       <div className="col-md-4">
-                        <div className="form-group">
-                          <label className="form-label fw-bold">Nombre de la categoría (Spanish)</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Ingrese el nombre en español"
-                            name="name_es"
-                            value={formData.name_es}
-                            onChange={handleInputChange}
-                            disabled={isLoading}
-                          />
+                        <div className="card h-100 shadow-none border" style={{ backgroundColor: '#f8f9fa' }}>
+                          <div className="card-header bg-white border-bottom-0 pt-3 text-center">
+                            <h6 className="fw-bold mb-0 text-success">🇪🇸 Spanish Details</h6>
+                          </div>
+                          <div className="card-body pt-0">
+                            <div className="mb-3">
+                              <label className="form-label">Nombre de la categoría <span className="text-danger">*</span></label>
+                              <input
+                                type="text"
+                                className="form-control bg-white"
+                                placeholder="Ingrese el nombre en español"
+                                name="name_es"
+                                value={formData.name_es}
+                                onChange={handleInputChange}
+                                required
+                                disabled={isLoading}
+                              />
+                            </div>
+                            <div className="mb-0">
+                              <label className="form-label">Descripción</label>
+                              <textarea
+                                className="form-control bg-white"
+                                placeholder="Ingrese la descripción en español"
+                                name="description_es"
+                                value={formData.description_es}
+                                onChange={handleInputChange}
+                                rows="4"
+                                disabled={isLoading}
+                              ></textarea>
+                            </div>
+                          </div>
                         </div>
                       </div>
 
-                      {/* French Name */}
+                      {/* French Card */}
                       <div className="col-md-4">
-                        <div className="form-group">
-                          <label className="form-label fw-bold">Nom de la catégorie (French)</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Entrez le nom en français"
-                            name="name_fr"
-                            value={formData.name_fr}
-                            onChange={handleInputChange}
-                            disabled={isLoading}
-                          />
+                        <div className="card h-100 shadow-none border" style={{ backgroundColor: '#f8f9fa' }}>
+                          <div className="card-header bg-white border-bottom-0 pt-3 text-center">
+                            <h6 className="fw-bold mb-0 text-warning">🇫🇷 French Details</h6>
+                          </div>
+                          <div className="card-body pt-0">
+                            <div className="mb-3">
+                              <label className="form-label">Nom de la catégorie <span className="text-danger">*</span></label>
+                              <input
+                                type="text"
+                                className="form-control bg-white"
+                                placeholder="Entrez le nom en français"
+                                name="name_fr"
+                                value={formData.name_fr}
+                                onChange={handleInputChange}
+                                required
+                                disabled={isLoading}
+                              />
+                            </div>
+                            <div className="mb-0">
+                              <label className="form-label">Description</label>
+                              <textarea
+                                className="form-control bg-white"
+                                placeholder="Entrez la description en français"
+                                name="description_fr"
+                                value={formData.description_fr}
+                                onChange={handleInputChange}
+                                rows="4"
+                                disabled={isLoading}
+                              ></textarea>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Common Details Card */}
+                      <div className="col-12 mt-4">
+                        <div className="card shadow-none border" style={{ backgroundColor: '#f8f9fa' }}>
+                          <div className="card-header bg-white border-bottom-0 pt-3">
+                            <h6 className="fw-bold mb-0"><i className="fas fa-cog me-2"></i>Global Category Settings & Icon</h6>
+                          </div>
+                          <div className="card-body">
+                            <div className="row g-3 align-items-center">
+                              <div className="col-md-4">
+                                <label className="form-label fw-bold">Order Number <span className="text-danger">*</span></label>
+                                <input
+                                  type="number"
+                                  className="form-control bg-white"
+                                  placeholder="Enter order number"
+                                  name="order_number"
+                                  value={formData.order_number}
+                                  onChange={handleInputChange}
+                                  required
+                                  min="0"
+                                  disabled={isLoading}
+                                />
+                              </div>
+
+                              <div className="col-md-4">
+                                <div className="form-check form-switch mt-4">
+                                  <input
+                                    className="form-check-input"
+                                    type="checkbox"
+                                    id="is_active"
+                                    name="is_active"
+                                    checked={formData.is_active}
+                                    onChange={handleInputChange}
+                                    disabled={isLoading}
+                                  />
+                                  <label className="form-check-label fw-bold ms-2" htmlFor="is_active">
+                                    Is Active Category
+                                  </label>
+                                </div>
+                              </div>
+
+                              <div className="col-md-4">
+                                <label className="form-label fw-bold">Category Icon (Optional)</label>
+                                <div className="d-flex align-items-center gap-3">
+                                  <input
+                                    type="file"
+                                    className="form-control bg-white"
+                                    name="icon"
+                                    accept="image/*"
+                                    onChange={handleInputChange}
+                                    disabled={isLoading}
+                                  />
+                                  {iconPreview && (
+                                    <img
+                                      src={iconPreview}
+                                      alt="Icon Preview"
+                                      className="rounded border"
+                                      style={{ width: '45px', height: '45px', objectFit: 'cover' }}
+                                    />
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>

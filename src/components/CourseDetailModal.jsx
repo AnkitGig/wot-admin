@@ -73,47 +73,13 @@ export default function CourseDetailModal({ show, courseData, isLoading, onClose
                   />
                   
                   <h4 className="mb-2">{courseData.title}</h4>
-                  <p className="text-muted mb-3">{courseData.slug}</p>
                   
                   <div className="d-flex flex-wrap gap-2 mb-3">
                     <span className="badge bg-success">{courseData.status}</span>
-                    <span className="badge bg-primary">{courseData.level}</span>
                     <span className="badge bg-info">{courseData.duration_in_minutes} min</span>
                     {courseData.is_featured && <span className="badge bg-warning">Featured</span>}
-                    {courseData.is_free ? (
-                      <span className="badge bg-success">Free</span>
-                    ) : (
-                      <span className="badge bg-info">${courseData.price}</span>
-                    )}
-                  </div>
-
-                  <div className="row mt-3">
-                    <div className="col-md-6">
-                      <small className="text-muted d-block">Enrolled: <strong>{courseData.enrolled_count}</strong></small>
-                    </div>
-                    <div className="col-md-6">
-                      <small className="text-muted d-block">Language: <strong>{courseData.language}</strong></small>
-                    </div>
-                    {courseData.rating_count > 0 && (
-                      <div className="col-md-6">
-                        <small className="text-muted d-block">Rating: <strong>{courseData.rating_avg} ({courseData.rating_count})</strong></small>
-                      </div>
-                    )}
-                    {courseData.certificate_available && (
-                      <div className="col-md-6">
-                        <small className="text-muted d-block"><i className="fa fa-certificate me-1"></i>Certificate Available</small>
-                      </div>
-                    )}
                   </div>
                 </div>
-
-                {/* Course Info Section */}
-                {courseData.short_description && (
-                  <div className="mb-4">
-                    <h6 className="text-primary mb-2">Short Description</h6>
-                    <p className="text-muted">{courseData.short_description}</p>
-                  </div>
-                )}
 
                 <div className="mb-4">
                   <h6 className="text-primary mb-2">Course Description</h6>

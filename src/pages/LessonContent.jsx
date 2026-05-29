@@ -762,12 +762,6 @@ export default function LessonContent() {
                         <p className="mb-0 fw-bold">{lesson.duration}</p>
                       </div>
                     )}
-                    {lesson.xp_points && (
-                      <div className="mb-3">
-                        <label className="text-muted small">XP Points</label>
-                        <p className="mb-0 fw-bold">{lesson.xp_points}</p>
-                      </div>
-                    )}
                     {lesson.reward_points && (
                       <div className="mb-3">
                         <label className="text-muted small">Reward Points</label>
@@ -806,18 +800,6 @@ export default function LessonContent() {
                         </span>
                       </p>
                     </div>
-                    {content.duration && (
-                      <div className="mb-3">
-                        <label className="text-muted small">Duration</label>
-                        <p className="mb-0 fw-bold">{content.duration}</p>
-                      </div>
-                    )}
-                    {content.file_size && (
-                      <div className="mb-3">
-                        <label className="text-muted small">File Size</label>
-                        <p className="mb-0 fw-bold">{content.file_size}</p>
-                      </div>
-                    )}
                     {content.order_number && (
                       <div className="mb-3">
                         <label className="text-muted small">Order</label>
@@ -1066,14 +1048,7 @@ export default function LessonContent() {
                           </div>
                         </div>
                         <div className="row">
-                          <div className="col-md-6">
-                            <div className="mb-3">
-                              <label className="form-label">XP Points</label>
-                              <input type="number" className="form-control" name="xp_points"
-                                value={lessonFormData.xp_points} onChange={handleLessonInputChange} min="0" />
-                            </div>
-                          </div>
-                          <div className="col-md-6">
+                          <div className="col-md-12">
                             <div className="mb-3">
                               <label className="form-label">Reward Points</label>
                               <input type="number" className="form-control" name="reward_points"

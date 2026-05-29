@@ -9,7 +9,7 @@ import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
 
-const CONTENT_TYPES = ['text', 'video', 'audio'];
+const CONTENT_TYPES = ['text', 'video', 'audio', 'pdf/doc'];
 
 export default function AddLessonToChapter() {
   const { chapterId } = useParams();
@@ -30,7 +30,6 @@ export default function AddLessonToChapter() {
     duration_fr: '',
     duration_es: '',
     lesson_number: 0,
-    xp_points: 0,
     reward_points: 0,
     is_preview: false,
     is_locked: false,
@@ -44,14 +43,10 @@ export default function AddLessonToChapter() {
     text_content_en: '',
     text_content_fr: '',
     text_content_es: '',
-    content_duration_en: '',
-    content_duration_fr: '',
-    content_duration_es: '',
-    file_size_en: '',
-    file_size_fr: '',
-    file_size_es: '',
     is_downloadable: false,
     media: null,
+    video_url: '',
+    file_url: '',
   });
 
   const handleInputChange = (e) => {
@@ -100,14 +95,46 @@ export default function AddLessonToChapter() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.title_en.trim()) {
-      Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'English Title is required' });
-      return;
+    // Strict Validations
+    if (!formData.title_en.trim()) { Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'English Title is required' }); return; }
+    if (!formData.title_fr.trim()) { Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'French Title is required' }); return; }
+    if (!formData.title_es.trim()) { Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'Spanish Title is required' }); return; }
+    
+    if (!formData.description_en.trim()) { Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'English Description is required' }); return; }
+    if (!formData.description_fr.trim()) { Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'French Description is required' }); return; }
+    if (!formData.description_es.trim()) { Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'Spanish Description is required' }); return; }
+    
+    if (!formData.duration_en.trim()) { Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'English Duration is required' }); return; }
+    if (!formData.duration_fr.trim()) { Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'French Duration is required' }); return; }
+    if (!formData.duration_es.trim()) { Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'Spanish Duration is required' }); return; }
+
+    if (!formData.content_title_en.trim()) { Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'English Content Title is required' }); return; }
+    if (!formData.content_title_fr.trim()) { Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'French Content Title is required' }); return; }
+    if (!formData.content_title_es.trim()) { Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'Spanish Content Title is required' }); return; }
+
+    if (formData.content_type === 'text') {
+      if (!formData.text_content_en.trim() || formData.text_content_en === '<p><br></p>') { Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'English Text Content is required' }); return; }
+      if (!formData.text_content_fr.trim() || formData.text_content_fr === '<p><br></p>') { Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'French Text Content is required' }); return; }
+      if (!formData.text_content_es.trim() || formData.text_content_es === '<p><br></p>') { Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'Spanish Text Content is required' }); return; }
+    } else {
+      const hasMedia = formData.media instanceof File;
+      const hasUrl = formData.content_type === 'video' ? formData.video_url?.trim() : formData.file_url?.trim();
+      if (!hasMedia && !hasUrl) {
+        Swal.fire({ icon: 'warning', title: 'Validation Error', text: `Please upload a media file or provide a ${formData.content_type === 'video' ? 'video' : 'file'} URL` });
+        return;
+      }
     }
 
     setIsLoading(true);
 
-    const result = await createLesson(chapterId, formData, token);
+    const payload = {
+      ...formData,
+      lesson_number: parseInt(formData.lesson_number) || 0,
+      reward_points: parseInt(formData.reward_points) || 0,
+      order_number: parseInt(formData.order_number) || 0,
+    };
+
+    const result = await createLesson(chapterId, payload, token);
 
     if (result.success) {
       Swal.fire({
@@ -151,7 +178,7 @@ export default function AddLessonToChapter() {
                 </ul>
               </div>
               <div className="col-auto">
-                <button className="btn btn-primary" onClick={() => navigate(-1)}>
+                <button className="btn btn-outline-secondary" onClick={() => navigate(-1)}>
                   <i className="fa fa-arrow-left me-2"></i>Back
                 </button>
               </div>
@@ -173,7 +200,7 @@ export default function AddLessonToChapter() {
                     </div>
                     <div className="card-body bg-light-subtle">
                       <div className="mb-3">
-                        <label className="form-label fw-bold small">Title {item.lang === 'en' && <span className="text-danger">*</span>}</label>
+                        <label className="form-label fw-bold small">Title <span className="text-danger">*</span></label>
                         <input
                           type="text"
                           className="form-control"
@@ -181,11 +208,11 @@ export default function AddLessonToChapter() {
                           value={formData[`title_${item.lang}`]}
                           onChange={handleInputChange}
                           placeholder={`Enter ${item.label} title`}
-                          required={item.lang === 'en'}
+                          required
                         />
                       </div>
                       <div className="mb-3">
-                        <label className="form-label fw-bold small">Description {item.lang === 'en' && <span className="text-danger">*</span>}</label>
+                        <label className="form-label fw-bold small">Description <span className="text-danger">*</span></label>
                         <textarea
                           className="form-control"
                           rows="2"
@@ -193,11 +220,11 @@ export default function AddLessonToChapter() {
                           value={formData[`description_${item.lang}`]}
                           onChange={handleInputChange}
                           placeholder={`Enter ${item.label} description`}
-                          required={item.lang === 'en'}
+                          required
                         ></textarea>
                       </div>
                       <div className="mb-3">
-                        <label className="form-label fw-bold small">Duration</label>
+                        <label className="form-label fw-bold small">Duration <span className="text-danger">*</span></label>
                         <input
                           type="text"
                           className="form-control"
@@ -205,6 +232,7 @@ export default function AddLessonToChapter() {
                           value={formData[`duration_${item.lang}`]}
                           onChange={handleInputChange}
                           placeholder="e.g., 25 min"
+                          required
                         />
                       </div>
                       
@@ -212,7 +240,7 @@ export default function AddLessonToChapter() {
                       <h6 className="text-muted small text-uppercase fw-bold mb-3">Content Section</h6>
                       
                       <div className="mb-3">
-                        <label className="form-label fw-bold small">Content Title</label>
+                        <label className="form-label fw-bold small">Content Title <span className="text-danger">*</span></label>
                         <input
                           type="text"
                           className="form-control"
@@ -220,12 +248,13 @@ export default function AddLessonToChapter() {
                           value={formData[`content_title_${item.lang}`]}
                           onChange={handleInputChange}
                           placeholder="Enter content title"
+                          required
                         />
                       </div>
 
                       {formData.content_type === 'text' && (
                         <div className="mb-3">
-                          <label className="form-label fw-bold small">Text Content</label>
+                          <label className="form-label fw-bold small">Text Content <span className="text-danger">*</span></label>
                           <div className="bg-white border rounded">
                             <ReactQuill
                               theme="snow"
@@ -238,31 +267,6 @@ export default function AddLessonToChapter() {
                           </div>
                         </div>
                       )}
-
-                      <div className="row g-2 mt-2">
-                        <div className="col-6">
-                          <label className="form-label fw-bold small">Cont. Duration</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            name={`content_duration_${item.lang}`}
-                            value={formData[`content_duration_${item.lang}`]}
-                            onChange={handleInputChange}
-                            placeholder="e.g., 25 min"
-                          />
-                        </div>
-                        <div className="col-6">
-                          <label className="form-label fw-bold small">File Size</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            name={`file_size_${item.lang}`}
-                            value={formData[`file_size_${item.lang}`]}
-                            onChange={handleInputChange}
-                            placeholder="e.g., 2.5 MB"
-                          />
-                        </div>
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -276,23 +280,19 @@ export default function AddLessonToChapter() {
                   </div>
                   <div className="card-body">
                     <div className="row g-3">
-                      <div className="col-md-2">
+                      <div className="col-md-3">
                         <label className="form-label fw-bold">Lesson #</label>
                         <input type="number" className="form-control" name="lesson_number" value={formData.lesson_number} onChange={handleInputChange} min="0" />
                       </div>
-                      <div className="col-md-2">
-                        <label className="form-label fw-bold">XP Points</label>
-                        <input type="number" className="form-control" name="xp_points" value={formData.xp_points} onChange={handleInputChange} min="0" />
-                      </div>
-                      <div className="col-md-2">
-                        <label className="form-label fw-bold">Rewards</label>
+                      <div className="col-md-3">
+                        <label className="form-label fw-bold">Rewards (Points)</label>
                         <input type="number" className="form-control" name="reward_points" value={formData.reward_points} onChange={handleInputChange} min="0" />
                       </div>
-                      <div className="col-md-2">
+                      <div className="col-md-3">
                         <label className="form-label fw-bold">Order #</label>
                         <input type="number" className="form-control" name="order_number" value={formData.order_number} onChange={handleInputChange} min="0" />
                       </div>
-                      <div className="col-md-4">
+                      <div className="col-md-3">
                         <label className="form-label fw-bold text-primary">Content Type</label>
                         <select className="form-select border-primary" name="content_type" value={formData.content_type} onChange={handleInputChange}>
                           {CONTENT_TYPES.map(type => <option key={type} value={type}>{type.toUpperCase()}</option>)}
@@ -317,12 +317,14 @@ export default function AddLessonToChapter() {
                           <label className="form-check-label fw-bold" htmlFor="quizAvailable">Quiz Ready</label>
                         </div>
                       </div>
-                      <div className="col-md-3">
-                        <div className="form-check form-switch mt-4">
-                          <input className="form-check-input" type="checkbox" name="is_downloadable" checked={formData.is_downloadable} onChange={handleInputChange} id="isDownloadable" />
-                          <label className="form-check-label fw-bold" htmlFor="isDownloadable">Downloadable</label>
+                      {formData.content_type !== 'text' && (
+                        <div className="col-md-3">
+                          <div className="form-check form-switch mt-4">
+                            <input className="form-check-input" type="checkbox" name="is_downloadable" checked={formData.is_downloadable} onChange={handleInputChange} id="isDownloadable" />
+                            <label className="form-check-label fw-bold" htmlFor="isDownloadable">Downloadable</label>
+                          </div>
                         </div>
-                      </div>
+                      )}
 
                       <div className="col-md-6 mt-4">
                         <label className="form-label fw-bold">Lesson Thumbnail</label>
@@ -337,20 +339,55 @@ export default function AddLessonToChapter() {
                         </div>
                       </div>
 
-                      <div className="col-md-6 mt-4">
-                        <label className="form-label fw-bold">Content Media (Video/Audio/PDF)</label>
-                        <div className="d-flex align-items-start gap-3">
-                          <div className="flex-grow-1">
-                            <input type="file" className="form-control" onChange={handleMediaChange} />
-                            <small className="text-muted">Supports: MP4, MP3, PDF, DOCX</small>
-                          </div>
-                          {mediaPreview && (
-                            <div className="rounded border bg-light d-flex align-items-center justify-content-center" style={{ width: '100px', height: '60px' }}>
-                              <i className="fas fa-file-alt fa-2x text-primary"></i>
+                      {formData.content_type !== 'text' && (
+                        <div className="col-md-6 mt-4">
+                          <label className="form-label fw-bold">Content Media & URL</label>
+                          <div className="border rounded p-3 bg-light">
+                            <div className="mb-3">
+                              <label className="form-label fw-bold small">Upload File</label>
+                              <div className="d-flex align-items-start gap-3">
+                                <div className="flex-grow-1">
+                                  <input type="file" className="form-control bg-white" onChange={handleMediaChange} />
+                                  <small className="text-muted">Supports: MP4, MP3, PDF, DOCX</small>
+                                </div>
+                                {mediaPreview && (
+                                  <div className="rounded border bg-white d-flex align-items-center justify-content-center animate__animated animate__fadeIn" style={{ width: '100px', height: '60px' }}>
+                                    <i className="fas fa-file-alt fa-2x text-primary"></i>
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                          )}
+                            
+                            <div className="text-center my-2 text-muted fw-bold small">- OR -</div>
+
+                            {formData.content_type === 'video' ? (
+                              <div>
+                                <label className="form-label fw-bold small">Video URL</label>
+                                <input
+                                  type="url"
+                                  className="form-control bg-white"
+                                  name="video_url"
+                                  value={formData.video_url}
+                                  onChange={handleInputChange}
+                                  placeholder="https://example.com/video.mp4"
+                                />
+                              </div>
+                            ) : (
+                              <div>
+                                <label className="form-label fw-bold small">File URL</label>
+                                <input
+                                  type="url"
+                                  className="form-control bg-white"
+                                  name="file_url"
+                                  value={formData.file_url}
+                                  onChange={handleInputChange}
+                                  placeholder="https://example.com/document.pdf"
+                                />
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </div>
                   </div>
                 </div>

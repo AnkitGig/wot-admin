@@ -137,11 +137,12 @@ export default function AdminCategories() {
                       <table className="table table-striped">
                         <thead>
                           <tr>
-                            <th>Category Name</th>
-                            {/* <th>Description</th>
-                            <th>Order</th>
-                            <th>Chapters</th> */}
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Icon</th>
+                            <th>Order Number</th>
                             <th>Status</th>
+                            <th>Chapters</th>
                             <th>Created Date</th>
                             <th>Action</th>
                           </tr>
@@ -149,34 +150,31 @@ export default function AdminCategories() {
                         <tbody>
                           {categories.map((category) => (
                             <tr key={category.id}>
+                              <td>{category.id}</td>
                               <td>
-                                <div className="d-flex align-items-center">
-                                  {category.icon && (
-                                    <img
-                                      src={category.icon}
-                                      alt={category.name}
-                                      className="me-2"
-                                      style={{ width: '30px', height: '30px', objectFit: 'cover', borderRadius: '4px' }}
-                                    />
-                                  )}
-                                  <span className="fw-bold">{category.name}</span>
-                                </div>
-                              </td>
-                              {/* <td>
-                                <small className="text-muted">
-                                  {category.description || 'No description'}
-                                </small>
+                                <span className="fw-bold">{category.name}</span>
                               </td>
                               <td>
-                                <span className="badge bg-secondary">{category.order_number}</span>
+                                {category.icon ? (
+                                  <img
+                                    src={category.icon}
+                                    alt={category.name}
+                                    style={{ width: '35px', height: '35px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ddd' }}
+                                  />
+                                ) : (
+                                  <span className="text-muted small">No Icon</span>
+                                )}
                               </td>
                               <td>
-                                <span className="badge bg-info">{category.chapter_count || 0}</span>
-                              </td> */}
+                                <span className="badge bg-secondary">{category.order_number || 0}</span>
+                              </td>
                               <td>
                                 <span className={`badge ${getStatusBadge(category.is_active)}`}>
                                   {category.is_active ? 'Active' : 'Inactive'}
                                 </span>
+                              </td>
+                              <td>
+                                <span className="badge bg-info">{category.chapter_count || 0}</span>
                               </td>
                               <td>
                                 {category.created_at ? new Date(category.created_at).toLocaleDateString() : '-'}

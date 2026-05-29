@@ -348,6 +348,12 @@ export const createLesson = async (chapterId, lessonData, token) => {
     if (lessonData.media instanceof File) {
       formData.append('media', lessonData.media);
     }
+    if (lessonData.video_url !== undefined && lessonData.video_url !== null) {
+      formData.append('video_url', lessonData.video_url);
+    }
+    if (lessonData.file_url !== undefined && lessonData.file_url !== null) {
+      formData.append('file_url', lessonData.file_url);
+    }
     
     // Content type
     formData.append('content_type', lessonData.content_type);
@@ -471,6 +477,12 @@ export const updateLessonAdmin = async (lessonId, lessonData, token) => {
 
     if (lessonData.media instanceof File) {
       formData.append('media', lessonData.media);
+    }
+    if (lessonData.video_url !== undefined && lessonData.video_url !== null) {
+      formData.append('video_url', lessonData.video_url);
+    }
+    if (lessonData.file_url !== undefined && lessonData.file_url !== null) {
+      formData.append('file_url', lessonData.file_url);
     }
 
     const response = await fetch(url, {

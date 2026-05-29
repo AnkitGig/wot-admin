@@ -6,7 +6,6 @@ import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
-import DurationPicker from '../components/DurationPicker';
 
 export default function EditChapter() {
   const navigate = useNavigate();
@@ -14,20 +13,20 @@ export default function EditChapter() {
   const { token } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
-  const [showDurationPicker, setShowDurationPicker] = useState(false);
   const [categories, setCategories] = useState([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [formData, setFormData] = useState({
     title_en: '',
     title_fr: '',
     title_es: '',
-    category: '',
     category_id: '',
     description_en: '',
     description_fr: '',
     description_es: '',
+    duration_en: '',
+    duration_fr: '',
+    duration_es: '',
     chapter_number: '',
-    duration: '',
     is_locked: false,
     order_number: '',
   });
@@ -51,7 +50,6 @@ export default function EditChapter() {
     const result = await getCourseChapters(courseId, token);
     
     if (result.success) {
-      // Find the specific chapter from all categories
       let chapterToEdit = null;
       result.data.categories.forEach(category => {
         const foundChapter = category.chapters.find(chapter => chapter.id === parseInt(chapterId));
@@ -70,13 +68,14 @@ export default function EditChapter() {
           title_en: en.title || chapterToEdit.title_en || chapterToEdit.title || '',
           title_fr: fr.title || chapterToEdit.title_fr || '',
           title_es: es.title || chapterToEdit.title_es || '',
-          category: chapterToEdit.category || '',
           category_id: chapterToEdit.category_id || '',
           description_en: en.description || chapterToEdit.description_en || chapterToEdit.description || '',
           description_fr: fr.description || chapterToEdit.description_fr || '',
           description_es: es.description || chapterToEdit.description_es || '',
+          duration_en: en.duration || chapterToEdit.duration_en || chapterToEdit.duration || '',
+          duration_fr: fr.duration || chapterToEdit.duration_fr || '',
+          duration_es: es.duration || chapterToEdit.duration_es || '',
           chapter_number: chapterToEdit.chapter_number || '',
-          duration: en.duration || chapterToEdit.duration || '',
           is_locked: chapterToEdit.is_locked || false,
           order_number: chapterToEdit.order_number || '',
         });
@@ -101,35 +100,10 @@ export default function EditChapter() {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    
-    if (name === 'category') {
-      const selectedCategory = categories.find(cat => cat.name === value);
-      setFormData(prev => ({
-        ...prev,
-        category: value,
-        category_id: selectedCategory ? selectedCategory.id : ''
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: type === 'checkbox' ? checked : value,
-      }));
-    }
-  };
-
-  const handleDurationClick = () => {
-    setShowDurationPicker(true);
-  };
-
-  const handleDurationChange = (duration) => {
     setFormData(prev => ({
       ...prev,
-      duration: duration
+      [name]: type === 'checkbox' ? checked : value,
     }));
-  };
-
-  const handleDurationClose = () => {
-    setShowDurationPicker(false);
   };
 
   const handleCancel = () => {
@@ -140,20 +114,23 @@ export default function EditChapter() {
     e.preventDefault();
 
     if (!formData.title_en.trim()) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Validation Error',
-        text: 'Please enter English chapter title',
-      });
+      Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'English title is required' });
       return;
     }
-
+    if (!formData.title_fr.trim()) {
+      Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'French title is required' });
+      return;
+    }
+    if (!formData.title_es.trim()) {
+      Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'Spanish title is required' });
+      return;
+    }
     if (!formData.category_id) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Validation Error',
-        text: 'Please select a chapter category',
-      });
+      Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'Please select a chapter category' });
+      return;
+    }
+    if (formData.order_number === '' || formData.order_number === null) {
+      Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'Order number is required' });
       return;
     }
 
@@ -161,9 +138,8 @@ export default function EditChapter() {
 
     const apiPayload = {
       ...formData,
-      duration_en: formData.duration,
-      duration_fr: formData.duration,
-      duration_es: formData.duration,
+      chapter_number: parseInt(formData.chapter_number) || 0,
+      order_number: parseInt(formData.order_number) || 0,
     };
 
     const result = await updateCourseChapter(chapterId, apiPayload, token);
@@ -213,13 +189,13 @@ export default function EditChapter() {
           <div className="page-header">
             <div className="content-page-header">
               <div>
-                <h5>Edit Admin Chapter</h5>
+                <h5>Edit Chapter</h5>
               </div>
               <div className="list-btn">
                 <ul className="filter-list">
                   <li>
                     <button 
-                      className="btn btn-primary"
+                      className="btn btn-outline-secondary"
                       onClick={handleCancel}
                     >
                       <i className="fa fa-arrow-left me-2"></i>Back to Chapters
@@ -240,11 +216,11 @@ export default function EditChapter() {
                       <div className="col-md-4">
                         <div className="card h-100 shadow-none border" style={{ backgroundColor: '#f8f9fa' }}>
                           <div className="card-header bg-white border-bottom-0 pt-3 text-center">
-                            <h6 className="fw-bold mb-0">English</h6>
+                            <h6 className="fw-bold mb-0 text-primary">🇺🇸 English Details</h6>
                           </div>
                           <div className="card-body pt-0">
                             <div className="mb-3">
-                              <label className="form-label">Chapter Title</label>
+                              <label className="form-label">Chapter Title <span className="text-danger">*</span></label>
                               <input
                                 type="text"
                                 className="form-control bg-white"
@@ -259,7 +235,7 @@ export default function EditChapter() {
                               <label className="form-label">Description</label>
                               <textarea
                                 className="form-control bg-white"
-                                rows="5"
+                                rows="3"
                                 placeholder="Enter chapter description"
                                 name="description_en"
                                 value={formData.description_en}
@@ -267,27 +243,15 @@ export default function EditChapter() {
                               ></textarea>
                             </div>
                             <div className="mb-0">
-                              <label className="form-label">Category <span className="text-danger">*</span></label>
-                              <select
+                              <label className="form-label">Duration</label>
+                              <input
+                                type="text"
                                 className="form-control bg-white"
-                                name="category"
-                                value={formData.category}
+                                placeholder="e.g. 10 mins"
+                                name="duration_en"
+                                value={formData.duration_en}
                                 onChange={handleInputChange}
-                                required
-                                disabled={categoriesLoading}
-                                style={{ appearance: "auto" }}
-                              >
-                                <option value="">Select a category</option>
-                                {categories.map((category) => {
-                                  const translations = category.translations || {};
-                                  const name = translations.en?.name || category.name_en || category.name;
-                                  return (
-                                    <option key={category.id} value={category.name}>
-                                      {name}
-                                    </option>
-                                  );
-                                })}
-                              </select>
+                              />
                             </div>
                           </div>
                         </div>
@@ -297,11 +261,11 @@ export default function EditChapter() {
                       <div className="col-md-4">
                         <div className="card h-100 shadow-none border" style={{ backgroundColor: '#f8f9fa' }}>
                           <div className="card-header bg-white border-bottom-0 pt-3 text-center">
-                            <h6 className="fw-bold mb-0">Spanish</h6>
+                            <h6 className="fw-bold mb-0 text-success">🇪🇸 Spanish Details</h6>
                           </div>
                           <div className="card-body pt-0">
                             <div className="mb-3">
-                              <label className="form-label">Título del capítulo</label>
+                              <label className="form-label">Título del capítulo <span className="text-danger">*</span></label>
                               <input
                                 type="text"
                                 className="form-control bg-white"
@@ -309,13 +273,14 @@ export default function EditChapter() {
                                 name="title_es"
                                 value={formData.title_es}
                                 onChange={handleInputChange}
+                                required
                               />
                             </div>
                             <div className="mb-3">
                               <label className="form-label">Descripción</label>
                               <textarea
                                 className="form-control bg-white"
-                                rows="5"
+                                rows="3"
                                 placeholder="Ingrese la descripción del capítulo"
                                 name="description_es"
                                 value={formData.description_es}
@@ -323,26 +288,15 @@ export default function EditChapter() {
                               ></textarea>
                             </div>
                             <div className="mb-0">
-                              <label className="form-label">Categoría</label>
-                              <select
+                              <label className="form-label">Duración</label>
+                              <input
+                                type="text"
                                 className="form-control bg-white"
-                                name="category"
-                                value={formData.category}
+                                placeholder="ej. 10 minutos"
+                                name="duration_es"
+                                value={formData.duration_es}
                                 onChange={handleInputChange}
-                                disabled={categoriesLoading}
-                                style={{ appearance: "auto" }}
-                              >
-                                <option value="">Seleccione una categoría</option>
-                                {categories.map((category) => {
-                                  const translations = category.translations || {};
-                                  const name = translations.es?.name || category.name_es || '';
-                                  return (
-                                    <option key={category.id} value={category.name}>
-                                      {name}
-                                    </option>
-                                  );
-                                })}
-                              </select>
+                              />
                             </div>
                           </div>
                         </div>
@@ -352,11 +306,11 @@ export default function EditChapter() {
                       <div className="col-md-4">
                         <div className="card h-100 shadow-none border" style={{ backgroundColor: '#f8f9fa' }}>
                           <div className="card-header bg-white border-bottom-0 pt-3 text-center">
-                            <h6 className="fw-bold mb-0">French</h6>
+                            <h6 className="fw-bold mb-0 text-warning">🇫🇷 French Details</h6>
                           </div>
                           <div className="card-body pt-0">
                             <div className="mb-3">
-                              <label className="form-label">Titre du chapitre</label>
+                              <label className="form-label">Titre du chapitre <span className="text-danger">*</span></label>
                               <input
                                 type="text"
                                 className="form-control bg-white"
@@ -364,13 +318,14 @@ export default function EditChapter() {
                                 name="title_fr"
                                 value={formData.title_fr}
                                 onChange={handleInputChange}
+                                required
                               />
                             </div>
                             <div className="mb-3">
                               <label className="form-label">Description</label>
                               <textarea
                                 className="form-control bg-white"
-                                rows="5"
+                                rows="3"
                                 placeholder="Entrez la description du chapitre"
                                 name="description_fr"
                                 value={formData.description_fr}
@@ -378,26 +333,15 @@ export default function EditChapter() {
                               ></textarea>
                             </div>
                             <div className="mb-0">
-                              <label className="form-label">Catégorie</label>
-                              <select
+                              <label className="form-label">Durée</label>
+                              <input
+                                type="text"
                                 className="form-control bg-white"
-                                name="category"
-                                value={formData.category}
+                                placeholder="ex. 10 minutes"
+                                name="duration_fr"
+                                value={formData.duration_fr}
                                 onChange={handleInputChange}
-                                disabled={categoriesLoading}
-                                style={{ appearance: "auto" }}
-                              >
-                                <option value="">Choisissez une catégorie</option>
-                                {categories.map((category) => {
-                                  const translations = category.translations || {};
-                                  const name = translations.fr?.name || category.name_fr || '';
-                                  return (
-                                    <option key={category.id} value={category.name}>
-                                      {name}
-                                    </option>
-                                  );
-                                })}
-                              </select>
+                              />
                             </div>
                           </div>
                         </div>
@@ -407,12 +351,50 @@ export default function EditChapter() {
                       <div className="col-md-12 mt-4">
                         <div className="card shadow-none border" style={{ backgroundColor: '#f8f9fa' }}>
                           <div className="card-header bg-white border-bottom-0 pt-3">
-                            <h6 className="fw-bold mb-0">Common Information</h6>
+                            <h6 className="fw-bold mb-0"><i className="fas fa-cog me-2"></i>Global Chapter Settings</h6>
                           </div>
                           <div className="card-body">
-                            <div className="row g-3">
+                            <div className="row g-3 align-items-center">
                               <div className="col-md-4">
-                                <label className="form-label">Chapter Number</label>
+                                <label className="form-label fw-bold">Category <span className="text-danger">*</span></label>
+                                <select
+                                  className="form-control bg-white"
+                                  name="category_id"
+                                  value={formData.category_id}
+                                  onChange={handleInputChange}
+                                  required
+                                  disabled={categoriesLoading}
+                                  style={{ appearance: "auto" }}
+                                >
+                                  <option value="">Select a category</option>
+                                  {categories.map((category) => {
+                                    const translations = category.translations || {};
+                                    const name = translations.en?.name || category.name_en || category.name;
+                                    return (
+                                      <option key={category.id} value={category.id}>
+                                        {name}
+                                      </option>
+                                    );
+                                  })}
+                                </select>
+                              </div>
+
+                              <div className="col-md-4">
+                                <label className="form-label fw-bold">Order Number <span className="text-danger">*</span></label>
+                                <input
+                                  type="number"
+                                  className="form-control bg-white"
+                                  name="order_number"
+                                  value={formData.order_number}
+                                  onChange={handleInputChange}
+                                  placeholder="Enter order number"
+                                  required
+                                  min="0"
+                                />
+                              </div>
+
+                              <div className="col-md-4">
+                                <label className="form-label fw-bold">Chapter Number</label>
                                 <input
                                   type="number"
                                   className="form-control bg-white"
@@ -425,53 +407,19 @@ export default function EditChapter() {
                               </div>
 
                               <div className="col-md-4">
-                                <label className="form-label">Duration</label>
-                                <div className="input-group">
+                                <div className="form-check form-switch mt-4">
                                   <input
-                                    type="text"
-                                    className="form-control bg-white"
-                                    name="duration"
-                                    value={formData.duration}
+                                    className="form-check-input"
+                                    type="checkbox"
+                                    id="is_locked"
+                                    name="is_locked"
+                                    checked={formData.is_locked}
                                     onChange={handleInputChange}
-                                    placeholder="Click to select duration"
-                                    readOnly
-                                    style={{ cursor: 'pointer' }}
-                                    onClick={handleDurationClick}
                                   />
-                                  <button 
-                                    className="btn btn-outline-secondary bg-white" 
-                                    type="button"
-                                    onClick={handleDurationClick}
-                                  >
-                                    <i className="fa fa-clock"></i>
-                                  </button>
+                                  <label className="form-check-label fw-bold ms-2" htmlFor="is_locked">
+                                    Is Chapter Locked
+                                  </label>
                                 </div>
-                              </div>
-
-                              <div className="col-md-4">
-                                <label className="form-label">Order Number</label>
-                                <input
-                                  type="number"
-                                  className="form-control bg-white"
-                                  name="order_number"
-                                  value={formData.order_number}
-                                  onChange={handleInputChange}
-                                  placeholder="Enter order number"
-                                  min="0"
-                                />
-                              </div>
-
-                              <div className="col-md-4">
-                                <label className="form-label">Is Locked</label>
-                                <select
-                                  className="form-select bg-white"
-                                  name="is_locked"
-                                  value={formData.is_locked}
-                                  onChange={handleInputChange}
-                                >
-                                  <option value={false}>No</option>
-                                  <option value={true}>Yes</option>
-                                </select>
                               </div>
                             </div>
                           </div>
@@ -504,14 +452,6 @@ export default function EditChapter() {
         </div>
       </div>
       <Footer />
-      
-      {showDurationPicker && (
-        <DurationPicker
-          value={formData.duration}
-          onChange={handleDurationChange}
-          onClose={handleDurationClose}
-        />
-      )}
     </div>
   );
 }

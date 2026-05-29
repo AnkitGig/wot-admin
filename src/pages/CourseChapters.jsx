@@ -158,71 +158,86 @@ export default function CourseChapters() {
                               <p className="text-muted mb-0">No chapters in this category</p>
                             </div>
                           ) : (
-                            <table className="table table-striped table-hover">
-                              <thead>
-                                <tr>
-                                  <th>Chapter Title</th>
-                                  <th>Chapter Number</th>
-                                  <th>Duration</th>
-                                  <th>Lessons</th>
-                                  <th>Status</th>
-                                  <th>Order</th>
-                                  <th>Actions</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {category.chapters.map((chapter) => (
-                                  <tr key={chapter.id}>
-                                    <td>
-                                      <div>
-                                        <strong>{chapter.title}</strong>
-                                        <br />
-                                        <small className="text-muted">{chapter.description}</small>
-                                      </div>
-                                    </td>
-                                    <td>
-                                      <span className="badge bg-info">
-                                        {chapter.chapter_number}
-                                      </span>
-                                    </td>
-                                    <td>{chapter.duration}</td>
-                                    <td>
-                                      <button
-                                        className="btn btn-sm btn-outline-primary"
-                                        onClick={() => handleViewLessons(chapter.id)}
-                                        title="View Lesson"
-                                      >
-                                        View
-                                      </button>
-                                    </td>
-                                    <td>
-                                      <span className={`badge ${getLockedBadge(chapter.is_locked)}`}>
-                                        {chapter.is_locked ? 'Locked' : 'Unlocked'}
-                                      </span>
-                                    </td>
-                                    <td>{chapter.order_number}</td>
-                                    <td>
-                                      <div className="d-flex gap-2">
-                                        <button
-                                          className="btn btn-sm btn-outline-warning"
-                                          onClick={() => handleEditChapter(chapter.id)}
-                                          title="Edit Chapter"
-                                        >
-                                          <i className="fas fa-edit"></i>
-                                        </button>
-                                        <button
-                                          className="btn btn-sm btn-outline-danger"
-                                          onClick={() => handleDeleteChapter(chapter.id, chapter.title)}
-                                          title="Delete Chapter"
-                                        >
-                                          <i className="fas fa-trash"></i>
-                                        </button>
-                                      </div>
-                                    </td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
+                             <table className="table table-striped table-hover">
+                               <thead>
+                                 <tr>
+                                   <th>ID</th>
+                                   <th>Chapter Title</th>
+                                   <th>Duration</th>
+                                   <th>Lessons</th>
+                                   <th>Order Number</th>
+                                   <th>Locked Status</th>
+                                   <th>Created At</th>
+                                   <th>Actions</th>
+                                 </tr>
+                               </thead>
+                               <tbody>
+                                 {category.chapters.map((chapter) => (
+                                   <tr key={chapter.id}>
+                                     <td>{chapter.id}</td>
+                                     <td>
+                                       <div>
+                                         <strong>{chapter.translations?.en?.title || chapter.title_en || chapter.title || ''}</strong>
+                                         {chapter.translations?.es?.title && chapter.translations.es.title !== chapter.title && (
+                                           <div className="text-muted small">ES: {chapter.translations.es.title}</div>
+                                         )}
+                                         {chapter.translations?.fr?.title && chapter.translations.fr.title !== chapter.title && (
+                                           <div className="text-muted small">FR: {chapter.translations.fr.title}</div>
+                                         )}
+                                         <small className="text-muted d-block mt-1">
+                                           {chapter.translations?.en?.description || chapter.description_en || chapter.description || ''}
+                                         </small>
+                                       </div>
+                                     </td>
+                                     <td>
+                                       {chapter.translations?.en?.duration || chapter.duration_en || chapter.duration || '-'}
+                                     </td>
+                                     <td>
+                                       <div className="d-flex align-items-center gap-2">
+                                         <span className="badge bg-secondary">
+                                           {chapter.lesson_count || 0}
+                                         </span>
+                                         <button
+                                           className="btn btn-sm btn-outline-primary"
+                                           onClick={() => handleViewLessons(chapter.id)}
+                                           title="Manage Lessons"
+                                           style={{ padding: '2px 6px', fontSize: '11px' }}
+                                         >
+                                           <i className="fas fa-list me-1"></i>Manage
+                                         </button>
+                                       </div>
+                                     </td>
+                                     <td>{chapter.order_number}</td>
+                                     <td>
+                                       <span className={`badge ${getLockedBadge(chapter.is_locked)}`}>
+                                         {chapter.is_locked ? 'Locked' : 'Unlocked'}
+                                       </span>
+                                     </td>
+                                     <td>
+                                       {chapter.created_at ? new Date(chapter.created_at).toLocaleDateString() : '-'}
+                                     </td>
+                                     <td>
+                                       <div className="d-flex gap-2">
+                                         <button
+                                           className="btn btn-sm btn-outline-warning"
+                                           onClick={() => handleEditChapter(chapter.id)}
+                                           title="Edit Chapter"
+                                         >
+                                           <i className="fas fa-edit"></i>
+                                         </button>
+                                         <button
+                                           className="btn btn-sm btn-outline-danger"
+                                           onClick={() => handleDeleteChapter(chapter.id, chapter.translations?.en?.title || chapter.title_en || chapter.title)}
+                                           title="Delete Chapter"
+                                         >
+                                           <i className="fas fa-trash"></i>
+                                         </button>
+                                       </div>
+                                     </td>
+                                   </tr>
+                                 ))}
+                               </tbody>
+                             </table>
                           )}
                         </div>
                       ))}

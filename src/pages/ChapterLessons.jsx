@@ -294,63 +294,87 @@ export default function ChapterLessons() {
                     </div>
                   ) : (
                     <div className="table-responsive">
-                      <table className="table table-striped">
+                      <table className="table table-striped table-hover">
                         <thead>
                           <tr>
+                            <th>ID</th>
                             <th>Lesson Title</th>
-                            <th>Order</th>
                             <th>Duration</th>
-                            <th>Status</th>
-                            <th>Downloadable</th>
-                            <th>Content</th>
-                            <th>Created Date</th>
                             <th>Content Type</th>
-                            <th>Action</th>
+                            <th>Is Preview</th>
+                            <th>Is Locked</th>
+                            <th>Quiz Available</th>
+                            <th>Reward Points</th>
+                            <th>Order Number</th>
+                            <th>Page Count</th>
+                            <th>Quiz Count</th>
+                            <th>Status</th>
+                            <th>Actions</th>
                           </tr>
                         </thead>
                         <tbody>
                           {paginatedLessons.map((lesson) => (
                             <tr key={lesson.id}>
+                              <td>{lesson.id}</td>
                               <td>
-                                <div>
-                                  <span className="fw-bold">{lesson.title}</span>
+                                <div className="d-flex align-items-center gap-2">
+                                  {lesson.thumbnail ? (
+                                    <img src={lesson.thumbnail} alt="" className="rounded border" style={{ width: '40px', height: '24px', objectFit: 'cover' }} />
+                                  ) : (
+                                    <div className="rounded border bg-light d-flex align-items-center justify-content-center" style={{ width: '40px', height: '24px' }}>
+                                      <i className="fas fa-image text-muted small"></i>
+                                    </div>
+                                  )}
+                                  <div>
+                                    <span className="fw-bold">{lesson.translations?.en?.title || lesson.title}</span>
+                                    {lesson.translations?.es?.title && lesson.translations.es.title !== lesson.title && (
+                                      <div className="text-muted small">ES: {lesson.translations.es.title}</div>
+                                    )}
+                                    {lesson.translations?.fr?.title && lesson.translations.fr.title !== lesson.title && (
+                                      <div className="text-muted small">FR: {lesson.translations.fr.title}</div>
+                                    )}
+                                  </div>
                                 </div>
                               </td>
+                              <td>{lesson.translations?.en?.duration || lesson.duration || '-'}</td>
                               <td>
-                                <span className="badge bg-secondary">{lesson.order_number}</span>
-                              </td>
-
-                              <td>{lesson.duration}</td>
-                              <td>
-                                <span className={`badge ${getStatusBadge(lesson.status)}`}>
-                                  {lesson.status ? lesson.status : '-'}
+                                <span className={`badge ${getContentTypeBadge(lesson.content?.content_type)}`}>
+                                  {lesson.content?.content_type?.toUpperCase() || '-'}
                                 </span>
                               </td>
                               <td>
-                                {lesson.content.is_downloadable ? 'Yes' : 'No'}
+                                <span className={`badge ${lesson.is_preview ? 'bg-success' : 'bg-secondary'}`}>
+                                  {lesson.is_preview ? 'Yes' : 'No'}
+                                </span>
                               </td>
                               <td>
-                                <button
-                                  className="btn btn-sm btn-outline-primary"
-                                  onClick={() => handleViewContent(lesson)}
-                                  title="View Content"
-                                >
-                                  View
-                                  {/* <i className="fas fa-eye"></i> */}
-                                </button>
+                                <span className={`badge ${lesson.is_locked ? 'bg-warning' : 'bg-success'}`}>
+                                  {lesson.is_locked ? 'Locked' : 'Unlocked'}
+                                </span>
                               </td>
                               <td>
-                               
-                                  {lesson.created_at ? new Date(lesson.created_at).toLocaleDateString() : '-'}
-                              
+                                <span className={`badge ${lesson.quiz_available ? 'bg-primary' : 'bg-secondary'}`}>
+                                  {lesson.quiz_available ? 'Yes' : 'No'}
+                                </span>
                               </td>
+                              <td>{lesson.reward_points || 0}</td>
+                              <td>{lesson.order_number || 0}</td>
+                              <td>{lesson.page_count || lesson.content?.pages?.length || 0}</td>
+                              <td>{lesson.quiz_count || lesson.quizzes?.length || 0}</td>
                               <td>
                                 <span className={`badge ${getStatusBadge(lesson.status)}`}>
-                                  {lesson.content.content_type ? lesson.content.content_type : '-'}
+                                  {lesson.status || 'Active'}
                                 </span>
                               </td>
                               <td>
                                 <div className="d-flex gap-2">
+                                  <button
+                                    className="btn btn-sm btn-outline-primary"
+                                    onClick={() => handleViewContent(lesson)}
+                                    title="Manage Lesson Content"
+                                  >
+                                    <i className="fas fa-file-alt"></i>
+                                  </button>
                                   <button
                                     className="btn btn-sm btn-outline-warning"
                                     onClick={() => {
@@ -473,13 +497,6 @@ export default function ChapterLessons() {
                             </div>
                           )}
 
-                          {selectedLesson.xp_points && (
-                            <div className="mb-3">
-                              <label className="text-muted small">XP Points</label>
-                              <p className="mb-0 fw-bold">{selectedLesson.xp_points}</p>
-                            </div>
-                          )}
-
                           {selectedLesson.reward_points && (
                             <div className="mb-3">
                               <label className="text-muted small">Reward Points</label>
@@ -525,20 +542,6 @@ export default function ChapterLessons() {
                                   </span>
                                 </p>
                               </div>
-
-                              {selectedLesson.content.duration && (
-                                <div className="mb-3">
-                                  <label className="text-muted small">Content Duration</label>
-                                  <p className="mb-0 fw-bold">{selectedLesson.content.duration}</p>
-                                </div>
-                              )}
-
-                              {selectedLesson.content.file_size && (
-                                <div className="mb-3">
-                                  <label className="text-muted small">File Size</label>
-                                  <p className="mb-0 fw-bold">{selectedLesson.content.file_size}</p>
-                                </div>
-                              )}
 
                               <div className="mb-3">
                                 <label className="text-muted small">Downloadable</label>
