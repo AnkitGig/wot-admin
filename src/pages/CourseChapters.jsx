@@ -14,6 +14,14 @@ export default function CourseChapters() {
   const navigate = useNavigate();
   const [courseData, setCourseData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [expandedChapters, setExpandedChapters] = useState({});
+
+  const toggleExpandChapter = (chapterId) => {
+    setExpandedChapters(prev => ({
+      ...prev,
+      [chapterId]: !prev[chapterId]
+    }));
+  };
 
   useEffect(() => {
     fetchCourseChapters();
@@ -185,7 +193,39 @@ export default function CourseChapters() {
                                            <div className="text-muted small">FR: {chapter.translations.fr.title}</div>
                                          )}
                                          <small className="text-muted d-block mt-1">
-                                           {chapter.translations?.en?.description || chapter.description_en || chapter.description || ''}
+                                           {(() => {
+                                             const desc = chapter.translations?.en?.description || chapter.description_en || chapter.description || '';
+                                             if (desc.length <= 100) return desc;
+                                             
+                                             const isExpanded = expandedChapters[chapter.id];
+                                             if (isExpanded) {
+                                               return (
+                                                 <>
+                                                   {desc}{' '}
+                                                   <span 
+                                                     className="text-primary fw-bold ms-1" 
+                                                     style={{ cursor: 'pointer', fontSize: '11px', textDecoration: 'underline' }}
+                                                     onClick={() => toggleExpandChapter(chapter.id)}
+                                                   >
+                                                     See Less
+                                                   </span>
+                                                 </>
+                                               );
+                                             } else {
+                                               return (
+                                                 <>
+                                                   {desc.substring(0, 100)}...{' '}
+                                                   <span 
+                                                     className="text-primary fw-bold ms-1" 
+                                                     style={{ cursor: 'pointer', fontSize: '11px', textDecoration: 'underline' }}
+                                                     onClick={() => toggleExpandChapter(chapter.id)}
+                                                   >
+                                                     See More
+                                                   </span>
+                                                 </>
+                                               );
+                                             }
+                                           })()}
                                          </small>
                                        </div>
                                      </td>
