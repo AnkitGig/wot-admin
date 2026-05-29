@@ -518,6 +518,17 @@ export default function LessonContent() {
                     )}
                   </li>
                   <li>
+                    {content && content.content_type !== 'video' && (
+                      <button
+                        className="btn btn-warning text-white fw-bold"
+                        onClick={() => navigate(`/courses/admin/lesson/${lessonId}/page/add?import=true`)}
+                        title="Import content pages from JSON file"
+                      >
+                        <i className="fa fa-file-import me-2"></i>Import JSON
+                      </button>
+                    )}
+                  </li>
+                  <li>
                     <button className="btn btn-info text-white" onClick={handleGenerateQuiz}>
                       <i className="fa fa-magic me-2"></i>Generate Quiz
                     </button>

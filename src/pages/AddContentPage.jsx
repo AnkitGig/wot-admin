@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { useAuth } from '../context/AuthContext';
 import ReactQuill from 'react-quill';
@@ -14,10 +14,13 @@ export default function AddContentPage() {
   const { lessonId } = useParams();
   const { token } = useAuth();
   const navigate = useNavigate();
+  const { search } = useLocation();
+  const queryParams = new URLSearchParams(search);
+  const isImportParam = queryParams.get('import') === 'true';
   const [lesson, setLesson] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [importMode, setImportMode] = useState(false);
+  const [importMode, setImportMode] = useState(isImportParam);
   const [selectedFile, setSelectedFile] = useState(null);
   const [formData, setFormData] = useState({
     title_en: '',
