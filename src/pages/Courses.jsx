@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { getAllCourses, getCourseById, deleteCourse } from '../api/courses';
+import { getAllCourses, getCourseById, deleteCourse, toggleCourseRecommended } from '../api/courses';
 import { useAuth } from '../context/AuthContext';
 import GlobalLoader from '../components/GlobalLoader';
 import CourseDetailModal from '../components/CourseDetailModal';
@@ -99,6 +99,32 @@ export default function Courses() {
     });
   };
 
+  const handleToggleRecommended = async (courseId, newStatus) => {
+    const result = await toggleCourseRecommended(courseId, newStatus, token);
+
+    if (result.success) {
+      setCourses((prevCourses) =>
+        prevCourses.map((c) =>
+          c.id === courseId ? { ...c, is_featured: newStatus } : c
+        )
+      );
+      Swal.fire({
+        icon: 'success',
+        title: 'Status Updated',
+        text: result.message || 'Course recommendation status updated successfully',
+        timer: 1500,
+        timerProgressBar: true,
+        showConfirmButton: false,
+      });
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Failed to Update',
+        text: result.message || 'An error occurred while updating course recommendation',
+      });
+    }
+  };
+
   const getStatusBadge = (status) => {
     const statusMap = {
       active: 'bg-success',
@@ -177,7 +203,7 @@ export default function Courses() {
                           <th>Lessons</th>
                           <th>Rating</th>
                           <th>Status</th>
-                          <th>Featured</th>
+                          <th>Recommended</th>
                           <th>Created At</th>
                           <th>Action</th>
                         </tr>
@@ -242,11 +268,17 @@ export default function Courses() {
                                 </span>
                               </td>
                               <td>
-                                {course.is_featured ? (
-                                  <span className="badge bg-warning text-dark"><i className="fas fa-star me-1"></i>Yes</span>
-                                ) : (
-                                  <span className="badge bg-secondary">No</span>
-                                )}
+                                <div className="form-check form-switch d-inline-block">
+                                  <input
+                                    className="form-check-input"
+                                    type="checkbox"
+                                    role="switch"
+                                    id={`recommended-${course.id}`}
+                                    checked={!!course.is_featured}
+                                    onChange={() => handleToggleRecommended(course.id, !course.is_featured)}
+                                    style={{ cursor: 'pointer', scale: '1.2' }}
+                                  />
+                                </div>
                               </td>
                               <td>
                                 {course.created_at ? new Date(course.created_at).toLocaleDateString() : '-'}

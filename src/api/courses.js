@@ -860,3 +860,39 @@ export const deleteLesson = async (lessonId, token) => {
     };
   }
 };
+
+export const toggleCourseRecommended = async (courseId, isRecommended, token) => {
+  try {
+    const url = `${API_BASE_URL}/courses/admin/course/${courseId}/recommended?is_recommended=${isRecommended}`;
+
+    const response = await fetch(url, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'accept': 'application/json',
+      },
+    });
+
+    const data = await response.json();
+
+    if (data.status === 1) {
+      return {
+        success: true,
+        data: data.data,
+        message: data.message,
+      };
+    } else {
+      return {
+        success: false,
+        message: data.message || 'Failed to update course recommendation',
+      };
+    }
+  } catch (error) {
+    console.error('Toggle Course Recommended API Error:', error);
+    return {
+      success: false,
+      message: error.message || 'An error occurred while toggling course recommendation',
+    };
+  }
+};
+
