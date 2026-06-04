@@ -153,7 +153,9 @@ export default function Sidebar() {
                   location.pathname.startsWith("/admin/broker-subscriptions") ||
                   location.pathname.startsWith("/admin/reconciliation-runs") ||
                   location.pathname.startsWith("/admin/audit-logs") ||
-                  location.pathname.startsWith("/admin/notification-schedule")
+                  location.pathname.startsWith("/admin/notification-schedule") ||
+                  location.pathname.startsWith("/admin/broker-entitlements") ||
+                  location.pathname.startsWith("/admin/broker-review-queue")
                     ? "active"
                     : ""
                 }
