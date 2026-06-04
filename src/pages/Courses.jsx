@@ -197,11 +197,10 @@ export default function Courses() {
                       <thead>
                         <tr>
                           <th>ID</th>
-                          <th>Course Title</th>
+                          <th style={{ minWidth: '250px' }}>Course Title</th>
                           <th>Duration</th>
                           <th>Chapters</th>
                           <th>Lessons</th>
-                          <th>Rating</th>
                           <th>Status</th>
                           <th>Recommended</th>
                           <th>Created At</th>
@@ -211,13 +210,13 @@ export default function Courses() {
                       <tbody>
                         {isLoading ? (
                           <tr>
-                            <td colSpan="10" className="text-center py-5">
+                            <td colSpan="9" className="text-center py-5">
                               <GlobalLoader visible={true} size="medium" />
                             </td>
                           </tr>
                         ) : courses.length === 0 ? (
                           <tr>
-                            <td colSpan="10" className="text-center py-5">
+                            <td colSpan="9" className="text-center py-5">
                               <p className="text-muted">No courses found</p>
                             </td>
                           </tr>
@@ -225,7 +224,7 @@ export default function Courses() {
                           courses.map((course) => (
                             <tr key={course.id}>
                               <td>{course.id}</td>
-                              <td>
+                              <td style={{ minWidth: '250px', maxWidth: '350px' }}>
                                 <div className="d-flex align-items-center">
                                   <img
                                     src={course.thumbnail || course.image}
@@ -239,8 +238,8 @@ export default function Courses() {
                                       backgroundColor: '#f0f0f0'
                                     }}
                                   />
-                                  <div>
-                                    <span>{course.title}</span>
+                                  <div style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>
+                                    <span className="fw-semibold">{course.title}</span>
                                   </div>
                                 </div>
                               </td>
@@ -255,13 +254,6 @@ export default function Courses() {
                                 </button>
                               </td>
                               <td>{course.lesson_count || 0}</td>
-                              <td>
-                                {course.rating_count > 0 ? (
-                                  <span>★ {course.rating_avg} ({course.rating_count})</span>
-                                ) : (
-                                  <span className="text-muted">-</span>
-                                )}
-                              </td>
                               <td>
                                 <span className={`badge ${getStatusBadge(course.status)}`}>
                                   {course.status}
