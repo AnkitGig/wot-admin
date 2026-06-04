@@ -4,7 +4,7 @@ import Sidebar from "../components/Sidebar";
 import Footer from "../components/Footer";
 import GlobalLoader from "../components/GlobalLoader";
 import BrokerTabs from "../components/BrokerTabs";
-import { getBrokerEntitlements } from "../api/tools";
+import { getBrokerEntitlements, extendBrokerAccess, revokeBrokerAccess } from "../api/tools";
 import { useAuth } from "../context/AuthContext";
 import Swal from "sweetalert2";
 
@@ -12,6 +12,105 @@ export default function BrokerEntitlements() {
   const [entitlements, setEntitlements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const { token } = useAuth();
+
+  const handleExtend = async (ent) => {
+    const { value: formValues } = await Swal.fire({
+      title: 'Extend Broker Access',
+      html:
+        `<div class="mb-3 text-start">` +
+        `  <label class="form-label fw-semibold">Days to Add</label>` +
+        `  <input id="swal-input-days" type="number" class="form-control" value="30" min="1" step="1">` +
+        `</div>` +
+        `<div class="mb-3 text-start">` +
+        `  <label class="form-label fw-semibold">Reason</label>` +
+        `  <textarea id="swal-input-reason" class="form-control" placeholder="Enter reason for extending access..." rows="3"></textarea>` +
+        `</div>`,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Extend Access',
+      confirmButtonColor: '#3085d6',
+      preConfirm: () => {
+        const days = document.getElementById('swal-input-days').value;
+        const reason = document.getElementById('swal-input-reason').value;
+        if (!days || days <= 0) {
+          Swal.showValidationMessage('Please enter a valid number of days.');
+          return false;
+        }
+        if (!reason || !reason.trim()) {
+          Swal.showValidationMessage('Please enter a reason for extension.');
+          return false;
+        }
+        return { days: parseInt(days), reason: reason.trim() };
+      }
+    });
+
+    if (formValues) {
+      try {
+        setLoading(true);
+        const res = await extendBrokerAccess(token, {
+          subscriptionId: ent.id,
+          daysToAdd: formValues.days,
+          reason: formValues.reason
+        });
+
+        if (res.success) {
+          Swal.fire('Extended!', res.message || 'Broker access extended successfully.', 'success');
+          fetchEntitlements();
+        } else {
+          Swal.fire('Error', res.message || 'Failed to extend broker access.', 'error');
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error(err);
+        Swal.fire('Error', 'An error occurred during extension.', 'error');
+        setLoading(false);
+      }
+    }
+  };
+
+  const handleRevoke = async (ent) => {
+    const { value: reason } = await Swal.fire({
+      title: 'Revoke Broker Access',
+      input: 'textarea',
+      inputLabel: 'Reason for Revocation',
+      inputPlaceholder: 'Enter justification for revoking access...',
+      inputAttributes: {
+        'aria-label': 'Type your reason here'
+      },
+      showCancelButton: true,
+      confirmButtonText: 'Revoke Access',
+      confirmButtonColor: '#d33',
+      inputValidator: (value) => {
+        if (!value || !value.trim()) {
+          return 'You must enter a reason for revocation!';
+        }
+      }
+    });
+
+    if (reason) {
+      try {
+        setLoading(true);
+        const res = await revokeBrokerAccess(token, {
+          subscriptionId: ent.id,
+          reason: reason.trim()
+        });
+
+        if (res.success) {
+          Swal.fire('Revoked!', res.message || 'Broker access revoked successfully.', 'success');
+          fetchEntitlements();
+        } else {
+          Swal.fire('Error', res.message || 'Failed to revoke broker access.', 'error');
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error(err);
+        Swal.fire('Error', 'An error occurred during revocation.', 'error');
+        setLoading(false);
+      }
+    }
+  };
 
   // Pagination & limits
   const [page, setPage] = useState(1);
@@ -21,8 +120,6 @@ export default function BrokerEntitlements() {
   // Local filtering & search states (to provide premium UX on the loaded page)
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState(""); // "" means All
-
-  const { token } = useAuth();
 
   const fetchEntitlements = useCallback(async () => {
     if (!token) return;
@@ -217,20 +314,21 @@ export default function BrokerEntitlements() {
                       <th className="fw-semibold text-center text-dark">Grant Processed</th>
                       <th className="fw-semibold text-dark">Submitted Date</th>
                       <th className="fw-semibold text-dark">Pending Until</th>
+                      <th className="fw-semibold text-center text-dark">Actions</th>
                     </tr>
                   </thead>
 
                   <tbody>
                     {loading ? (
                       <tr>
-                        <td colSpan="13" className="text-center py-5">
+                        <td colSpan="14" className="text-center py-5">
                           <GlobalLoader visible={true} size="small" />
                           <p className="text-muted small mt-2">Fetching broker entitlements...</p>
                         </td>
                       </tr>
                     ) : filteredData.length === 0 ? (
                       <tr>
-                        <td colSpan="13" className="text-center py-5">
+                        <td colSpan="14" className="text-center py-5">
                           <div className="py-4">
                             <i className="fas fa-folder-open text-muted fa-3x mb-3"></i>
                             <h5 className="text-secondary fw-semibold">No Entitlements Found</h5>
@@ -282,6 +380,27 @@ export default function BrokerEntitlements() {
                           <td className="text-center">{getGrantProcessedBadge(ent.grant_processed)}</td>
                           <td className="small text-muted">{formatDate(ent.submitted_at)}</td>
                           <td className="small text-muted">{formatDate(ent.pending_until)}</td>
+                          <td className="text-center">
+                            <div className="d-flex justify-content-center gap-1">
+                              <button
+                                className="btn btn-xs btn-outline-primary"
+                                title="Extend Access"
+                                onClick={() => handleExtend(ent)}
+                                style={{ padding: "0.25rem 0.5rem", fontSize: "0.75rem", borderRadius: "4px" }}
+                              >
+                                <i className="fas fa-calendar-plus me-1"></i> Extend
+                              </button>
+                              <button
+                                className="btn btn-xs btn-outline-danger"
+                                title="Revoke Access"
+                                onClick={() => handleRevoke(ent)}
+                                disabled={ent.status === "revoked"}
+                                style={{ padding: "0.25rem 0.5rem", fontSize: "0.75rem", borderRadius: "4px" }}
+                              >
+                                <i className="fas fa-ban me-1"></i> Revoke
+                              </button>
+                            </div>
+                          </td>
                         </tr>
                       ))
                     )}

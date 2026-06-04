@@ -250,3 +250,80 @@ export const getBrokerReviewQueue = async (token, page = 1, limit = 20, status =
     };
   }
 };
+
+export const extendBrokerAccess = async (token, { subscriptionId, daysToAdd, reason }) => {
+  try {
+    const response = await fetch('https://api.wayoftrading.com/aitredding/admin/tools/broker/extend', {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        subscription_id: Number(subscriptionId),
+        days_to_add: Number(daysToAdd),
+        reason: reason,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      return {
+        success: true,
+        message: data.message || 'Broker access extended successfully',
+        data: data.data,
+      };
+    } else {
+      return {
+        success: false,
+        message: data.message || 'Failed to extend broker access',
+      };
+    }
+  } catch (error) {
+    console.error('Error extending broker access:', error);
+    return {
+      success: false,
+      message: 'An error occurred while extending broker access',
+    };
+  }
+};
+
+export const revokeBrokerAccess = async (token, { subscriptionId, reason }) => {
+  try {
+    const response = await fetch('https://api.wayoftrading.com/aitredding/admin/tools/broker/revoke', {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        subscription_id: Number(subscriptionId),
+        reason: reason,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      return {
+        success: true,
+        message: data.message || 'Broker access revoked successfully',
+        data: data.data,
+      };
+    } else {
+      return {
+        success: false,
+        message: data.message || 'Failed to revoke broker access',
+      };
+    }
+  } catch (error) {
+    console.error('Error revoking broker access:', error);
+    return {
+      success: false,
+      message: 'An error occurred while revoking broker access',
+    };
+  }
+};
