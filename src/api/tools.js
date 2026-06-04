@@ -172,3 +172,38 @@ export const updateEmailTemplate = async (token, id, templateData) => {
     };
   }
 };
+
+export const getBrokerEntitlements = async (token, page = 1, limit = 20) => {
+  try {
+    const response = await fetch(`https://api.wayoftrading.com/aitredding/admin/tools/broker-entitlements?page=${page}&limit=${limit}`, {
+      method: 'GET',
+      headers: {
+        'accept': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (data.status === 1) {
+      return {
+        success: true,
+        data: data.data || [],
+        total: data.total || 0,
+        page: data.page || page,
+        limit: data.limit || limit,
+      };
+    } else {
+      return {
+        success: false,
+        message: data.message || 'Failed to fetch broker entitlements',
+      };
+    }
+  } catch (error) {
+    console.error('Error fetching broker entitlements:', error);
+    return {
+      success: false,
+      message: 'An error occurred while fetching broker entitlements',
+    };
+  }
+};

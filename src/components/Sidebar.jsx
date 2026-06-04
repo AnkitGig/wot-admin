@@ -163,6 +163,13 @@ export default function Sidebar() {
               </Link>
             </li>
 
+            <li>
+              <Link to="/admin/broker-entitlements" className={isActive("/admin/broker-entitlements")}>
+                <i className="fas fa-award me-2"></i>
+                <span>Broker Entitlements</span>
+              </Link>
+            </li>
+
             {/* <li>
               <Link to="/coupon-categories" className={isActive("/coupon-categories")}>
                 <i className="fas fa-layer-group me-2"></i>
