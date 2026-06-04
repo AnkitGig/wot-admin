@@ -207,3 +207,46 @@ export const getBrokerEntitlements = async (token, page = 1, limit = 20) => {
     };
   }
 };
+
+export const getBrokerReviewQueue = async (token, page = 1, limit = 20, status = '') => {
+  try {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+    if (status) {
+      params.append('status', status);
+    }
+
+    const response = await fetch(`https://api.wayoftrading.com/aitredding/admin/tools/broker/queue?${params}`, {
+      method: 'GET',
+      headers: {
+        'accept': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (data.status === 1) {
+      return {
+        success: true,
+        data: data.data || [],
+        total: data.total || 0,
+        page: data.page || page,
+        limit: data.limit || limit,
+      };
+    } else {
+      return {
+        success: false,
+        message: data.message || 'Failed to fetch broker review queue',
+      };
+    }
+  } catch (error) {
+    console.error('Error fetching broker review queue:', error);
+    return {
+      success: false,
+      message: 'An error occurred while fetching broker review queue',
+    };
+  }
+};

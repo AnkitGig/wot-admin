@@ -66,6 +66,7 @@ import ReconciliationRuns from './pages/ReconciliationRuns'
 import AuditLogs from './pages/AuditLogs'
 import NotificationSchedule from './pages/NotificationSchedule'
 import BrokerEntitlements from './pages/BrokerEntitlements'
+import BrokerReviewQueue from './pages/BrokerReviewQueue'
 
 export default function App() {
   return (
@@ -149,6 +150,7 @@ export default function App() {
         <Route path="/admin/audit-logs" element={<ProtectedRoute><AuditLogs /></ProtectedRoute>} />
         <Route path="/admin/notification-schedule" element={<ProtectedRoute><NotificationSchedule /></ProtectedRoute>} />
         <Route path="/admin/broker-entitlements" element={<ProtectedRoute><BrokerEntitlements /></ProtectedRoute>} />
+        <Route path="/admin/broker-review-queue" element={<ProtectedRoute><BrokerReviewQueue /></ProtectedRoute>} />
       </Routes>
     </AuthProvider>
   )

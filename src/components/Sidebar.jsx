@@ -170,6 +170,13 @@ export default function Sidebar() {
               </Link>
             </li>
 
+            <li>
+              <Link to="/admin/broker-review-queue" className={isActive("/admin/broker-review-queue")}>
+                <i className="fas fa-clipboard-list me-2"></i>
+                <span>Broker Review Queue</span>
+              </Link>
+            </li>
+
             {/* <li>
               <Link to="/coupon-categories" className={isActive("/coupon-categories")}>
                 <i className="fas fa-layer-group me-2"></i>

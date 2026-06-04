@@ -56,6 +56,15 @@ export default function BrokerTabs() {
         >
           <i className="fas fa-award me-1"></i> Entitlements
         </Link>
+        <Link
+          to="/admin/broker-review-queue"
+          className={`btn btn-sm px-3 py-2 rounded-pill fw-bold ${isActive(
+            "/admin/broker-review-queue"
+          )}`}
+          style={{ transition: "all 0.2s" }}
+        >
+          <i className="fas fa-clipboard-list me-1"></i> Review Queue
+        </Link>
       </div>
     </div>
   );
