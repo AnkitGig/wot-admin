@@ -163,7 +163,7 @@ export default function Sidebar() {
               </Link>
             </li>
 
-            <li>
+            {/* <li>
               <Link to="/admin/broker-entitlements" className={isActive("/admin/broker-entitlements")}>
                 <i className="fas fa-award me-2"></i>
                 <span>Broker Entitlements</span>
@@ -175,7 +175,7 @@ export default function Sidebar() {
                 <i className="fas fa-clipboard-list me-2"></i>
                 <span>Broker Review Queue</span>
               </Link>
-            </li>
+            </li> */}
 
             {/* <li>
               <Link to="/coupon-categories" className={isActive("/coupon-categories")}>

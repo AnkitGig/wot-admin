@@ -47,7 +47,7 @@ export default function BrokerTabs() {
         >
           <i className="fas fa-bell me-1"></i> Notification Delivery
         </Link>
-        <Link
+        {/* <Link
           to="/admin/broker-entitlements"
           className={`btn btn-sm px-3 py-2 rounded-pill fw-bold ${isActive(
             "/admin/broker-entitlements"
@@ -64,7 +64,7 @@ export default function BrokerTabs() {
           style={{ transition: "all 0.2s" }}
         >
           <i className="fas fa-clipboard-list me-1"></i> Review Queue
-        </Link>
+        </Link> */}
       </div>
     </div>
   );
