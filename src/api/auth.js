@@ -1,6 +1,6 @@
 import { apiCall } from './config';
 
-const BASE_URL = 'https://api.wayoftrading.com/aitredding/api';
+const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/api`;
 const postForm = async (endpoint, fields) => {
   const response = await fetch(`${BASE_URL}${endpoint}`, {
     method: 'POST',

@@ -1,6 +1,8 @@
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 export const getAllToolFlags = async (token) => {
   try {
-    const response = await fetch('https://api.wayoftrading.com/aitredding/admin/tools/flags', {
+    const response = await fetch(`${API_BASE_URL}/admin/tools/flags`, {
       method: 'GET',
       headers: {
         'accept': 'application/json',
@@ -32,7 +34,7 @@ export const getAllToolFlags = async (token) => {
 
 export const broadcastNotification = async (token, notificationData) => {
   try {
-    const response = await fetch('https://api.wayoftrading.com/aitredding/admin/tools/broadcast-notification', {
+    const response = await fetch(`${API_BASE_URL}/admin/tools/broadcast-notification`, {
       method: 'POST',
       headers: {
         'accept': 'application/json',
@@ -73,7 +75,7 @@ export const updateToolFlag = async (token, toolName, isEnabled, disabledReason 
       formData.append('disabled_reason', disabledReason);
     }
 
-    const response = await fetch(`https://api.wayoftrading.com/aitredding/admin/tools/flags/${toolName}`, {
+    const response = await fetch(`${API_BASE_URL}/admin/tools/flags/${toolName}`, {
       method: 'PATCH',
       headers: {
         'accept': 'application/json',
@@ -108,7 +110,7 @@ export const updateToolFlag = async (token, toolName, isEnabled, disabledReason 
 
 export const getEmailTemplates = async (token) => {
   try {
-    const response = await fetch('https://api.wayoftrading.com/aitredding/admin/tools/email-templates', {
+    const response = await fetch(`${API_BASE_URL}/admin/tools/email-templates`, {
       method: 'GET',
       headers: {
         'accept': 'application/json',
@@ -140,7 +142,7 @@ export const getEmailTemplates = async (token) => {
 
 export const updateEmailTemplate = async (token, id, templateData) => {
   try {
-    const response = await fetch(`https://api.wayoftrading.com/aitredding/admin/tools/email-templates/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/admin/tools/email-templates/${id}`, {
       method: 'POST',
       headers: {
         'accept': 'application/json',
@@ -175,7 +177,7 @@ export const updateEmailTemplate = async (token, id, templateData) => {
 
 export const getBrokerEntitlements = async (token, page = 1, limit = 20) => {
   try {
-    const response = await fetch(`https://api.wayoftrading.com/aitredding/admin/tools/broker-entitlements?page=${page}&limit=${limit}`, {
+    const response = await fetch(`${API_BASE_URL}/admin/tools/broker-entitlements?page=${page}&limit=${limit}`, {
       method: 'GET',
       headers: {
         'accept': 'application/json',
@@ -218,7 +220,7 @@ export const getBrokerReviewQueue = async (token, page = 1, limit = 20, status =
       params.append('status', status);
     }
 
-    const response = await fetch(`https://api.wayoftrading.com/aitredding/admin/tools/broker/queue?${params}`, {
+    const response = await fetch(`${API_BASE_URL}/admin/tools/broker/queue?${params}`, {
       method: 'GET',
       headers: {
         'accept': 'application/json',
@@ -253,7 +255,7 @@ export const getBrokerReviewQueue = async (token, page = 1, limit = 20, status =
 
 export const extendBrokerAccess = async (token, { subscriptionId, daysToAdd, reason }) => {
   try {
-    const response = await fetch('https://api.wayoftrading.com/aitredding/admin/tools/broker/extend', {
+    const response = await fetch(`${API_BASE_URL}/admin/tools/broker/extend`, {
       method: 'POST',
       headers: {
         'accept': 'application/json',
@@ -292,7 +294,7 @@ export const extendBrokerAccess = async (token, { subscriptionId, daysToAdd, rea
 
 export const revokeBrokerAccess = async (token, { subscriptionId, reason }) => {
   try {
-    const response = await fetch('https://api.wayoftrading.com/aitredding/admin/tools/broker/revoke', {
+    const response = await fetch(`${API_BASE_URL}/admin/tools/broker/revoke`, {
       method: 'POST',
       headers: {
         'accept': 'application/json',

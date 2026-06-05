@@ -1,6 +1,6 @@
 // src/api/glossary.js
 
-const BASE_URL = 'https://api.wayoftrading.com/aitredding';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // token direct storage se uthao
 const getToken = () => {

@@ -29,7 +29,7 @@ export default function QuizStatsModal({ show, quizId, onClose }) {
     setError(null);
     
     try {
-      const response = await fetch(`https://api.wayoftrading.com/aitredding/quiz/admin/quiz-stats/${quizId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/quiz/admin/quiz-stats/${quizId}`, {
         method: 'GET',
         headers: {
           'accept': 'application/json',

@@ -1,5 +1,5 @@
 // API Configuration
-const API_BASE_URL = 'https://api.wayoftrading.com/aitredding/api';
+const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/api`;
 
 export const apiConfig = {
   baseURL: API_BASE_URL,

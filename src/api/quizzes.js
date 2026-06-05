@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://api.wayoftrading.com/aitredding/quiz';
+const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/quiz`;
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('access_token');

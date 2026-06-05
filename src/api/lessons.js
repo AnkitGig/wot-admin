@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://api.wayoftrading.com/aitredding';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const getLessonsByCourse = async (courseId, token) => {
   try {

@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://api.wayoftrading.com/aitredding/api';
+const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/api`;
 const FAQ_API_URL = '/admin/support/faq';
 
 export const getFAQs = async (token) => {

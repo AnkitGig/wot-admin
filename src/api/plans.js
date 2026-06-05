@@ -1,6 +1,8 @@
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 export const getAllPlans = async (token) => {
   try {
-    const response = await fetch('https://api.wayoftrading.com/aitredding/admin/tools/plans', {
+    const response = await fetch(`${API_BASE_URL}/admin/tools/plans`, {
       method: 'GET',
       headers: {
         'accept': 'application/json',
@@ -33,7 +35,7 @@ export const getAllPlans = async (token) => {
 
 export const createPlan = async (token, planData) => {
   try {
-    const response = await fetch('https://api.wayoftrading.com/aitredding/admin/tools/plans', {
+    const response = await fetch(`${API_BASE_URL}/admin/tools/plans`, {
       method: 'POST',
       headers: {
         'accept': 'application/json',
@@ -68,7 +70,7 @@ export const createPlan = async (token, planData) => {
 
 export const updatePlan = async (token, planId, planData) => {
   try {
-    const response = await fetch(`https://api.wayoftrading.com/aitredding/admin/tools/plans/${planId}`, {
+    const response = await fetch(`${API_BASE_URL}/admin/tools/plans/${planId}`, {
       method: 'PATCH',
       headers: {
         'accept': 'application/json',
@@ -102,7 +104,7 @@ export const updatePlan = async (token, planId, planData) => {
 
 export const deletePlan = async (token, planId) => {
   try {
-    const response = await fetch(`https://api.wayoftrading.com/aitredding/admin/tools/plans/${planId}`, {
+    const response = await fetch(`${API_BASE_URL}/admin/tools/plans/${planId}`, {
       method: 'DELETE',
       headers: {
         'accept': 'application/json',

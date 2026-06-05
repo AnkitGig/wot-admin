@@ -1,3 +1,5 @@
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const getAuthHeaders = () => {
   const token = localStorage.getItem('access_token');
   if (!token) {
@@ -14,7 +16,7 @@ export const getAllCoupons = async () => {
   try {
     console.log('[Coupons] Fetching all coupons');
 
-    const response = await fetch('https://api.wayoftrading.com/aitredding/coupon/admin/all', {
+    const response = await fetch(`${API_BASE_URL}/coupon/admin/all`, {
       method: 'GET',
       headers: getAuthHeaders(),
     });
@@ -44,7 +46,7 @@ export const createCoupon = async (token, couponData) => {
       }
     });
 
-    const response = await fetch('https://api.wayoftrading.com/aitredding/coupon/admin/create', {
+    const response = await fetch(`${API_BASE_URL}/coupon/admin/create`, {
       method: 'POST',
       headers: {
         'accept': 'application/json',
@@ -71,7 +73,7 @@ export const createCoupon = async (token, couponData) => {
 
 export const getAllCouponCategories = async (token) => {
   try {
-    const response = await fetch('https://api.wayoftrading.com/aitredding/coupon/admin/category/all', {
+    const response = await fetch(`${API_BASE_URL}/coupon/admin/category/all`, {
       method: 'GET',
       headers: {
         'accept': 'application/json',
@@ -99,7 +101,7 @@ export const createCouponCategory = async (token, categoryName) => {
     // categoryName is expected to be an object like {"en": "Travel", "es": "Viajes", "fr": "Voyage"}
     const nameValue = typeof categoryName === 'string' ? categoryName : JSON.stringify(categoryName);
 
-    const response = await fetch('https://api.wayoftrading.com/aitredding/coupon/admin/category/create', {
+    const response = await fetch(`${API_BASE_URL}/coupon/admin/category/create`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -129,7 +131,7 @@ export const createCouponCategory = async (token, categoryName) => {
 
 export const deleteCouponCategory = async (token, categoryId) => {
   try {
-    const response = await fetch(`https://api.wayoftrading.com/aitredding/coupon/admin/category/delete/${categoryId}`, {
+    const response = await fetch(`${API_BASE_URL}/coupon/admin/category/delete/${categoryId}`, {
       method: 'DELETE',
       headers: {
         'accept': 'application/json',
@@ -158,7 +160,7 @@ export const updateCouponCategory = async (token, categoryId, categoryName) => {
     // categoryName is expected to be an object like {"en": "Travel", "es": "Viajes", "fr": "Voyage"}
     const nameValue = typeof categoryName === 'string' ? categoryName : JSON.stringify(categoryName);
 
-    const response = await fetch(`https://api.wayoftrading.com/aitredding/coupon/admin/category/edit/${categoryId}`, {
+    const response = await fetch(`${API_BASE_URL}/coupon/admin/category/edit/${categoryId}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -189,7 +191,7 @@ export const updateCouponCategory = async (token, categoryId, categoryName) => {
 
 export const deleteCoupon = async (token, couponId) => {
   try {
-    const response = await fetch(`https://api.wayoftrading.com/aitredding/coupon/admin/delete/${couponId}`, {
+    const response = await fetch(`${API_BASE_URL}/coupon/admin/delete/${couponId}`, {
       method: 'DELETE',
       headers: {
         'accept': 'application/json',
@@ -223,7 +225,7 @@ export const updateCoupon = async (token, couponId, couponData) => {
       }
     });
 
-    const response = await fetch(`https://api.wayoftrading.com/aitredding/coupon/admin/edit/${couponId}`, {
+    const response = await fetch(`${API_BASE_URL}/coupon/admin/edit/${couponId}`, {
       method: 'PATCH',
       headers: {
         'accept': 'application/json',

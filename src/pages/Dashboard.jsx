@@ -17,7 +17,7 @@ export default function Dashboard() {
     const fetchStats = async () => {
       try {
         setLoading(true)
-        const response = await fetch('https://api.wayoftrading.com/aitredding/admin/tools/stats', {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/admin/tools/stats`, {
           headers: {
             'accept': 'application/json',
             'Authorization': `Bearer ${token}`

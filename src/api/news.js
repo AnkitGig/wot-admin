@@ -1,6 +1,8 @@
+const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/api`;
+
 export const getNews = async (token, limit = 50) => {
   try {
-    const response = await fetch(`https://api.wayoftrading.com/aitredding/api/admin/news?limit=${limit}`, {
+    const response = await fetch(`${API_BASE_URL}/admin/news?limit=${limit}`, {
       method: 'GET',
       headers: {
         'accept': 'application/json',
@@ -32,7 +34,7 @@ export const getNews = async (token, limit = 50) => {
 
 export const getNewsById = async (token, newsId) => {
   try {
-    const response = await fetch(`https://api.wayoftrading.com/aitredding/api/admin/news/${newsId}`, {
+    const response = await fetch(`${API_BASE_URL}/admin/news/${newsId}`, {
       method: 'GET',
       headers: {
         'accept': 'application/json',
@@ -64,7 +66,7 @@ export const getNewsById = async (token, newsId) => {
 
 export const updateNews = async (token, newsId, newsData) => {
   try {
-    const response = await fetch(`https://api.wayoftrading.com/aitredding/api/admin/news/${newsId}`, {
+    const response = await fetch(`${API_BASE_URL}/admin/news/${newsId}`, {
       method: 'PUT',
       headers: {
         'accept': 'application/json',
@@ -98,7 +100,7 @@ export const updateNews = async (token, newsId, newsData) => {
 
 export const deleteNews = async (token, newsId) => {
   try {
-    const response = await fetch(`https://api.wayoftrading.com/aitredding/api/admin/news/${newsId}`, {
+    const response = await fetch(`${API_BASE_URL}/admin/news/${newsId}`, {
       method: 'DELETE',
       headers: {
         'accept': 'application/json',
@@ -130,7 +132,7 @@ export const deleteNews = async (token, newsId) => {
 
 export const deleteAllNews = async (token) => {
   try {
-    const response = await fetch(`https://api.wayoftrading.com/aitredding/api/admin/news`, {
+    const response = await fetch(`${API_BASE_URL}/admin/news`, {
       method: 'DELETE',
       headers: {
         'accept': 'application/json',
@@ -162,7 +164,7 @@ export const deleteAllNews = async (token) => {
 
 export const publishNews = async (token, newsId) => {
   try {
-    const response = await fetch(`https://api.wayoftrading.com/aitredding/api/admin/news/${newsId}/publish`, {
+    const response = await fetch(`${API_BASE_URL}/admin/news/${newsId}/publish`, {
       method: 'PATCH',
       headers: {
         'accept': 'application/json',
@@ -195,7 +197,7 @@ export const publishNews = async (token, newsId) => {
 
 export const featureNews = async (token, newsId) => {
   try {
-    const response = await fetch(`https://api.wayoftrading.com/aitredding/api/admin/news/${newsId}/feature`, {
+    const response = await fetch(`${API_BASE_URL}/admin/news/${newsId}/feature`, {
       method: 'PATCH',
       headers: {
         'accept': 'application/json',

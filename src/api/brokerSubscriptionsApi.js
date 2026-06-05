@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://api.wayoftrading.com/aitredding";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Helper to get token
 const getToken = () => localStorage.getItem("access_token");

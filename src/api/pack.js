@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://api.wayoftrading.com/aitredding';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const PACKS_API_URL = '/admin/tools/recharge-packs';
 
 export const getPacks = async (token) => {

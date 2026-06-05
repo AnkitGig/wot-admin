@@ -1,5 +1,5 @@
 import { apiCall } from './config';
-const API_BASE_URL = 'https://api.wayoftrading.com/aitredding';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const getUsers = async (token, page = 1, limit = 10, sortBy = 'id', order = 'desc', search = null, isActive = null) => {
   const params = new URLSearchParams({
@@ -18,7 +18,7 @@ export const getUsers = async (token, page = 1, limit = 10, sortBy = 'id', order
   }
 
   try {
-    const response = await fetch(`https://api.wayoftrading.com/aitredding/admin/users?${params}`, {
+    const response = await fetch(`${API_BASE_URL}/admin/users?${params}`, {
       method: 'GET',
       headers: {
         'accept': 'application/json',
@@ -52,7 +52,7 @@ export const setUserStatus = async (token, userId, isActive) => {
   try {
     console.log('[v0] Setting user status:', { userId, isActive });
 
-    const response = await fetch(`https://api.wayoftrading.com/aitredding/admin/users/${userId}/set-status`, {
+    const response = await fetch(`${API_BASE_URL}/admin/users/${userId}/set-status`, {
       method: 'PATCH',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -137,7 +137,7 @@ export const updateUser = async (token, userId, userData) => {
 
 export const updateUserCoins = async (token, userId, coins) => {
   try {
-    const response = await fetch(`https://api.wayoftrading.com/aitredding/admin/tools/user-coins`, {
+    const response = await fetch(`${API_BASE_URL}/admin/tools/user-coins`, {
       method: 'PATCH',
       headers: {
         'Authorization': `Bearer ${token}`,
