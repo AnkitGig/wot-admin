@@ -69,17 +69,17 @@ export const broadcastNotification = async (token, notificationData) => {
 
 export const updateToolFlag = async (token, toolName, isEnabled, disabledReason = null) => {
   try {
-    const payload = { is_enabled: isEnabled };
+    // Build JSON payload for the API
+    const payload = { is_enabled: isEnabled ? 1 : 0 };
     if (disabledReason && !isEnabled) {
-      // disabledReason is either an object {en, fr, es} or a plain string
+      // disabledReason may be an object {en, fr, es} – keep it as is (JSON will stringify)
       payload.disabled_reason = disabledReason;
     }
-
     const response = await fetch(`${API_BASE_URL}/admin/tools/flags/${toolName}`, {
       method: 'PATCH',
       headers: {
-        'accept': 'application/json',
-        'Authorization': `Bearer ${token}`,
+        accept: 'application/json',
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(payload),
