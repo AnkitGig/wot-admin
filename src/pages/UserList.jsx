@@ -61,6 +61,7 @@ export default function UserList() {
   }, [token]);
 
   useEffect(() => {
+    if (!token) return;
     const fetchBrokersList = async () => {
       try {
         const res = await getBrokers();
@@ -72,7 +73,7 @@ export default function UserList() {
       }
     };
     fetchBrokersList();
-  }, []);
+  }, [token]);
 
   const resolveBrokerName = (brokerId) => {
     if (!brokerId) return null;
