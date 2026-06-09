@@ -190,24 +190,57 @@ export default function ToolFlags() {
     </td>
     <td>{getStatusBadge(tool.is_enabled)}</td>
     <td>
-        {(() => {
-          const reason = typeof tool.disabled_reason === 'string' ? (() => {
-            try { return JSON.parse(tool.disabled_reason); } catch { return tool.disabled_reason; }
-          })() : tool.disabled_reason;
-          if (reason) {
-            if (typeof reason === 'object') {
-              return (
-                <div className="d-flex flex-column gap-1">
-                  {reason.en && (<span><span className="badge bg-secondary me-1">EN</span>{reason.en}</span>)}
-                  {reason.fr && (<span><span className="badge bg-info me-1">FR</span>{reason.fr}</span>)}
-                  {reason.es && (<span><span className="badge bg-warning text-dark me-1">ES</span>{reason.es}</span>)}
-                </div>
-              );
-            }
-            return <span>{reason}</span>;
-          }
-          return <span className="text-muted">-</span>;
-        })()}
+      {(() => {
+        const reason = typeof tool.disabled_reason === 'string' ? (() => {
+          try { return JSON.parse(tool.disabled_reason); } catch { return tool.disabled_reason; }
+        })() : tool.disabled_reason;
+        const reasonString = reason
+          ? typeof reason === 'object'
+            ? Object.entries(reason)
+                .filter(([_, v]) => v)
+                .map(([k, v]) => `${k.toUpperCase()}: ${v}`)
+                .join(' | ')
+            : String(reason)
+          : '-';
+        return (
+          <span
+            className="text-truncate d-inline-block"
+            style={{ maxWidth: '200px' }}
+            title={reasonString}
+          >
+            {(() => {
+              if (reason) {
+                if (typeof reason === 'object') {
+                  return (
+                    <div className="d-flex flex-column gap-1">
+                      {reason.en && (
+                        <span>
+                          <span className="badge bg-secondary me-1">EN</span>
+                          {reason.en}
+                        </span>
+                      )}
+                      {reason.fr && (
+                        <span>
+                          <span className="badge bg-info me-1">FR</span>
+                          {reason.fr}
+                        </span>
+                      )}
+                      {reason.es && (
+                        <span>
+                          <span className="badge bg-warning text-dark me-1">ES</span>
+                          {reason.es}
+                        </span>
+                      )}
+                    </div>
+                  );
+                }
+                return <span>{reason}</span>;
+              }
+              return <span className="text-muted">-</span>;
+            })()}
+          </span>
+        );
+      })()}
     </td>
     <td>{tool.toggled_by || <span className="text-muted">System</span>}</td>
     <td><small>{formatDate(tool.toggled_at)}</small></td>
