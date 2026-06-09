@@ -69,10 +69,10 @@ export const broadcastNotification = async (token, notificationData) => {
 
 export const updateToolFlag = async (token, toolName, isEnabled, disabledReason = null) => {
   try {
-    const formData = new URLSearchParams();
-    formData.append('is_enabled', isEnabled);
+    const payload = { is_enabled: isEnabled };
     if (disabledReason && !isEnabled) {
-      formData.append('disabled_reason', disabledReason);
+      // disabledReason is either an object {en, fr, es} or a plain string
+      payload.disabled_reason = disabledReason;
     }
 
     const response = await fetch(`${API_BASE_URL}/admin/tools/flags/${toolName}`, {
@@ -80,9 +80,9 @@ export const updateToolFlag = async (token, toolName, isEnabled, disabledReason 
       headers: {
         'accept': 'application/json',
         'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': 'application/json',
       },
-      body: formData.toString(),
+      body: JSON.stringify(payload),
     });
 
     const data = await response.json();

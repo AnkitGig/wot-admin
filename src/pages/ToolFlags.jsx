@@ -35,49 +35,86 @@ export default function ToolFlags() {
   }
 
   const handleToggleTool = async (toolName, currentStatus) => {
-    const result = await Swal.fire({
-      title: currentStatus ? 'Disable Tool?' : 'Enable Tool?',
-      text: `Are you sure you want to ${currentStatus ? 'disable' : 'enable'} "${toolName}"?`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: currentStatus ? '#d33' : '#28a745',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: currentStatus ? 'Yes, disable it!' : 'Yes, enable it!',
-      input: !currentStatus ? false : 'text',
-      inputLabel: 'Disabled Reason',
-      inputPlaceholder: 'Enter reason for disabling...',
-      inputValidator: (value) => {
-        if (!value && !currentStatus) {
-          return 'You need to provide a reason for disabling!'
+    if (currentStatus) {
+      // Disabling — show a custom form with 3 language inputs
+      const result = await Swal.fire({
+        title: 'Disable Tool?',
+        html: `
+          <p class="text-muted mb-3">Are you sure you want to disable <strong>"${toolName}"</strong>?</p>
+          <div class="text-start">
+            <label class="form-label fw-semibold small">🇬🇧 English (EN)</label>
+            <input id="swal-reason-en" class="swal2-input" placeholder="e.g. System is updating" />
+
+            <label class="form-label fw-semibold small mt-2">🇫🇷 French (FR)</label>
+            <input id="swal-reason-fr" class="swal2-input" placeholder="e.g. Le système se met à jour" />
+
+            <label class="form-label fw-semibold small mt-2">🇪🇸 Spanish (ES)</label>
+            <input id="swal-reason-es" class="swal2-input" placeholder="e.g. El sistema se está actualizando" />
+          </div>
+        `,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, disable it!',
+        focusConfirm: false,
+        preConfirm: () => {
+          const en = document.getElementById('swal-reason-en').value.trim();
+          const fr = document.getElementById('swal-reason-fr').value.trim();
+          const es = document.getElementById('swal-reason-es').value.trim();
+          if (!en) {
+            Swal.showValidationMessage('English reason is required!');
+            return false;
+          }
+          return { en, fr: fr || en, es: es || en };
+        },
+      });
+
+      if (result.isConfirmed) {
+        try {
+          setUpdating(prev => ({ ...prev, [toolName]: true }))
+          const response = await updateToolFlag(token, toolName, false, result.value)
+          if (response.success) {
+            Swal.fire('Disabled!', response.message, 'success')
+            fetchToolFlags()
+          } else {
+            Swal.fire('Error', response.message, 'error')
+          }
+        } catch (error) {
+          console.error('Error updating tool flag:', error)
+          Swal.fire('Error', 'An error occurred while updating tool flag', 'error')
+        } finally {
+          setUpdating(prev => ({ ...prev, [toolName]: false }))
         }
       }
-    })
+    } else {
+      // Enabling — simple confirmation, no reason needed
+      const result = await Swal.fire({
+        title: 'Enable Tool?',
+        text: `Are you sure you want to enable "${toolName}"?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, enable it!',
+      })
 
-    if (result.isConfirmed) {
-      try {
-        setUpdating(prev => ({ ...prev, [toolName]: true }))
-        const response = await updateToolFlag(
-          token, 
-          toolName, 
-          !currentStatus,
-          result.value || null
-        )
-        
-        if (response.success) {
-          Swal.fire(
-            'Success!', 
-            response.message, 
-            'success'
-          )
-          fetchToolFlags()
-        } else {
-          Swal.fire('Error', response.message, 'error')
+      if (result.isConfirmed) {
+        try {
+          setUpdating(prev => ({ ...prev, [toolName]: true }))
+          const response = await updateToolFlag(token, toolName, true, null)
+          if (response.success) {
+            Swal.fire('Enabled!', response.message, 'success')
+            fetchToolFlags()
+          } else {
+            Swal.fire('Error', response.message, 'error')
+          }
+        } catch (error) {
+          console.error('Error updating tool flag:', error)
+          Swal.fire('Error', 'An error occurred while updating tool flag', 'error')
+        } finally {
+          setUpdating(prev => ({ ...prev, [toolName]: false }))
         }
-      } catch (error) {
-        console.error('Error updating tool flag:', error)
-        Swal.fire('Error', 'An error occurred while updating tool flag', 'error')
-      } finally {
-        setUpdating(prev => ({ ...prev, [toolName]: false }))
       }
     }
   }
@@ -153,7 +190,17 @@ export default function ToolFlags() {
                               </td>
                               <td>{getStatusBadge(tool.is_enabled)}</td>
                               <td>
-                                {tool.disabled_reason || (
+                                {tool.disabled_reason ? (
+                                  typeof tool.disabled_reason === 'object' ? (
+                                    <div className="d-flex flex-column gap-1">
+                                      {tool.disabled_reason.en && <span><span className="badge bg-secondary me-1">EN</span>{tool.disabled_reason.en}</span>}
+                                      {tool.disabled_reason.fr && <span><span className="badge bg-info me-1">FR</span>{tool.disabled_reason.fr}</span>}
+                                      {tool.disabled_reason.es && <span><span className="badge bg-warning text-dark me-1">ES</span>{tool.disabled_reason.es}</span>}
+                                    </div>
+                                  ) : (
+                                    <span>{tool.disabled_reason}</span>
+                                  )
+                                ) : (
                                   <span className="text-muted">-</span>
                                 )}
                               </td>
