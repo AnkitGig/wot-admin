@@ -69,20 +69,24 @@ export const broadcastNotification = async (token, notificationData) => {
 
 export const updateToolFlag = async (token, toolName, isEnabled, disabledReason = null) => {
   try {
-    // Build JSON payload for the API
-    const payload = { is_enabled: isEnabled ? 1 : 0 };
+    // Build form-urlencoded payload matching backend expectations
+    const formData = new URLSearchParams();
+    // is_enabled expects a string "true" or "false"
+    formData.append('is_enabled', isEnabled ? 'true' : 'false');
+    // Include disabled reason only when disabling
     if (disabledReason && !isEnabled) {
-      // disabledReason may be an object {en, fr, es} – keep it as is (JSON will stringify)
-      payload.disabled_reason = disabledReason;
+      const reasonValue = typeof disabledReason === 'object' ? JSON.stringify(disabledReason) : disabledReason;
+      formData.append('disabled_reason', reasonValue);
     }
+
     const response = await fetch(`${API_BASE_URL}/admin/tools/flags/${toolName}`, {
       method: 'PATCH',
       headers: {
         accept: 'application/json',
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: JSON.stringify(payload),
+      body: formData.toString(),
     });
 
     const data = await response.json();
