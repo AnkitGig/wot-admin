@@ -182,60 +182,58 @@ export default function ToolFlags() {
                           </tr>
                         ) : (
                           tools.map((tool) => (
-                            <tr key={tool.tool_name}>
-                              <td>
-                                <strong>{formatToolName(tool.tool_name)}</strong>
-                                <br />
-                                <small className="text-muted">{tool.tool_name}</small>
-                              </td>
-                              <td>{getStatusBadge(tool.is_enabled)}</td>
-                              <td>
-                                {tool.disabled_reason ? (
-                                  typeof tool.disabled_reason === 'object' ? (
-                                    <div className="d-flex flex-column gap-1">
-                                      {tool.disabled_reason.en && <span><span className="badge bg-secondary me-1">EN</span>{tool.disabled_reason.en}</span>}
-                                      {tool.disabled_reason.fr && <span><span className="badge bg-info me-1">FR</span>{tool.disabled_reason.fr}</span>}
-                                      {tool.disabled_reason.es && <span><span className="badge bg-warning text-dark me-1">ES</span>{tool.disabled_reason.es}</span>}
-                                    </div>
-                                  ) : (
-                                    <span>{tool.disabled_reason}</span>
-                                  )
-                                ) : (
-                                  <span className="text-muted">-</span>
-                                )}
-                              </td>
-                              <td>
-                                {tool.toggled_by || (
-                                  <span className="text-muted">System</span>
-                                )}
-                              </td>
-                              <td>
-                                <small>{formatDate(tool.toggled_at)}</small>
-                              </td>
-                              <td>
-                                <button
-                                  className={`btn btn-sm ${tool.is_enabled ? 'btn-danger' : 'btn-success'}`}
-                                  onClick={() => handleToggleTool(tool.tool_name, tool.is_enabled)}
-                                  disabled={updating[tool.tool_name]}
-                                >
-                                  {updating[tool.tool_name] ? (
-                                    <>
-                                      <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                      {' '}Updating...
-                                    </>
-                                  ) : tool.is_enabled ? (
-                                    <>
-                                      <i className="fas fa-times"></i> Disable
-                                    </>
-                                  ) : (
-                                    <>
-                                      <i className="fas fa-check"></i> Enable
-                                    </>
-                                  )}
-                                </button>
-                              </td>
-                            </tr>
-                          ))
+  <tr key={tool.tool_name}>
+    <td>
+      <strong>{formatToolName(tool.tool_name)}</strong>
+      <br />
+      <small className="text-muted">{tool.tool_name}</small>
+    </td>
+    <td>{getStatusBadge(tool.is_enabled)}</td>
+    <td>
+        {(() => {
+          const reason = typeof tool.disabled_reason === 'string' ? (() => {
+            try { return JSON.parse(tool.disabled_reason); } catch { return tool.disabled_reason; }
+          })() : tool.disabled_reason;
+          if (reason) {
+            if (typeof reason === 'object') {
+              return (
+                <div className="d-flex flex-column gap-1">
+                  {reason.en && (<span><span className="badge bg-secondary me-1">EN</span>{reason.en}</span>)}
+                  {reason.fr && (<span><span className="badge bg-info me-1">FR</span>{reason.fr}</span>)}
+                  {reason.es && (<span><span className="badge bg-warning text-dark me-1">ES</span>{reason.es}</span>)}
+                </div>
+              );
+            }
+            return <span>{reason}</span>;
+          }
+          return <span className="text-muted">-</span>;
+        })()}
+    </td>
+    <td>{tool.toggled_by || <span className="text-muted">System</span>}</td>
+    <td><small>{formatDate(tool.toggled_at)}</small></td>
+    <td>
+      <button
+        className={`btn btn-sm ${tool.is_enabled ? 'btn-danger' : 'btn-success'}`}
+        onClick={() => handleToggleTool(tool.tool_name, tool.is_enabled)}
+        disabled={updating[tool.tool_name]}
+      >
+        {updating[tool.tool_name] ? (
+          <>
+            <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...
+          </>
+        ) : tool.is_enabled ? (
+          <>
+            <i className="fas fa-times"></i> Disable
+          </>
+        ) : (
+          <>
+            <i className="fas fa-check"></i> Enable
+          </>
+        )}
+      </button>
+    </td>
+  </tr>
+))
                         )}
                       </tbody>
                     </table>
