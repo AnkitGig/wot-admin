@@ -235,7 +235,8 @@ export default function UserList() {
   const getBrokerSubscriptionBadge = (brokerSub) => {
     if (!brokerSub) return <span className="badge bg-secondary">None</span>;
     
-    const { status, broker_name, account_number } = brokerSub;
+    const { status, account_number } = brokerSub;
+    const broker_name = brokerSub.broker?.name || brokerSub.broker_name;
     let badgeClass = "bg-secondary";
     
     switch (status) {
@@ -333,7 +334,8 @@ export default function UserList() {
   const handleViewBrokerSubscription = (brokerSub) => {
     if (!brokerSub) return;
     
-    const { status, broker_id, broker_name, account_number, submitted_at, end_at } = brokerSub;
+    const { status, account_number, submitted_at, end_at } = brokerSub;
+    const broker_name = brokerSub.broker?.name || brokerSub.broker_name || 'N/A';
     
     Swal.fire({
       title: '<h4 class="fw-bold text-primary mb-0"><i class="fas fa-handshake me-2"></i>Broker Subscription Details</h4>',
@@ -353,15 +355,11 @@ export default function UserList() {
               </tr>
               <tr>
                 <th class="py-2">Broker Name</th>
-                <td class="py-2"><span class="fw-semibold text-dark">${broker_name || 'N/A'}</span></td>
+                <td class="py-2"><span class="fw-semibold text-dark">${broker_name}</span></td>
               </tr>
               <tr>
                 <th class="py-2">Account Number</th>
                 <td class="py-2"><span class="font-monospace text-dark">${account_number || 'N/A'}</span></td>
-              </tr>
-              <tr>
-                <th class="py-2">Broker ID</th>
-                <td class="py-2 text-muted text-break small">${broker_id || 'N/A'}</td>
               </tr>
               <tr>
                 <th class="py-2">Submitted At</th>
