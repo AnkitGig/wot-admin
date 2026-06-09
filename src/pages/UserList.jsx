@@ -388,10 +388,12 @@ export default function UserList() {
                 <th class="py-2">Submitted At</th>
                 <td class="py-2 text-muted">${formatDateTime(submitted_at)}</td>
               </tr>
+              ${status !== 'pending' ? `
               <tr>
                 <th class="py-2">End At</th>
                 <td class="py-2 text-muted">${end_at ? formatDateTime(end_at) : 'N/A'}</td>
               </tr>
+              ` : ''}
             </tbody>
           </table>
         </div>
