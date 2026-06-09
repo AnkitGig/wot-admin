@@ -5,12 +5,14 @@ import Sidebar from "../components/Sidebar";
 import Footer from "../components/Footer";
 import GlobalLoader from "../components/GlobalLoader";
 import { getUsers, updateUserStatus, updateUserCoins } from "../api/users";
+import { getBrokers } from "../api/brokerApi";
 import { useAuth } from "../context/AuthContext";
 import Swal from "sweetalert2";
 
 export default function UserList() {
   const { token } = useAuth();
   const [users, setUsers] = useState([]);
+  const [brokers, setBrokers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({
@@ -57,6 +59,26 @@ export default function UserList() {
   useEffect(() => {
     fetchUsers();
   }, [token]);
+
+  useEffect(() => {
+    const fetchBrokersList = async () => {
+      try {
+        const res = await getBrokers();
+        if (res.success) {
+          setBrokers(res.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch brokers list:", err);
+      }
+    };
+    fetchBrokersList();
+  }, []);
+
+  const resolveBrokerName = (brokerId) => {
+    if (!brokerId) return null;
+    const found = brokers.find(b => b.id === brokerId);
+    return found ? found.display_name : null;
+  };
 
   useEffect(() => {
     if (window.DataTable && users.length > 0) {
@@ -235,8 +257,8 @@ export default function UserList() {
   const getBrokerSubscriptionBadge = (brokerSub) => {
     if (!brokerSub) return <span className="badge bg-secondary">None</span>;
     
-    const { status, account_number } = brokerSub;
-    const broker_name = brokerSub.broker?.name || brokerSub.broker_name;
+    const { status, account_number, broker_id } = brokerSub;
+    const broker_name = brokerSub.broker?.name || brokerSub.broker_name || resolveBrokerName(broker_id);
     let badgeClass = "bg-secondary";
     
     switch (status) {
@@ -334,8 +356,8 @@ export default function UserList() {
   const handleViewBrokerSubscription = (brokerSub) => {
     if (!brokerSub) return;
     
-    const { status, account_number, submitted_at, end_at } = brokerSub;
-    const broker_name = brokerSub.broker?.name || brokerSub.broker_name || 'N/A';
+    const { status, account_number, submitted_at, end_at, broker_id } = brokerSub;
+    const broker_name = brokerSub.broker?.name || brokerSub.broker_name || resolveBrokerName(broker_id) || 'N/A';
     
     Swal.fire({
       title: '<h4 class="fw-bold text-primary mb-0"><i class="fas fa-handshake me-2"></i>Broker Subscription Details</h4>',
