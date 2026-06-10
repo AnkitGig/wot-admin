@@ -282,19 +282,19 @@ export default function BrokerReviewQueue() {
 
               <div className="table-responsive rounded-3 border">
                 <table className="table table-hover align-middle mb-0">
-                  <thead className="table-dark text-dark">
+                  <thead className="table-dark">
                     <tr>
-                      <th className="fw-semibold text-dark">#</th>
-                      <th className="fw-semibold text-center text-dark">ID</th>
-                      <th className="fw-semibold text-dark">User</th>
-                      <th className="fw-semibold text-dark">Broker</th>
-                      <th className="fw-semibold text-dark">Account Number</th>
-                      <th className="fw-semibold text-center text-dark">Validation Status</th>
-                      <th className="fw-semibold text-center text-dark">Match Score</th>
-                      <th className="fw-semibold text-dark">Names (WoT / Broker)</th>
-                      <th className="fw-semibold text-end text-dark">FTD Amount</th>
-                      <th className="fw-semibold text-dark">Submitted Date</th>
-                      <th className="fw-semibold text-center text-dark">Actions</th>
+                      <th className="fw-semibold text-light">#</th>
+                      <th className="fw-semibold text-center text-light">ID</th>
+                      <th className="fw-semibold text-light">User</th>
+                      <th className="fw-semibold text-light">Broker</th>
+                      <th className="fw-semibold text-light">Account Number</th>
+                      <th className="fw-semibold text-center text-light">Validation Status</th>
+                      <th className="fw-semibold text-center text-light">Match Score</th>
+                      <th className="fw-semibold text-light">Names (WoT / Broker)</th>
+                      <th className="fw-semibold text-end text-light">FTD Amount</th>
+                      <th className="fw-semibold text-light">Submitted Date</th>
+                      <th className="fw-semibold text-center text-light">Actions</th>
                     </tr>
                   </thead>
 

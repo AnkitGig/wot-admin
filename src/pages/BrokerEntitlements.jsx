@@ -299,22 +299,22 @@ export default function BrokerEntitlements() {
 
               <div className="table-responsive rounded-3 border">
                 <table className="table table-hover align-middle mb-0">
-                  <thead className="table-dark text-dark">
+                  <thead className="table-dark">
                     <tr>
-                      <th className="fw-semibold text-dark">#</th>
-                      <th className="fw-semibold text-center text-dark">ID</th>
-                      <th className="fw-semibold text-center text-dark">User ID</th>
-                      <th className="fw-semibold text-dark">Account Number</th>
-                      <th className="fw-semibold text-dark">Broker Name</th>
-                      <th className="fw-semibold text-center text-dark">Status</th>
-                      <th className="fw-semibold text-end text-dark">FTD Amount</th>
-                      <th className="fw-semibold text-center text-dark">FTD Date</th>
-                      <th className="fw-semibold text-center text-dark">Duration</th>
-                      <th className="fw-semibold text-dark">Validity (Start - End)</th>
-                      <th className="fw-semibold text-center text-dark">Grant Processed</th>
-                      <th className="fw-semibold text-dark">Submitted Date</th>
-                      <th className="fw-semibold text-dark">Pending Until</th>
-                      <th className="fw-semibold text-center text-dark">Actions</th>
+                      <th className="fw-semibold text-light">#</th>
+                      <th className="fw-semibold text-center text-light">ID</th>
+                      <th className="fw-semibold text-center text-light">User ID</th>
+                      <th className="fw-semibold text-light">Account Number</th>
+                      <th className="fw-semibold text-light">Broker Name</th>
+                      <th className="fw-semibold text-center text-light">Status</th>
+                      <th className="fw-semibold text-end text-light">FTD Amount</th>
+                      <th className="fw-semibold text-center text-light">FTD Date</th>
+                      <th className="fw-semibold text-center text-light">Duration</th>
+                      <th className="fw-semibold text-light">Validity (Start - End)</th>
+                      <th className="fw-semibold text-center text-light">Grant Processed</th>
+                      <th className="fw-semibold text-light">Submitted Date</th>
+                      <th className="fw-semibold text-light">Pending Until</th>
+                      <th className="fw-semibold text-center text-light">Actions</th>
                     </tr>
                   </thead>
 
