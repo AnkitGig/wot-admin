@@ -178,7 +178,7 @@ export default function NotificationSchedule() {
 
               <div className="table-responsive rounded-3 border">
                 <table className="table align-middle mb-0">
-                  <thead className="table-light">
+                  <thead className="table-dark">
                     <tr>
                       <th className="fw-semibold">Notif ID</th>
                       <th className="fw-semibold">Target User</th>

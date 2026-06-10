@@ -307,7 +307,7 @@ export default function EditQuiz() {
                 <div className="card-body p-0">
                   <div className="table-responsive">
                     <table className="table table-hover mb-0">
-                      <thead className="table-light">
+                      <thead className="table-dark">
                         <tr>
                           <th style={{ width: '50px' }}>#</th>
                           <th>Question</th>

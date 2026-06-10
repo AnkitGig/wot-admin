@@ -299,7 +299,7 @@ export default function BrokerEntitlements() {
 
               <div className="table-responsive rounded-3 border">
                 <table className="table table-hover align-middle mb-0">
-                  <thead className="table-light text-dark">
+                  <thead className="table-dark text-dark">
                     <tr>
                       <th className="fw-semibold text-dark">#</th>
                       <th className="fw-semibold text-center text-dark">ID</th>

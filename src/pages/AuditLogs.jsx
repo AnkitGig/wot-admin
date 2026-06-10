@@ -191,7 +191,7 @@ export default function AuditLogs() {
 
               <div className="table-responsive rounded-3 border">
                 <table className="table table-hover align-middle mb-0">
-                  <thead className="table-light">
+                  <thead className="table-dark">
                     <tr>
                       <th className="fw-semibold">Log ID</th>
                       <th className="fw-semibold">Admin Name</th>
