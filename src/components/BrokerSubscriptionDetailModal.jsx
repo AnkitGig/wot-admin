@@ -708,36 +708,6 @@ export default function BrokerSubscriptionDetailModal({
                     </div>
                   </div>
 
-                  {/* Reconciliation History Card */}
-                  <div className="card border-0 shadow-sm rounded-3">
-                    <div className="card-header bg-white border-0 py-3">
-                      <h6 className="card-title fw-bold mb-0 text-dark">
-                        <i className="fas fa-sync-alt me-2 text-info"></i>Reconciliation Integrity History
-                      </h6>
-                    </div>
-                    <div className="card-body pt-0">
-                      {subscription.reconciliation_history && subscription.reconciliation_history.length > 0 ? (
-                        <div className="list-group list-group-flush mt-1">
-                          {subscription.reconciliation_history.map((rec, index) => (
-                            <div key={rec.id || index} className="list-group-item bg-transparent px-0 py-3 border-bottom">
-                              <div className="d-flex justify-content-between align-items-center flex-wrap">
-                                <span className={`badge ${rec.status === 'success' ? 'bg-success text-white border' : 'bg-warning text-dark border'}`}>
-                                  {rec.status?.toUpperCase() || "UNVERIFIED"}
-                                </span>
-                                <span className="text-muted font-monospace" style={{ fontSize: "11px" }}>
-                                  {new Date(rec.date).toLocaleString()}
-                                </span>
-                              </div>
-                              <p className="text-secondary small mb-0 mt-1">{rec.details}</p>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-muted text-center py-3 mb-0">No reconciliation checks logged yet</p>
-                      )}
-                    </div>
-                  </div>
-
                 </div>
 
               </div>
