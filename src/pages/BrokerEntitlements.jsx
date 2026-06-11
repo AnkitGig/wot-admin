@@ -320,14 +320,14 @@ export default function BrokerEntitlements() {
                   <tbody>
                     {loading ? (
                       <tr>
-                        <td colSpan="13" className="text-center py-5">
+                        <td colSpan="14" className="text-center py-5">
                           <GlobalLoader visible={true} size="small" />
                           <p className="text-muted small mt-2">Fetching broker entitlements...</p>
                         </td>
                       </tr>
                     ) : filteredData.length === 0 ? (
                       <tr>
-                        <td colSpan="13" className="text-center py-5">
+                        <td colSpan="14" className="text-center py-5">
                           <div className="py-4">
                             <i className="fas fa-folder-open text-muted fa-3x mb-3"></i>
                             <h5 className="text-secondary fw-semibold">No Entitlements Found</h5>
@@ -340,7 +340,7 @@ export default function BrokerEntitlements() {
                         <tr key={ent.id}>
                           <td className="font-monospace fw-bold small text-primary">{(page - 1) * limit + index + 1}</td>
                           <td className="text-center font-monospace small fw-bold">{ent.id}</td>
-    
+                          <td className="text-center font-monospace small">{ent.user_id}</td>
                           <td className="fw-semibold text-dark">{ent.broker_account_number || <span className="text-muted">-</span>}</td>
                           <td>
                             {ent.broker_name ? (
