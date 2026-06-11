@@ -302,7 +302,7 @@ export default function BrokerEntitlements() {
                   <thead className="table-dark">
                     <tr>
                       <th className="fw-semibold text-light">#</th>
-                      <th className="fw-semibold text-center text-light">ID</th>
+                      <th className="fw-semibold text-center text-light">Id_subscription</th>
                       <th className="fw-semibold text-light">Account Number</th>
                       <th className="fw-semibold text-light">Broker Name</th>
                       <th className="fw-semibold text-center text-light">Status</th>
