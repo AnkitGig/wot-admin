@@ -235,8 +235,8 @@ export default function BrokerSubscriptions() {
                     <tr>
                       <th className="fw-semibold">#</th>
                       <th className="fw-semibold">User Name</th>
-                      <th className="fw-semibold">Email</th>
-                      <th className="fw-semibold">Mobile</th>
+                      <th className="fw-semibold">Mail</th>
+                      <th className="fw-semibold">Phone number</th>
                       <th className="fw-semibold">Broker</th>
                       <th className="fw-semibold">Submitted Date</th>
                       <th className="fw-semibold text-center">Status</th>
