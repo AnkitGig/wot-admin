@@ -234,8 +234,10 @@ export default function BrokerSubscriptions() {
                   <thead className="table-dark">
                     <tr>
                       <th className="fw-semibold">#</th>
-                      <th className="fw-semibold">User Name</th>
+                      <th className="fw-semibold">User name</th>
+                      <th className="fw-semibold">User ID</th>
                       <th className="fw-semibold">Mail</th>
+                      <th className="fw-semibold">Phone number</th>
                       <th className="fw-semibold">Account number</th>
                       <th className="fw-semibold">Broker</th>
                       <th className="fw-semibold">Submitted Date</th>
@@ -249,14 +251,14 @@ export default function BrokerSubscriptions() {
                   <tbody>
                     {loading ? (
                       <tr>
-                        <td colSpan="10" className="text-center py-5">
+                        <td colSpan="12" className="text-center py-5">
                           <GlobalLoader visible={true} size="small" />
                           <p className="text-muted small mt-2">Fetching subscription records...</p>
                         </td>
                       </tr>
                     ) : subscriptions.length === 0 ? (
                       <tr>
-                        <td colSpan="10" className="text-center py-5">
+                        <td colSpan="12" className="text-center py-5">
                           <div className="py-4">
                             <i className="fas fa-folder-open text-muted fa-3x mb-3"></i>
                             <h5 className="text-secondary fw-semibold">No Subscription Records Found</h5>
@@ -272,8 +274,10 @@ export default function BrokerSubscriptions() {
                           onClick={() => handleOpenDetails(sub.id)}
                         >
                           <td className="font-monospace fw-bold small text-primary">{(page - 1) * limit + index + 1}</td>
-                          <td className="fw-semibold text-dark">{sub.user_name}</td>
-                          <td>{sub.user_email || sub.email}</td>
+                          <td className="fw-semibold text-dark">{sub.name || "—"}</td>
+                          <td className="font-monospace small">{sub.user_id || "—"}</td>
+                          <td>{sub.email || "—"}</td>
+                          <td className="text-nowrap">{sub.phone_number ? `${sub.country_code || ""} ${sub.phone_number}`.trim() : "—"}</td>
                           <td className="text-nowrap">{sub.account_number || (sub.broker_details && sub.broker_details.account_id) || "N/A"}</td>
                           <td>
                             <span className="badge bg-light text-dark border">{sub.broker_name}</span>
@@ -292,19 +296,19 @@ export default function BrokerSubscriptions() {
                               <div className="progress" style={{ width: "40px", height: "6px" }}>
                                 <div
                                   className={`progress-bar ${(sub.match_confidence !== null && sub.match_confidence !== undefined
+                                    ? (sub.match_confidence <= 1 ? sub.match_confidence * 100 : sub.match_confidence)
+                                    : 0) > 80
+                                    ? "bg-success"
+                                    : (sub.match_confidence !== null && sub.match_confidence !== undefined
                                       ? (sub.match_confidence <= 1 ? sub.match_confidence * 100 : sub.match_confidence)
-                                      : 0) > 80
-                                      ? "bg-success"
-                                      : (sub.match_confidence !== null && sub.match_confidence !== undefined
-                                        ? (sub.match_confidence <= 1 ? sub.match_confidence * 100 : sub.match_confidence)
-                                        : 0) > 50
-                                        ? "bg-warning"
-                                        : "bg-danger"
+                                      : 0) > 50
+                                      ? "bg-warning"
+                                      : "bg-danger"
                                     }`}
                                   style={{
                                     width: `${sub.match_confidence !== null && sub.match_confidence !== undefined
-                                        ? (sub.match_confidence <= 1 ? sub.match_confidence * 100 : sub.match_confidence)
-                                        : 0
+                                      ? (sub.match_confidence <= 1 ? sub.match_confidence * 100 : sub.match_confidence)
+                                      : 0
                                       }%`,
                                   }}
                                 ></div>

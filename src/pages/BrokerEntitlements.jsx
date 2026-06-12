@@ -180,7 +180,10 @@ export default function BrokerEntitlements() {
     const matchesSearch =
       (item.broker_account_number && item.broker_account_number.toLowerCase().includes(searchQuery.toLowerCase())) ||
       (item.user_id && item.user_id.toString().includes(searchQuery)) ||
-      (item.broker_name && item.broker_name.toLowerCase().includes(searchQuery.toLowerCase()));
+      (item.broker_name && item.broker_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (item.name && item.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (item.email && item.email.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (item.phone_number && item.phone_number.includes(searchQuery));
 
     const matchesStatus = statusFilter === "" || item.status === statusFilter;
 
@@ -303,7 +306,10 @@ export default function BrokerEntitlements() {
                     <tr>
                       <th className="fw-semibold text-light">#</th>
                       <th className="fw-semibold text-center text-light">Id_subscription</th>
-<th className="fw-semibold text-light">User ID</th>
+                      <th className="fw-semibold text-light">User name</th>
+                      <th className="fw-semibold text-light">User ID</th>
+                      <th className="fw-semibold text-light">Mail</th>
+                      <th className="fw-semibold text-light">Phone number</th>
                       <th className="fw-semibold text-light">Account Number</th>
                       <th className="fw-semibold text-light">Broker Name</th>
                       <th className="fw-semibold text-center text-light">Status</th>
@@ -321,14 +327,14 @@ export default function BrokerEntitlements() {
                   <tbody>
                     {loading ? (
                       <tr>
-                        <td colSpan="14" className="text-center py-5">
+                        <td colSpan="17" className="text-center py-5">
                           <GlobalLoader visible={true} size="small" />
                           <p className="text-muted small mt-2">Fetching broker entitlements...</p>
                         </td>
                       </tr>
                     ) : filteredData.length === 0 ? (
                       <tr>
-                        <td colSpan="14" className="text-center py-5">
+                        <td colSpan="17" className="text-center py-5">
                           <div className="py-4">
                             <i className="fas fa-folder-open text-muted fa-3x mb-3"></i>
                             <h5 className="text-secondary fw-semibold">No Entitlements Found</h5>
@@ -341,7 +347,12 @@ export default function BrokerEntitlements() {
                         <tr key={ent.id}>
                           <td className="font-monospace fw-bold small text-primary">{(page - 1) * limit + index + 1}</td>
                           <td className="text-center font-monospace small fw-bold">{ent.id}</td>
-                          <td className="text-center font-monospace small">{ent.user_id}</td>
+                          <td className="fw-semibold text-dark">{ent.name || "—"}</td>
+                          <td className="font-monospace small">{ent.user_id || "—"}</td>
+                          <td>{ent.email || "—"}</td>
+                          <td className="text-nowrap">
+                            {ent.phone_number ? `${ent.country_code || ""} ${ent.phone_number}`.trim() : "—"}
+                          </td>
                           <td className="fw-semibold text-dark">{ent.broker_account_number || <span className="text-muted">-</span>}</td>
                           <td>
                             {ent.broker_name ? (

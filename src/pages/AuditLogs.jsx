@@ -43,13 +43,17 @@ export default function AuditLogs() {
   // CSV Exporter Action
   const handleExportCSV = () => {
     if (logs.length === 0) return;
-    
+
     // Header columns
-    const headers = ["Log ID", "Admin Name", "Action Type", "Entity", "Reason", "IP Address", "Created At"];
-    
+    const headers = ["Log ID", "User name", "User ID", "Mail", "Phone number", "Admin Name", "Action Type", "Entity", "Reason", "IP Address", "Created At"];
+
     // Map logs to CSV rows
     const rows = logs.map(log => [
       log.id,
+      log.name || "",
+      log.user_id || "",
+      log.email || "",
+      log.phone_number ? `${log.country_code || ""} ${log.phone_number}`.trim() : "",
       log.admin_name,
       log.action_type,
       log.entity || "Broker Subscription",
@@ -57,11 +61,11 @@ export default function AuditLogs() {
       log.ip_address || "System",
       new Date(log.created_at).toLocaleString()
     ]);
-    
+
     // Join items
-    const csvContent = "data:text/csv;charset=utf-8," 
+    const csvContent = "data:text/csv;charset=utf-8,"
       + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
-      
+
     // Create hidden link and download
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
@@ -193,6 +197,10 @@ export default function AuditLogs() {
                   <thead className="table-dark">
                     <tr>
                       <th className="fw-semibold">Log ID</th>
+                      <th className="fw-semibold">User name</th>
+                      <th className="fw-semibold">User ID</th>
+                      <th className="fw-semibold">Mail</th>
+                      <th className="fw-semibold">Phone number</th>
                       <th className="fw-semibold">Admin Name</th>
                       <th className="fw-semibold text-center">Action Type</th>
                       <th className="fw-semibold">Entity</th>
@@ -205,14 +213,14 @@ export default function AuditLogs() {
                   <tbody>
                     {loading ? (
                       <tr>
-                        <td colSpan="7" className="text-center py-5">
+                        <td colSpan="11" className="text-center py-5">
                           <GlobalLoader visible={true} size="small" />
                           <p className="text-muted small mt-2">Loading activity logs...</p>
                         </td>
                       </tr>
                     ) : logs.length === 0 ? (
                       <tr>
-                        <td colSpan="7" className="text-center py-5">
+                        <td colSpan="11" className="text-center py-5">
                           <div className="py-4">
                             <i className="fas fa-history text-muted fa-3x mb-3"></i>
                             <h5 className="text-secondary fw-semibold">No Activity Logs Found</h5>
@@ -224,6 +232,10 @@ export default function AuditLogs() {
                       logs.map((log) => (
                         <tr key={log.id}>
                           <td className="font-monospace fw-bold small text-secondary">{log.id}</td>
+                          <td className="fw-semibold text-dark">{log.name || "—"}</td>
+                          <td className="font-monospace small">{log.user_id || "—"}</td>
+                          <td>{log.email || "—"}</td>
+                          <td className="text-nowrap">{log.phone_number ? `${log.country_code || ""} ${log.phone_number}`.trim() : "—"}</td>
                           <td className="fw-semibold text-dark">{log.admin_name}</td>
                           <td className="text-center">{getActionTypeBadge(log.action_type)}</td>
                           <td>
@@ -242,7 +254,7 @@ export default function AuditLogs() {
                                   const formatVal = (v) => {
                                     if (v === null || v === undefined) return "None";
                                     if (typeof v === "string" && v.includes("T")) {
-                                      try { return new Date(v).toLocaleDateString(); } catch(e) {}
+                                      try { return new Date(v).toLocaleDateString(); } catch (e) { }
                                     }
                                     return String(v);
                                   };

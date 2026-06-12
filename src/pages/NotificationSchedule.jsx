@@ -181,7 +181,10 @@ export default function NotificationSchedule() {
                   <thead className="table-dark">
                     <tr>
                       <th className="fw-semibold">Notif ID</th>
+                      <th className="fw-semibold">User name</th>
                       <th className="fw-semibold">User ID</th>
+                      <th className="fw-semibold">Mail</th>
+                      <th className="fw-semibold">Phone number</th>
                       <th className="fw-semibold">Channel</th>
                       <th className="fw-semibold">Type</th>
                       <th className="fw-semibold text-center">Status</th>
@@ -195,14 +198,14 @@ export default function NotificationSchedule() {
                   <tbody>
                     {loading ? (
                       <tr>
-                        <td colSpan="9" className="text-center py-5">
+                        <td colSpan="12" className="text-center py-5">
                           <GlobalLoader visible={true} size="small" />
                           <p className="text-muted small mt-2">Loading notification schedules...</p>
                         </td>
                       </tr>
                     ) : notifications.length === 0 ? (
                       <tr>
-                        <td colSpan="9" className="text-center py-5">
+                        <td colSpan="12" className="text-center py-5">
                           <div className="py-4">
                             <i className="fas fa-paper-plane text-muted fa-3x mb-3"></i>
                             <h5 className="text-secondary fw-semibold">No Notifications Scheduled</h5>
@@ -213,7 +216,6 @@ export default function NotificationSchedule() {
                     ) : (
                       notifications.map((notif) => {
                         const isFailed = notif.status === "failed";
-                        const displayId = notif.user_id || (notif.user && notif.user.startsWith("User ID: ") ? notif.user.replace("User ID: ", "") : notif.user);
 
                         return (
                           <tr
@@ -223,7 +225,12 @@ export default function NotificationSchedule() {
                             }}
                           >
                             <td className="font-monospace fw-bold small text-secondary">{notif.id}</td>
-                            <td className="fw-semibold text-dark font-monospace">{displayId}</td>
+                            <td className="fw-semibold text-dark">{notif.name || "—"}</td>
+                            <td className="font-monospace small">{notif.user_id || "—"}</td>
+                            <td>{notif.email || "—"}</td>
+                            <td className="text-nowrap">
+                              {notif.phone_number ? `${notif.country_code || ""} ${notif.phone_number}`.trim() : "—"}
+                            </td>
                             <td className="text-nowrap">
                               {getChannelIcon(notif.channel)}
                               <span className="text-capitalize small">{notif.channel}</span>

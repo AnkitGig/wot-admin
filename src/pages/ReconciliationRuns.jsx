@@ -12,7 +12,7 @@ export default function ReconciliationRuns() {
   const [loading, setLoading] = useState(true);
   const [triggerLoading, setTriggerLoading] = useState(false);
   const [error, setError] = useState(null);
-  
+
   const pollIntervalRef = useRef(null);
 
   // Fetch sync runs
@@ -35,7 +35,7 @@ export default function ReconciliationRuns() {
   // Poll when sync is active
   const startPolling = useCallback(() => {
     if (pollIntervalRef.current) return;
-    
+
     console.log("Starting reconciliation running status polling...");
     pollIntervalRef.current = setInterval(() => {
       fetchRuns(true);

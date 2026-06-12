@@ -286,7 +286,10 @@ export default function BrokerReviewQueue() {
                     <tr>
                       <th className="fw-semibold text-light">#</th>
                       <th className="fw-semibold text-center text-light">ID</th>
-                      <th className="fw-semibold text-light">User</th>
+                      <th className="fw-semibold text-light">User name</th>
+                      <th className="fw-semibold text-light">User ID</th>
+                      <th className="fw-semibold text-light">Mail</th>
+                      <th className="fw-semibold text-light">Phone number</th>
                       <th className="fw-semibold text-light">Broker</th>
                       <th className="fw-semibold text-light">Account Number</th>
                       <th className="fw-semibold text-center text-light">Validation Status</th>
@@ -301,14 +304,14 @@ export default function BrokerReviewQueue() {
                   <tbody>
                     {loading ? (
                       <tr>
-                        <td colSpan="11" className="text-center py-5">
+                        <td colSpan="14" className="text-center py-5">
                           <GlobalLoader visible={true} size="small" />
                           <p className="text-muted small mt-2">Fetching review queue...</p>
                         </td>
                       </tr>
                     ) : filteredData.length === 0 ? (
                       <tr>
-                        <td colSpan="11" className="text-center py-5">
+                        <td colSpan="14" className="text-center py-5">
                           <div className="py-4">
                             <i className="fas fa-folder-open text-muted fa-3x mb-3"></i>
                             <h5 className="text-secondary fw-semibold">No Review Queue Records Found</h5>
@@ -326,12 +329,11 @@ export default function BrokerReviewQueue() {
                           <tr key={ent.id}>
                             <td className="font-monospace fw-bold small text-primary">{(page - 1) * limit + index + 1}</td>
                             <td className="text-center font-monospace small fw-bold">{ent.id}</td>
-                            <td>
-                              <div className="d-flex flex-column">
-                                <span className="fw-semibold text-dark">{ent.user?.name || <span className="text-muted">-</span>}</span>
-                                <span className="small text-muted">{ent.user?.email || "No Email"}</span>
-                                <span className="small font-monospace text-primary">UID: {ent.user?.id || "-"}</span>
-                              </div>
+                            <td className="fw-semibold text-dark">{ent.name || ent.user?.name || "—"}</td>
+                            <td className="font-monospace small">{ent.user_id || ent.user?.id || ent.user?.user_id || "—"}</td>
+                            <td>{ent.email || ent.user?.email || "—"}</td>
+                            <td className="text-nowrap">
+                              {(ent.phone_number || ent.user?.phone_number) ? `${ent.country_code || ent.user?.country_code || ""} ${ent.phone_number || ent.user?.phone_number}`.trim() : "—"}
                             </td>
                             <td>
                               {ent.broker ? (
