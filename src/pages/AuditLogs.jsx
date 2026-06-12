@@ -45,7 +45,7 @@ export default function AuditLogs() {
     if (logs.length === 0) return;
     
     // Header columns
-    const headers = ["Log ID", "Admin Name", "Action Type", "Entity", "Entity ID", "Reason", "IP Address", "Created At"];
+    const headers = ["Log ID", "Admin Name", "Action Type", "Entity", "Reason", "IP Address", "Created At"];
     
     // Map logs to CSV rows
     const rows = logs.map(log => [
@@ -53,7 +53,6 @@ export default function AuditLogs() {
       log.admin_name,
       log.action_type,
       log.entity || "Broker Subscription",
-      `"${log.target_id || log.entity_id || "N/A"}"`,
       `"${(log.reason || "").replace(/"/g, '""')}"`, // escape quotes
       log.ip_address || "System",
       new Date(log.created_at).toLocaleString()
@@ -197,7 +196,6 @@ export default function AuditLogs() {
                       <th className="fw-semibold">Admin Name</th>
                       <th className="fw-semibold text-center">Action Type</th>
                       <th className="fw-semibold">Entity</th>
-                      <th className="fw-semibold font-monospace">Entity ID</th>
                       <th className="fw-semibold" style={{ width: "25%" }}>Reason / Notes</th>
                       <th className="fw-semibold">IP Address</th>
                       <th className="fw-semibold">Created At</th>
@@ -207,14 +205,14 @@ export default function AuditLogs() {
                   <tbody>
                     {loading ? (
                       <tr>
-                        <td colSpan="8" className="text-center py-5">
+                        <td colSpan="7" className="text-center py-5">
                           <GlobalLoader visible={true} size="small" />
                           <p className="text-muted small mt-2">Loading activity logs...</p>
                         </td>
                       </tr>
                     ) : logs.length === 0 ? (
                       <tr>
-                        <td colSpan="8" className="text-center py-5">
+                        <td colSpan="7" className="text-center py-5">
                           <div className="py-4">
                             <i className="fas fa-history text-muted fa-3x mb-3"></i>
                             <h5 className="text-secondary fw-semibold">No Activity Logs Found</h5>
@@ -231,7 +229,6 @@ export default function AuditLogs() {
                           <td>
                             <span className="badge bg-light text-dark border">{log.entity || "Broker Subscription"}</span>
                           </td>
-                          <td className="font-monospace small text-primary">{log.target_id || log.entity_id || "N/A"}</td>
                           <td>
                             <div className="text-dark fw-semibold small text-wrap" style={{ maxWidth: "260px" }} title={log.reason}>
                               {log.reason}

@@ -467,9 +467,10 @@ export default function UserList() {
                     <table id="example" className="table table-striped">
                       <thead>
                         <tr>
-                          <th>Name</th>
-                          <th>Email</th>
-                          <th>Phone</th>
+                          <th>User name</th>
+                          <th>User ID</th>
+                          <th>Mail</th>
+                          <th>Phone number</th>
                           <th>Coins</th>
                           <th>Status</th>
                           <th>Last Login Reward</th>
@@ -482,7 +483,7 @@ export default function UserList() {
                       <tbody>
                         {loading ? (
                           <tr>
-                            <td colSpan="9" className="text-center py-4">
+                            <td colSpan="10" className="text-center py-4">
                               <div className="d-flex justify-content-center align-items-center flex-column">
                                 <GlobalLoader visible={true} size="medium" />
                                 <p className="mt-2 text-muted">
@@ -493,13 +494,13 @@ export default function UserList() {
                           </tr>
                         ) : error ? (
                           <tr>
-                            <td colSpan="9" className="text-center text-danger">
+                            <td colSpan="10" className="text-center text-danger">
                               {error}
                             </td>
                           </tr>
                         ) : users.length === 0 ? (
                           <tr>
-                            <td colSpan="9" className="text-center">
+                            <td colSpan="10" className="text-center">
                               No users found
                             </td>
                           </tr>
@@ -533,6 +534,7 @@ export default function UserList() {
                                   {user.name}
                                 </div>
                               </td>
+                              <td className="font-monospace fw-bold">{user.user_id}</td>
                               <td>{user.email}</td>
                               <td>
                                 {user.country_code} {user.phone_number}

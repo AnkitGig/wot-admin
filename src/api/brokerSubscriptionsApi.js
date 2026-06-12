@@ -291,6 +291,7 @@ const saveToStorage = (key, val) => {
 const initialSubscriptions = [
   {
     id: "SUB-82910-2026",
+    user_id: "71",
     user_name: "Alex Thompson",
     email: "alex.t@gmail.com",
     mobile: "+1 (555) 234-5678",
@@ -317,6 +318,7 @@ const initialSubscriptions = [
   },
   {
     id: "SUB-71049-2026",
+    user_id: "19",
     user_name: "Sophia Martinez",
     email: "sophia.m@outlook.com",
     mobile: "+34 612 345 678",
@@ -344,6 +346,7 @@ const initialSubscriptions = [
   },
   {
     id: "SUB-44910-2026",
+    user_id: "37",
     user_name: "Michael Chen",
     email: "m.chen@yahoo.com",
     mobile: "+65 8899 7711",
@@ -370,6 +373,7 @@ const initialSubscriptions = [
   },
   {
     id: "SUB-22019-2026",
+    user_id: "40",
     user_name: "Emma Watson",
     email: "emma.watson@icloud.com",
     mobile: "+44 7700 900077",
@@ -397,6 +401,7 @@ const initialSubscriptions = [
   },
   {
     id: "SUB-19283-2026",
+    user_id: "36",
     user_name: "Marcus Aurelius",
     email: "marcus.stoic@gmail.com",
     mobile: "+39 06 1234567",
@@ -696,8 +701,36 @@ const simulateTriggerReconciliation = () => {
 
 const getMockAuditLogs = ({ page = 1, limit = 10, search = "", actionType = "" }) => {
   const audits = getFromStorage(LOCAL_STORAGE_KEY_AUDITS, initialAudits);
+  const subs = getFromStorage(LOCAL_STORAGE_KEY_SUBS, initialSubscriptions);
   
-  let filtered = [...audits];
+  // Map subscription ID to user info
+  const subMap = {};
+  subs.forEach(s => {
+    subMap[s.id] = {
+      user_id: s.user_id || "71",
+      user_name: s.user_name || "Alex Thompson",
+      user_email: s.email || "alex.t@gmail.com",
+      user_phone: s.mobile || "+1 (555) 234-5678"
+    };
+  });
+
+  let enriched = audits.map(a => {
+    const uInfo = subMap[a.entity_id] || {
+      user_id: "71",
+      user_name: "Alex Thompson",
+      user_email: "alex.t@gmail.com",
+      user_phone: "+1 (555) 234-5678"
+    };
+    return {
+      ...a,
+      user_name: uInfo.user_name,
+      user_id: uInfo.user_id,
+      user_email: uInfo.user_email,
+      user_phone: uInfo.user_phone
+    };
+  });
+
+  let filtered = [...enriched];
   if (actionType) {
     filtered = filtered.filter(a => a.action_type === actionType);
   }
@@ -705,7 +738,9 @@ const getMockAuditLogs = ({ page = 1, limit = 10, search = "", actionType = "" }
     const q = search.toLowerCase();
     filtered = filtered.filter(a => 
       a.admin_name.toLowerCase().includes(q) ||
-      a.entity_id.toLowerCase().includes(q) ||
+      a.user_name.toLowerCase().includes(q) ||
+      a.user_id.toLowerCase().includes(q) ||
+      a.user_email.toLowerCase().includes(q) ||
       a.reason.toLowerCase().includes(q)
     );
   }
@@ -724,11 +759,43 @@ const getMockAuditLogs = ({ page = 1, limit = 10, search = "", actionType = "" }
 const getMockNotificationSchedule = ({ page = 1, limit = 10, search = "" }) => {
   const notifs = getFromStorage(LOCAL_STORAGE_KEY_NOTIFS, initialNotifications);
   
-  let filtered = [...notifs];
+  const enriched = notifs.map(n => {
+    let name = "N/A";
+    let email = "N/A";
+    if (n.user) {
+      const match = n.user.match(/(.+?)\s*\((.+?)\)/);
+      if (match) {
+        name = match[1].trim();
+        email = match[2].trim();
+      } else {
+        name = n.user;
+      }
+    }
+    let userId = "71";
+    let phone = "+1 (555) 234-5678";
+    if (name.includes("Sophia")) {
+      userId = "19";
+      phone = "+34 612 345 678";
+    } else if (name.includes("Emma")) {
+      userId = "40";
+      phone = "+44 7700 900077";
+    }
+    return {
+      ...n,
+      user_name: name,
+      user_id: userId,
+      user_email: email,
+      user_phone: phone
+    };
+  });
+
+  let filtered = [...enriched];
   if (search) {
     const q = search.toLowerCase();
     filtered = filtered.filter(n => 
-      n.user.toLowerCase().includes(q) ||
+      n.user_name.toLowerCase().includes(q) ||
+      n.user_id.toLowerCase().includes(q) ||
+      n.user_email.toLowerCase().includes(q) ||
       n.type.toLowerCase().includes(q) ||
       n.channel.toLowerCase().includes(q)
     );

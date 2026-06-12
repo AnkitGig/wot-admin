@@ -181,7 +181,7 @@ export default function NotificationSchedule() {
                   <thead className="table-dark">
                     <tr>
                       <th className="fw-semibold">Notif ID</th>
-                      <th className="fw-semibold">Target User</th>
+                      <th className="fw-semibold">User ID</th>
                       <th className="fw-semibold">Channel</th>
                       <th className="fw-semibold">Type</th>
                       <th className="fw-semibold text-center">Status</th>
@@ -213,6 +213,8 @@ export default function NotificationSchedule() {
                     ) : (
                       notifications.map((notif) => {
                         const isFailed = notif.status === "failed";
+                        const displayId = notif.user_id || (notif.user && notif.user.startsWith("User ID: ") ? notif.user.replace("User ID: ", "") : notif.user);
+
                         return (
                           <tr
                             key={notif.id}
@@ -221,7 +223,7 @@ export default function NotificationSchedule() {
                             }}
                           >
                             <td className="font-monospace fw-bold small text-secondary">{notif.id}</td>
-                            <td className="fw-semibold text-dark">{notif.user || `User ID: ${notif.user_id}`}</td>
+                            <td className="fw-semibold text-dark font-monospace">{displayId}</td>
                             <td className="text-nowrap">
                               {getChannelIcon(notif.channel)}
                               <span className="text-capitalize small">{notif.channel}</span>
