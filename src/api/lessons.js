@@ -887,20 +887,26 @@ export const updateLessonQuiz = async (quizId, quizData, token) => {
   try {
     const url = `${API_BASE_URL}/courses/admin/quiz/${quizId}`;
     
-    // Using URLSearchParams for application/x-www-form-urlencoded as per screenshot
-    const body = new URLSearchParams();
+    const formData = new FormData();
     Object.entries(quizData).forEach(([key, value]) => {
-      body.append(key, value);
+      if (value instanceof File) {
+        formData.append(key, value);
+      } else if (key === 'remove_image') {
+        if (value === true || value === 'true') {
+          formData.append(key, 'true');
+        }
+      } else if (value !== undefined && value !== null) {
+        formData.append(key, value);
+      }
     });
 
     const response = await fetch(url, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
         'accept': 'application/json',
       },
-      body: body.toString(),
+      body: formData,
     });
 
     const data = await response.json();

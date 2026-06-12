@@ -356,7 +356,7 @@ export default function LessonContent() {
           </div>
           <hr/>
           <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-4">
               <div class="mb-2">
                 <label class="small fw-bold">Correct Answer</label>
                 <select id="edit-correct" class="form-select form-select-sm">
@@ -367,10 +367,38 @@ export default function LessonContent() {
                 </select>
               </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
               <div class="mb-2">
                 <label class="small fw-bold">Points</label>
                 <input id="edit-points" type="number" class="form-control form-control-sm" value="${q.points || 10}">
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="mb-2">
+                <label class="small fw-bold">Question Image</label>
+                <div class="d-flex flex-column gap-2 align-items-start border p-2 rounded bg-light" style="min-height: 80px;">
+                  <div id="edit-q-image-container" class="d-flex align-items-center gap-2 w-100">
+                    <div style="width: 50px; height: 50px; border-radius: 6px; overflow: hidden; border: 1px solid #ddd; background: #fff; flex-shrink: 0;">
+                      <img id="edit-q-image-preview" src="${q.image || ''}" alt="Preview" style="width: 100%; height: 100%; object-fit: cover; ${q.image ? '' : 'display: none;'}" />
+                      <div id="edit-q-image-placeholder" class="h-100 d-flex align-items-center justify-content-center text-muted" style="${q.image ? 'display: none !important;' : ''}">
+                        <i class="fas fa-image"></i>
+                      </div>
+                    </div>
+                    <div class="flex-grow-1 d-flex flex-column gap-1">
+                      <input type="file" id="edit-q-image-input" class="d-none" accept="image/*" />
+                      <input type="hidden" id="edit-q-remove-image" value="false" />
+                      <div class="d-flex gap-1">
+                        <button type="button" id="edit-q-upload-btn" class="btn btn-xs btn-outline-primary py-1 px-2 small">
+                          ${q.image ? 'Change' : 'Add Image'}
+                        </button>
+                        <button type="button" id="edit-q-remove-btn" class="btn btn-xs btn-outline-danger py-1 px-2 small ${q.image ? '' : 'd-none'}">
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div id="edit-q-image-status" class="small text-muted" style="font-size: 11px;"></div>
+                </div>
               </div>
             </div>
           </div>
@@ -380,7 +408,50 @@ export default function LessonContent() {
       showCancelButton: true,
       confirmButtonText: 'Update Question',
       confirmButtonColor: '#6C63FF',
+      didOpen: (dom) => {
+        const fileInput = dom.querySelector('#edit-q-image-input');
+        const removeImageInput = dom.querySelector('#edit-q-remove-image');
+        const uploadBtn = dom.querySelector('#edit-q-upload-btn');
+        const removeBtn = dom.querySelector('#edit-q-remove-btn');
+        const previewImg = dom.querySelector('#edit-q-image-preview');
+        const placeholder = dom.querySelector('#edit-q-image-placeholder');
+        const statusText = dom.querySelector('#edit-q-image-status');
+
+        uploadBtn.addEventListener('click', () => {
+          fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              previewImg.src = event.target.result;
+              previewImg.style.display = 'block';
+              placeholder.style.setProperty('display', 'none', 'important');
+              removeBtn.classList.remove('d-none');
+              removeImageInput.value = 'false';
+              statusText.textContent = `New image: ${file.name}`;
+              statusText.className = "small text-success";
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+
+        removeBtn.addEventListener('click', () => {
+          fileInput.value = '';
+          removeImageInput.value = 'true';
+          previewImg.style.display = 'none';
+          previewImg.src = '';
+          placeholder.style.setProperty('display', 'flex', 'important');
+          removeBtn.classList.add('d-none');
+          statusText.textContent = 'Image will be removed';
+          statusText.className = "small text-danger";
+        });
+      },
       preConfirm: () => {
+        const fileInput = document.getElementById('edit-q-image-input');
+        const removeImageInput = document.getElementById('edit-q-remove-image');
         return {
           question_en: document.getElementById('edit-q-en').value,
           option_a_en: document.getElementById('edit-oa-en').value,
@@ -405,6 +476,8 @@ export default function LessonContent() {
           
           correct_answer: document.getElementById('edit-correct').value,
           points: document.getElementById('edit-points').value,
+          image: fileInput?.files[0] || null,
+          remove_image: removeImageInput?.value === 'true',
         }
       }
     });
@@ -699,6 +772,14 @@ export default function LessonContent() {
                                 <div className="accordion-body p-4 bg-light">
                                   <div className="row">
                                     <div className="col-md-7">
+                                      {q.image && (
+                                        <div className="mb-4">
+                                          <h6 className="small fw-bold text-muted text-uppercase mb-2">Question Image</h6>
+                                          <div className="border rounded-3 overflow-hidden bg-white d-inline-block" style={{ maxWidth: '300px' }}>
+                                            <img src={q.image} alt="Question visual" style={{ width: '100%', height: 'auto', maxHeight: '200px', objectFit: 'contain' }} />
+                                          </div>
+                                        </div>
+                                      )}
                                       <h6 className="small fw-bold text-muted text-uppercase mb-3">Options</h6>
                                       <div className="d-grid gap-2 mb-4">
                                         {Object.entries(q.options).map(([key, val]) => (
