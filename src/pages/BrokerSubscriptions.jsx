@@ -236,7 +236,7 @@ export default function BrokerSubscriptions() {
                       <th className="fw-semibold">#</th>
                       <th className="fw-semibold">User Name</th>
                       <th className="fw-semibold">Mail</th>
-                      <th className="fw-semibold">Phone number</th>
+                      <th className="fw-semibold">Account number</th>
                       <th className="fw-semibold">Broker</th>
                       <th className="fw-semibold">Submitted Date</th>
                       <th className="fw-semibold text-center">Status</th>
@@ -274,7 +274,7 @@ export default function BrokerSubscriptions() {
                           <td className="font-monospace fw-bold small text-primary">{(page - 1) * limit + index + 1}</td>
                           <td className="fw-semibold text-dark">{sub.user_name}</td>
                           <td>{sub.user_email || sub.email}</td>
-                          <td className="text-nowrap">{sub.mobile || sub.account_number || "N/A"}</td>
+                          <td className="text-nowrap">{sub.account_number || (sub.broker_details && sub.broker_details.account_id) || "N/A"}</td>
                           <td>
                             <span className="badge bg-light text-dark border">{sub.broker_name}</span>
                           </td>
