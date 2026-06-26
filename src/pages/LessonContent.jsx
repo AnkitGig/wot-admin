@@ -31,6 +31,9 @@ export default function LessonContent() {
   const [showViewModal, setShowViewModal] = useState(false);
   const [viewingPage, setViewingPage] = useState(null);
 
+  // Load More pages state
+  const [visiblePagesCount, setVisiblePagesCount] = useState(6);
+
   const [lessonFormData, setLessonFormData] = useState({
     title: '',
     description: '',
@@ -634,7 +637,7 @@ export default function LessonContent() {
                         </div>
 
                         <div className="row">
-                          {lesson.content.pages.slice(0, 6).map((page) => (
+                          {lesson.content.pages.slice(0, visiblePagesCount).map((page) => (
                             <div key={page.id} className="col-md-6 mb-3" style={{ display: 'flex' }}>
                               <div style={{
                                 background: '#fff', borderRadius: '20px', padding: '16px',
@@ -717,16 +720,26 @@ export default function LessonContent() {
                           ))}
                         </div>
 
-                        {lesson.content.pages.length > 6 && (
-                          <div className="text-center mt-3">
+                        {/* Load More / Show Less buttons */}
+                        <div className="text-center mt-3 d-flex justify-content-center gap-2">
+                          {visiblePagesCount < lesson.content.pages.length && (
                             <button
                               className="btn btn-outline-primary"
-                              onClick={() => navigate(`/courses/admin/lesson/${lessonId}/pages`)}
+                              onClick={() => setVisiblePagesCount(prev => prev + 6)}
                             >
-                              <i className="fa fa-arrow-right me-2"></i>View All {lesson.content.pages.length} Pages
+                              <i className="fa fa-chevron-down me-2"></i>
+                              Load More ({lesson.content.pages.length - visiblePagesCount} remaining)
                             </button>
-                          </div>
-                        )}
+                          )}
+                          {visiblePagesCount > 6 && (
+                            <button
+                              className="btn btn-outline-secondary"
+                              onClick={() => setVisiblePagesCount(6)}
+                            >
+                              <i className="fa fa-chevron-up me-2"></i>Show Less
+                            </button>
+                          )}
+                        </div>
                       </div>
                     )}
 
