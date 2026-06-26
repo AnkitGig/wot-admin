@@ -94,9 +94,7 @@ export default function EditContentPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.title_en.trim()) { Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'English Title is required' }); return; }
-    if (!formData.title_fr.trim()) { Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'French Title is required' }); return; }
-    if (!formData.title_es.trim()) { Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'Spanish Title is required' }); return; }
+
 
     if (!formData.html_content_en.trim() || formData.html_content_en === '<p><br></p>') { Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'English Content is required' }); return; }
     if (!formData.html_content_fr.trim() || formData.html_content_fr === '<p><br></p>') { Swal.fire({ icon: 'warning', title: 'Validation Error', text: 'French Content is required' }); return; }
@@ -218,7 +216,7 @@ export default function EditContentPage() {
                             <h6 className="fw-bold mb-0 text-primary">🇺🇸 English Details</h6>
                           </div>
                           <div className="card-body pt-0">
-                            <div className="mb-3">
+                            <div className="mb-3" style={{ display: 'none' }}>
                               <label className="form-label">Title <span className="text-danger">*</span></label>
                               <input
                                 type="text"
@@ -227,7 +225,6 @@ export default function EditContentPage() {
                                 value={formData.title_en}
                                 onChange={handleInputChange}
                                 placeholder="Enter English title"
-                                required
                               />
                             </div>
                             <div className="mb-3">
@@ -255,7 +252,7 @@ export default function EditContentPage() {
                             <h6 className="fw-bold mb-0 text-success">🇪🇸 Spanish Details</h6>
                           </div>
                           <div className="card-body pt-0">
-                            <div className="mb-3">
+                            <div className="mb-3" style={{ display: 'none' }}>
                               <label className="form-label">Título <span className="text-danger">*</span></label>
                               <input
                                 type="text"
@@ -264,7 +261,6 @@ export default function EditContentPage() {
                                 value={formData.title_es}
                                 onChange={handleInputChange}
                                 placeholder="Ingrese el título"
-                                required
                               />
                             </div>
                             <div className="mb-3">
@@ -292,7 +288,7 @@ export default function EditContentPage() {
                             <h6 className="fw-bold mb-0 text-warning">🇫🇷 French Details</h6>
                           </div>
                           <div className="card-body pt-0">
-                            <div className="mb-3">
+                            <div className="mb-3" style={{ display: 'none' }}>
                               <label className="form-label">Titre <span className="text-danger">*</span></label>
                               <input
                                 type="text"
@@ -301,7 +297,6 @@ export default function EditContentPage() {
                                 value={formData.title_fr}
                                 onChange={handleInputChange}
                                 placeholder="Entrez le titre"
-                                required
                               />
                             </div>
                             <div className="mb-3">
