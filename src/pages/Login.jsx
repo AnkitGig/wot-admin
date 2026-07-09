@@ -238,6 +238,7 @@ export default function Login() {
 
   const [email,     setEmail]     = useState('')
   const [password,  setPassword]  = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
@@ -323,11 +324,21 @@ export default function Login() {
           </div>
           <div className="form-group">
             <label htmlFor="second_field" className="form-label float-start">Password</label>
-            <input
-              name="password" type="password" className="form-control"
-              autoComplete="off" id="second_field" placeholder="Password"
-              value={password} onChange={(e) => setPassword(e.target.value)} required
-            />
+            <div className="position-relative">
+              <input
+                name="password" type={showPassword ? "text" : "password"} className="form-control pe-5"
+                autoComplete="off" id="second_field" placeholder="Password"
+                value={password} onChange={(e) => setPassword(e.target.value)} required
+              />
+              <button
+                type="button"
+                className="btn position-absolute end-0 top-50 translate-middle-y border-0 bg-transparent text-secondary"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{ zIndex: 10 }}
+              >
+                <i className={showPassword ? "fa-regular fa-eye-slash" : "fa-regular fa-eye"}></i>
+              </button>
+            </div>
           </div>
         
           <div className="form-group clearfix">

@@ -8,6 +8,8 @@ export default function ChangePassword() {
   const [email, setEmail] = useState('')
   const [oldPassword, setOldPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
+  const [showOldPassword, setShowOldPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
   const [code, setCode] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
@@ -61,19 +63,39 @@ export default function ChangePassword() {
                     </div>
                     <div className="form-group">
                       <label htmlFor="old_password_field" className="form-label float-start">Current Password</label>
-                      <input
-                        name="old_password" type="password" className="form-control"
-                        autoComplete="off" id="old_password_field" placeholder="Current Password"
-                        value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} required
-                      />
+                      <div className="position-relative">
+                        <input
+                          name="old_password" type={showOldPassword ? "text" : "password"} className="form-control pe-5"
+                          autoComplete="off" id="old_password_field" placeholder="Current Password"
+                          value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} required
+                        />
+                        <button
+                          type="button"
+                          className="btn position-absolute end-0 top-50 translate-middle-y border-0 bg-transparent text-secondary"
+                          onClick={() => setShowOldPassword(!showOldPassword)}
+                          style={{ zIndex: 10 }}
+                        >
+                          <i className={showOldPassword ? "fa-regular fa-eye-slash" : "fa-regular fa-eye"}></i>
+                        </button>
+                      </div>
                     </div>
                     <div className="form-group">
                       <label htmlFor="new_password_field" className="form-label float-start">New Password</label>
-                      <input
-                        name="new_password" type="password" className="form-control"
-                        autoComplete="off" id="new_password_field" placeholder="New Password"
-                        value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required
-                      />
+                      <div className="position-relative">
+                        <input
+                          name="new_password" type={showNewPassword ? "text" : "password"} className="form-control pe-5"
+                          autoComplete="off" id="new_password_field" placeholder="New Password"
+                          value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required
+                        />
+                        <button
+                          type="button"
+                          className="btn position-absolute end-0 top-50 translate-middle-y border-0 bg-transparent text-secondary"
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                          style={{ zIndex: 10 }}
+                        >
+                          <i className={showNewPassword ? "fa-regular fa-eye-slash" : "fa-regular fa-eye"}></i>
+                        </button>
+                      </div>
                     </div>
                     <div className="form-group">
                       <label htmlFor="code_field" className="form-label float-start">2FA Verification Code</label>
