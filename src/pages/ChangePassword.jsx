@@ -63,7 +63,7 @@ export default function ChangePassword() {
                     </div>
                     <div className="form-group">
                       <label htmlFor="old_password_field" className="form-label float-start">Current Password</label>
-                      <div className="position-relative">
+                      <div className="position-relative" style={{ clear: 'both' }}>
                         <input
                           name="old_password" type={showOldPassword ? "text" : "password"} className="form-control pe-5"
                           autoComplete="off" id="old_password_field" placeholder="Current Password"
@@ -92,7 +92,7 @@ export default function ChangePassword() {
                     </div>
                     <div className="form-group">
                       <label htmlFor="new_password_field" className="form-label float-start">New Password</label>
-                      <div className="position-relative">
+                      <div className="position-relative" style={{ clear: 'both' }}>
                         <input
                           name="new_password" type={showNewPassword ? "text" : "password"} className="form-control pe-5"
                           autoComplete="off" id="new_password_field" placeholder="New Password"

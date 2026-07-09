@@ -324,7 +324,7 @@ export default function Login() {
           </div>
           <div className="form-group">
             <label htmlFor="second_field" className="form-label float-start">Password</label>
-            <div className="position-relative">
+            <div className="position-relative" style={{ clear: 'both' }}>
               <input
                 name="password" type={showPassword ? "text" : "password"} className="form-control pe-5"
                 autoComplete="off" id="second_field" placeholder="Password"
