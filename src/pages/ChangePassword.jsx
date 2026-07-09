@@ -71,9 +71,19 @@ export default function ChangePassword() {
                         />
                         <button
                           type="button"
-                          className="btn position-absolute end-0 top-50 translate-middle-y border-0 bg-transparent text-secondary"
+                          className="border-0 bg-transparent text-secondary"
                           onClick={() => setShowOldPassword(!showOldPassword)}
-                          style={{ zIndex: 10 }}
+                          style={{
+                            position: 'absolute',
+                            right: '15px',
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            zIndex: 10,
+                            padding: 0,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center'
+                          }}
                         >
                           <i className={showOldPassword ? "fa-regular fa-eye-slash" : "fa-regular fa-eye"}></i>
                         </button>
@@ -89,9 +99,19 @@ export default function ChangePassword() {
                         />
                         <button
                           type="button"
-                          className="btn position-absolute end-0 top-50 translate-middle-y border-0 bg-transparent text-secondary"
+                          className="border-0 bg-transparent text-secondary"
                           onClick={() => setShowNewPassword(!showNewPassword)}
-                          style={{ zIndex: 10 }}
+                          style={{
+                            position: 'absolute',
+                            right: '15px',
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            zIndex: 10,
+                            padding: 0,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center'
+                          }}
                         >
                           <i className={showNewPassword ? "fa-regular fa-eye-slash" : "fa-regular fa-eye"}></i>
                         </button>
