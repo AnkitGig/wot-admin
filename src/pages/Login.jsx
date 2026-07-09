@@ -344,7 +344,9 @@ export default function Login() {
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  outline: 'none',
+                  boxShadow: 'none'
                 }}
               >
                 <i className={showPassword ? "fa-regular fa-eye-slash" : "fa-regular fa-eye"}></i>

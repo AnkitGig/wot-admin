@@ -83,7 +83,9 @@ export default function ChangePassword() {
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
-                            justifyContent: 'center'
+                            justifyContent: 'center',
+                            outline: 'none',
+                            boxShadow: 'none'
                           }}
                         >
                           <i className={showOldPassword ? "fa-regular fa-eye-slash" : "fa-regular fa-eye"}></i>
@@ -112,7 +114,9 @@ export default function ChangePassword() {
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
-                            justifyContent: 'center'
+                            justifyContent: 'center',
+                            outline: 'none',
+                            boxShadow: 'none'
                           }}
                         >
                           <i className={showNewPassword ? "fa-regular fa-eye-slash" : "fa-regular fa-eye"}></i>
