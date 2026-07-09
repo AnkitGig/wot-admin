@@ -337,13 +337,14 @@ export default function Login() {
                 style={{
                   position: 'absolute',
                   right: '15px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
+                  top: '0',
+                  bottom: '0',
                   zIndex: 10,
                   padding: 0,
                   cursor: 'pointer',
                   display: 'flex',
-                  alignItems: 'center'
+                  alignItems: 'center',
+                  justifyContent: 'center'
                 }}
               >
                 <i className={showPassword ? "fa-regular fa-eye-slash" : "fa-regular fa-eye"}></i>

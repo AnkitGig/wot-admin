@@ -76,13 +76,14 @@ export default function ChangePassword() {
                           style={{
                             position: 'absolute',
                             right: '15px',
-                            top: '50%',
-                            transform: 'translateY(-50%)',
+                            top: '0',
+                            bottom: '0',
                             zIndex: 10,
                             padding: 0,
                             cursor: 'pointer',
                             display: 'flex',
-                            alignItems: 'center'
+                            alignItems: 'center',
+                            justifyContent: 'center'
                           }}
                         >
                           <i className={showOldPassword ? "fa-regular fa-eye-slash" : "fa-regular fa-eye"}></i>
@@ -104,13 +105,14 @@ export default function ChangePassword() {
                           style={{
                             position: 'absolute',
                             right: '15px',
-                            top: '50%',
-                            transform: 'translateY(-50%)',
+                            top: '0',
+                            bottom: '0',
                             zIndex: 10,
                             padding: 0,
                             cursor: 'pointer',
                             display: 'flex',
-                            alignItems: 'center'
+                            alignItems: 'center',
+                            justifyContent: 'center'
                           }}
                         >
                           <i className={showNewPassword ? "fa-regular fa-eye-slash" : "fa-regular fa-eye"}></i>
