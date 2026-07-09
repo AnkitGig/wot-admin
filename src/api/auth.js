@@ -18,10 +18,19 @@ export const loginAdmin = async (email, password) => {
     const data = await postForm('/admin/login', { email, password });
 
     if (data.status === 1) return { step: 'done', data: data.data };
-    if (data.status === 4) return { step: '2fa_setup', adminId: data.data.admin_id };
+
+    if (data.status === 4) {
+      if (data.data && data.data.admin_id) {
+        return { step: '2fa_setup', adminId: data.data.admin_id };
+      }
+      return { step: 'error', message: data.message || 'Login failed' };
+    }
 
     if (data.status === 2 || data.status === 3) {
-      return { step: '2fa_login', adminId: data.data.admin_id };
+      if (data.data && data.data.admin_id) {
+        return { step: '2fa_login', adminId: data.data.admin_id };
+      }
+      return { step: 'error', message: data.message || 'Login failed' };
     }
 
     return { step: 'error', message: data.message || 'Login failed' };
