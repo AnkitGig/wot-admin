@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import Login from './pages/Login'
+import ChangePassword from './pages/ChangePassword'
 import Dashboard from './pages/Dashboard'
 import Courses from './pages/Courses'
 import AddCourse from './pages/AddCourse'
@@ -74,6 +75,7 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Login />} />
+        <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
         <Route path="/add-course" element={<ProtectedRoute><AddCourse /></ProtectedRoute>} />

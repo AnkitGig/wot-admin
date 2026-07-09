@@ -23,17 +23,17 @@ export const loginAdmin = async (email, password) => {
       if (data.data && data.data.admin_id) {
         return { step: '2fa_setup', adminId: data.data.admin_id };
       }
-      return { step: 'error', message: data.message || 'Login failed' };
+      return { step: 'error', message: data.message || 'Login failed', status: data.status };
     }
 
     if (data.status === 2 || data.status === 3) {
       if (data.data && data.data.admin_id) {
         return { step: '2fa_login', adminId: data.data.admin_id };
       }
-      return { step: 'error', message: data.message || 'Login failed' };
+      return { step: 'error', message: data.message || 'Login failed', status: data.status };
     }
 
-    return { step: 'error', message: data.message || 'Login failed' };
+    return { step: 'error', message: data.message || 'Login failed', status: data.status };
   } catch (err) {
     console.error('[loginAdmin] error:', err);
     return { step: 'error', message: err.message || 'Network error' };
@@ -95,4 +95,22 @@ export const updateAdminProfile = async (token, profileData) => {
     },
     body: JSON.stringify(profileData),
   });
+};
+
+export const changePassword = async (email, oldPassword, newPassword, code) => {
+  try {
+    const data = await postForm('/admin/change-password', {
+      email,
+      old_password: oldPassword,
+      new_password: newPassword,
+      code,
+    });
+    if (data.status === 1) {
+      return { success: true, message: data.message || 'Password changed successfully' };
+    }
+    return { success: false, message: data.message || 'Change password failed' };
+  } catch (err) {
+    console.error('[changePassword] error:', err);
+    return { success: false, message: err.message || 'Network error' };
+  }
 };

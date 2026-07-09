@@ -250,7 +250,24 @@ export default function Login() {
     setIsLoading(true)
     const result = await login(email, password)
     if (!result.success) {
-      Swal.fire({ icon: 'error', title: 'Login Failed', text: result.message || 'Please try again.' })
+      if (result.status === 2) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Login Failed',
+          text: result.message || 'Password expired. You must change your password since it is older than 90 days.',
+          showCancelButton: true,
+          confirmButtonText: 'Change',
+          cancelButtonText: 'Cancel',
+          confirmButtonColor: '#5e50ee',
+          cancelButtonColor: '#6c757d',
+        }).then((res) => {
+          if (res.isConfirmed) {
+            navigate('/change-password')
+          }
+        })
+      } else {
+        Swal.fire({ icon: 'error', title: 'Login Failed', text: result.message || 'Please try again.' })
+      }
     }
     setIsLoading(false)
   }

@@ -10,7 +10,7 @@ window.fetch = async (...args) => {
   const response = await originalFetch(...args);
 
   if (response.status === 401) {
-    if (window.location.pathname !== '/login' && window.location.pathname !== '/') {
+    if (window.location.pathname !== '/login' && window.location.pathname !== '/' && window.location.pathname !== '/change-password') {
       localStorage.removeItem('access_token');
       localStorage.removeItem('token_type');
       localStorage.removeItem('admin_id');

@@ -77,7 +77,7 @@ export const AuthProvider = ({ children }) => {
       return { success: false, message: setup.message };
     }
 
-    return { success: false, message: result.message };
+    return { success: false, message: result.message, status: result.status };
   };
 
   // ── Step 2a: confirm TOTP after QR scan (setup only) ─────────────────────
