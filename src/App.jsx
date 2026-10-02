@@ -68,6 +68,7 @@ import AuditLogs from './pages/AuditLogs'
 import NotificationSchedule from './pages/NotificationSchedule'
 import BrokerEntitlements from './pages/BrokerEntitlements'
 import BrokerReviewQueue from './pages/BrokerReviewQueue'
+import OnboardingQuestions from './pages/OnboardingQuestions'
 
 export default function App() {
   return (
@@ -102,6 +103,7 @@ export default function App() {
         <Route path="/lesson/:lessonId/content" element={<ProtectedRoute><LessonContent /></ProtectedRoute>} />
         <Route path="/lesson/:lessonId/add-content" element={<ProtectedRoute><AddContent /></ProtectedRoute>} />
         <Route path="/quizes" element={<ProtectedRoute><Quizes /></ProtectedRoute>} />
+        <Route path="/onboarding-questions" element={<ProtectedRoute><OnboardingQuestions /></ProtectedRoute>} />
         <Route path="/quiz/:quizId/edit" element={<ProtectedRoute><EditQuiz /></ProtectedRoute>} />
         <Route path="/user-list" element={<ProtectedRoute><UserList /></ProtectedRoute>} />
         <Route path="/add-lesson" element={<ProtectedRoute><AddLesson /></ProtectedRoute>} />
